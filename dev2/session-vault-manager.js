@@ -56,6 +56,9 @@ export function endSession(session_id) {
     if (record.vault && typeof record.vault.clear === 'function') {
       record.vault.clear();
     }
+    if (record.vault && typeof record.vault.destroy === 'function') {
+      record.vault.destroy();
+    }
     sessionVaults.delete(session_id);
   }
 }

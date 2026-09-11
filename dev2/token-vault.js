@@ -5,23 +5,27 @@
  *   resolveToken: (token: string) => string | null,
  *   hasToken: (token: string) => boolean,
  *   clear: () => void,
+ *   destroy: () => void,
  *   getStats: () => { totalTokens: number, byType: Record<string, number> }
  * }}
  */
 
-let currentReverseMap = null;
+const allReverseMaps = new Set();
 
 export function isValidVaultToken(token) {
-  if (typeof token !== 'string' || !token || !currentReverseMap) {
+  if (typeof token !== 'string' || !token) {
     return false;
   }
-  return currentReverseMap.has(token);
+  for (const map of allReverseMaps) {
+    if (map.has(token)) return true;
+  }
+  return false;
 }
 
 export function createTokenVault() {
   const forwardMap = new Map(); // rawValue -> token
   const reverseMap = new Map(); // token -> rawValue
-  currentReverseMap = reverseMap;
+  allReverseMaps.add(reverseMap);
 
   return {
     /**
@@ -79,6 +83,14 @@ export function createTokenVault() {
     clear() {
       forwardMap.clear();
       reverseMap.clear();
+    },
+
+    /**
+     * Removes this vault's reverseMap from the global tracking set.
+     * Call after clear() during session teardown.
+     */
+    destroy() {
+      allReverseMaps.delete(reverseMap);
     },
 
     /**
