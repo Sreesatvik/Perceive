@@ -1,7 +1,6 @@
 import { executeAction } from './actionExecutor.js';
 import { requiresConfirmation, requestConfirmation } from './confirmationUI.js';
 import { RETRY_CONFIG } from '../shared/constants.js';
-import { sendToBackend } from '../background/transport.js';
 
 import { getVaultForSession, endSession } from '../../dev2/session-vault-manager.js';
 import { processPageForRedaction } from '../../dev2/redaction-engine.js';
@@ -63,9 +62,31 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
   };
 }
 
+// Fallback BACKEND_URL used only outside the extension runtime (plain-webpage test harness)
 const BACKEND_URL = 'http://localhost:8000';
+const BACKEND_API_KEY = 'my-test-secret-123'; // must match server/.env BACKEND_API_KEY
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
+
+/**
+ * Wraps chrome.runtime.sendMessage in a Promise.
+ * Falls back to null if chrome runtime is unavailable (test harness).
+ */
+function sendMessageAsync(message) {
+  return new Promise((resolve, reject) => {
+    if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+      resolve(null); // Signal: no extension runtime available
+      return;
+    }
+    chrome.runtime.sendMessage(message, (response) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+      } else {
+        resolve(response);
+      }
+    });
+  });
+}
 
 /**
  * Orchestrator-owned task cleanup. Called on EVERY exit path.
@@ -81,13 +102,17 @@ async function finalizeTask(sessionId, reason) {
     // Step 1: Clear Dev 2's vault
     endSession(sessionId);
 
-    // Step 2: Notify backend
+    // Step 2: Notify backend via background worker (avoids CORS in content script context)
     try {
-        fetch(`${BACKEND_URL}/session/${sessionId}/end`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason }),
-        }).catch(() => {}); // Fire and forget
+        const response = await sendMessageAsync({ type: 'END_SESSION', sessionId, reason });
+        if (response === null) {
+            // Fallback: plain-webpage test harness — direct fetch is acceptable
+            fetch(`${BACKEND_URL}/session/${sessionId}/end`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-API-Key': BACKEND_API_KEY },
+                body: JSON.stringify({ reason }),
+            }).catch(() => {}); // Fire and forget
+        }
     } catch (e) {
         // non-fatal, swallow silently
     }
@@ -126,15 +151,23 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                     // 2. Redact + build payload
                     const payload = await buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepNumber);
 
-                    // 3. Send to backend (mocking transport logic directly here for testability without a real backend)
-                    // TODO: In the real extension, content scripts cannot directly import background/transport.js — must use chrome.runtime.sendMessage({ type: 'SEND_PAYLOAD', payload }) instead and await the response via callback/promise wrapper. Direct import only works in this test harness context (plain webpage, no extension runtime).
+                    // 3. Send to backend via background worker to avoid CORS issues in content script context
                     let actionResponse = null;
                     
                     // --- MOCK BACKEND RESPONSES FOR E2E ---
                     if (window.__mockBackendResponse) {
                         actionResponse = window.__mockBackendResponse(stepNumber, payload);
                     } else {
-                        actionResponse = await sendToBackend(payload);
+                        const bgResponse = await sendMessageAsync({ type: 'SEND_PAYLOAD', payload });
+                        if (bgResponse === null) {
+                            // Fallback: plain-webpage test harness — import sendToBackend dynamically
+                            const { sendToBackend } = await import('../background/transport.js');
+                            actionResponse = await sendToBackend(payload);
+                        } else if (!bgResponse.success) {
+                            throw new Error(bgResponse.error || 'Background transport failed');
+                        } else {
+                            actionResponse = bgResponse.action;
+                        }
                     }
                     // --------------------------------------
 

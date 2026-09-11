@@ -1,4 +1,335 @@
 (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __esm = (fn, res, err) => function __init() {
+    if (err) throw err[0];
+    try {
+      return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+    } catch (e) {
+      throw err = [e], e;
+    }
+  };
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+
+  // dev2/pii-patterns.js
+  function detectPII(text) {
+    if (typeof text !== "string" || !text) {
+      return [];
+    }
+    const results = [];
+    const patterns = [
+      { type: "EMAIL", regex: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g },
+      { type: "PHONE", regex: /(?<!\d)[6-9]\d{9}(?!\d)/g },
+      { type: "CARD_NUMBER", regex: /(?<!\d[ -]?)(?:\d[ -]?){15}\d(?![ -]?\d)/g },
+      { type: "AADHAAR", regex: /(?<!\d[ -]?)(?:\d[ -]?){11}\d(?![ -]?\d)/g },
+      { type: "IFSC", regex: /\b[A-Za-z]{4}0[A-Za-z0-9]{6}\b/g }
+    ];
+    for (const { type, regex } of patterns) {
+      let match2;
+      regex.lastIndex = 0;
+      while ((match2 = regex.exec(text)) !== null) {
+        results.push({
+          type,
+          match: match2[0],
+          startIndex: match2.index,
+          endIndex: match2.index + match2[0].length
+        });
+      }
+    }
+    const otpRegex = /(?<!\d[ -]?)\d{4,6}(?![ -]?\d)/g;
+    const otpContextRegex = /\b(otp|code|verification)\b/i;
+    let match;
+    while ((match = otpRegex.exec(text)) !== null) {
+      const startIndex = match.index;
+      const endIndex = startIndex + match[0].length;
+      const contextStart = Math.max(0, startIndex - 30);
+      const contextEnd = Math.min(text.length, endIndex + 30);
+      const context = text.substring(contextStart, contextEnd);
+      if (otpContextRegex.test(context)) {
+        results.push({
+          type: "OTP",
+          match: match[0],
+          startIndex,
+          endIndex
+        });
+      }
+    }
+    return results;
+  }
+  var init_pii_patterns = __esm({
+    "dev2/pii-patterns.js"() {
+    }
+  });
+
+  // src/shared/schemas.js
+  function validateActionResponse(response, expectedSessionId, expectedStep) {
+    if (!response || typeof response !== "object") throw new Error("Invalid response");
+    if (response.session_id !== expectedSessionId) throw new Error("Session mismatch");
+    if (response.step_number !== expectedStep + 1) throw new Error("Step mismatch");
+    if (!response.action || typeof response.action !== "object") throw new Error("Missing action");
+    const validTypes = ["click", "type", "scroll", "wait", "ask_user_confirmation", "task_complete", "task_failed"];
+    if (!validTypes.includes(response.action.type)) throw new Error("Invalid action type");
+    if (!["safe", "risky"].includes(response.action.risk_tier)) throw new Error("Invalid risk tier");
+    return true;
+  }
+  var init_schemas = __esm({
+    "src/shared/schemas.js"() {
+    }
+  });
+
+  // dev2/leakage-auditor.js
+  function walkStrings(node, path, callback, seen) {
+    if (node === null || node === void 0) return;
+    if (seen.has(node)) return;
+    if (typeof node === "string") {
+      callback(node, path);
+      return;
+    }
+    if (typeof node !== "object") return;
+    seen.add(node);
+    if (Array.isArray(node)) {
+      for (let i = 0; i < node.length; i++) {
+        walkStrings(node[i], path + "[" + i + "]", callback, seen);
+      }
+      return;
+    }
+    const keys = Object.keys(node);
+    for (const key of keys) {
+      const childPath = path ? path + "." + key : key;
+      walkStrings(node[key], childPath, callback, seen);
+    }
+  }
+  function auditPayload(payload, piiDetectFn) {
+    const violations = [];
+    if (!payload || typeof payload !== "object") {
+      return { passed: true, violations };
+    }
+    if (typeof piiDetectFn !== "function") {
+      return { passed: true, violations };
+    }
+    const seen = /* @__PURE__ */ new Set();
+    walkStrings(payload, "", function onString(value, path) {
+      if (path === "redacted_image_base64") {
+        if (typeof value === "string" && value.length < 100) {
+          violations.push({
+            path,
+            reason: "redacted_image_base64 is suspiciously short or malformed",
+            matched_type: "IMAGE_DATA_WARNING"
+          });
+        }
+        return;
+      }
+      if (SEMANTIC_TOKEN_PATTERN.test(value)) {
+        return;
+      }
+      const matches = piiDetectFn(value);
+      if (Array.isArray(matches) && matches.length > 0) {
+        for (const match of matches) {
+          violations.push({
+            path,
+            reason: "raw PII value found outside semantic token",
+            matched_type: match.type || "UNKNOWN"
+          });
+        }
+      }
+      if (SENSITIVE_KEY_PATTERN.test(path) && value && !SEMANTIC_TOKEN_PATTERN.test(value)) {
+        violations.push({
+          path,
+          reason: "unredacted password or secret string found in sensitive field",
+          matched_type: "PASSWORD"
+        });
+      }
+    }, seen);
+    return {
+      passed: violations.length === 0,
+      violations
+    };
+  }
+  function assertSafeToSend(payload, piiDetectFn) {
+    const result = auditPayload(payload, piiDetectFn);
+    if (!result.passed) {
+      const details = result.violations.map(function(v) {
+        return "  - [" + v.matched_type + '] at "' + v.path + '": ' + v.reason;
+      }).join("\n");
+      throw new Error(
+        "Payload safety audit failed with " + result.violations.length + " violation(s). Blocking network request.\n" + details
+      );
+    }
+  }
+  var SEMANTIC_TOKEN_PATTERN, SENSITIVE_KEY_PATTERN;
+  var init_leakage_auditor = __esm({
+    "dev2/leakage-auditor.js"() {
+      SEMANTIC_TOKEN_PATTERN = /^\[[A-Z0-9_]+(?:\?|: [^\]]+)?\]$/;
+      SENSITIVE_KEY_PATTERN = /password|pwd|secret|credit_card|cvv|ssn|aadhaar|otp/i;
+    }
+  });
+
+  // dev2/channel-consistency-check.js
+  function checkChannelConsistency(payload, redactedRegions) {
+    const mismatches = [];
+    const elements = payload && payload.dom_summary && Array.isArray(payload.dom_summary.elements) ? payload.dom_summary.elements : [];
+    const regions = Array.isArray(redactedRegions) ? redactedRegions : [];
+    const shouldBeRedacted = /* @__PURE__ */ new Set();
+    for (const el of elements) {
+      if (el && el.is_sensitive === true) {
+        if (el.element_id) {
+          shouldBeRedacted.add(el.element_id);
+        }
+      }
+    }
+    const actuallyRedacted = /* @__PURE__ */ new Set();
+    for (const region of regions) {
+      if (region && region.element_id) {
+        actuallyRedacted.add(region.element_id);
+      }
+    }
+    for (const id of shouldBeRedacted) {
+      if (!actuallyRedacted.has(id)) {
+        mismatches.push({
+          element_id: id,
+          issue: "structural redaction claimed but visual redaction missing"
+        });
+      }
+    }
+    for (const id of actuallyRedacted) {
+      if (!shouldBeRedacted.has(id)) {
+        mismatches.push({
+          element_id: id,
+          issue: "visual redaction present but structural summary shows no sensitivity \u2014 possible over-redaction or stale data"
+        });
+      }
+    }
+    return {
+      consistent: mismatches.length === 0,
+      mismatches
+    };
+  }
+  function assertChannelsConsistent(payload, redactedRegions) {
+    const result = checkChannelConsistency(payload, redactedRegions);
+    if (!result.consistent) {
+      const details = result.mismatches.map((m) => `  - [${m.element_id}]: ${m.issue}`).join("\n");
+      throw new Error(
+        `Channel consistency check failed with ${result.mismatches.length} mismatch(es):
+${details}`
+      );
+    }
+  }
+  var init_channel_consistency_check = __esm({
+    "dev2/channel-consistency-check.js"() {
+    }
+  });
+
+  // src/background/transport.js
+  var transport_exports = {};
+  __export(transport_exports, {
+    sendToBackend: () => sendToBackend
+  });
+  async function sendToBackend(payload) {
+    try {
+      assertSafeToSend(payload, detectPII);
+      if (payload.redacted_regions) {
+        assertChannelsConsistent(payload, payload.redacted_regions);
+      }
+    } catch (err) {
+      throw new PayloadLeakageError(err.message);
+    }
+    const jsonString = JSON.stringify(payload);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      const response = await fetch(`${BACKEND_URL}${ANALYZE_ENDPOINT}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-API-Key": BACKEND_API_KEY },
+        body: jsonString,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (!response.ok) {
+        let errorDetail = "";
+        try {
+          const errorBody = await response.json();
+          errorDetail = JSON.stringify(errorBody);
+        } catch (e) {
+          errorDetail = await response.text().catch(() => "(could not read error body)");
+        }
+        console.error("[Transport] Backend rejected request:", response.status, errorDetail);
+        throw new TransportError(`Server returned ${response.status}: ${errorDetail}`);
+      }
+      const actionResponse = await response.json();
+      validateActionResponse(actionResponse, payload.session_id, payload.step_number);
+      return actionResponse;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === "AbortError") {
+        throw new TransportError("Request timed out");
+      }
+      throw err;
+    }
+  }
+  async function endSessionOnBackend(sessionId, reason) {
+    try {
+      const response = await fetch(`${BACKEND_URL}/session/${sessionId}/end`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-API-Key": BACKEND_API_KEY },
+        body: JSON.stringify({ reason })
+      });
+      if (!response.ok) {
+        console.warn("[Transport] END_SESSION backend call failed:", response.status);
+      }
+    } catch (err) {
+      console.warn("[Transport] END_SESSION fetch error:", err.message);
+    }
+  }
+  var BACKEND_URL, ANALYZE_ENDPOINT, TIMEOUT_MS, BACKEND_API_KEY, PayloadLeakageError, TransportError;
+  var init_transport = __esm({
+    "src/background/transport.js"() {
+      init_schemas();
+      init_leakage_auditor();
+      init_channel_consistency_check();
+      init_pii_patterns();
+      console.log("transport.js loaded");
+      BACKEND_URL = "http://localhost:8000";
+      ANALYZE_ENDPOINT = "/analyze";
+      TIMEOUT_MS = 3e4;
+      BACKEND_API_KEY = "my-test-secret-123";
+      PayloadLeakageError = class extends Error {
+        constructor(message) {
+          super(message);
+          this.name = "PayloadLeakageError";
+        }
+      };
+      TransportError = class extends Error {
+        constructor(message) {
+          super(message);
+          this.name = "TransportError";
+        }
+      };
+      if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage) {
+        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+          if (message.type === "SEND_PAYLOAD") {
+            sendToBackend(message.payload).then((action) => {
+              sendResponse({ success: true, action });
+            }).catch((error) => {
+              sendResponse({ success: false, error: error.message, errorType: error.name });
+            });
+            return true;
+          }
+          if (message.type === "END_SESSION") {
+            endSessionOnBackend(message.sessionId, message.reason).then(() => {
+              sendResponse({ success: true });
+            }).catch((error) => {
+              sendResponse({ success: false, error: error.message });
+            });
+            return true;
+          }
+        });
+      }
+    }
+  });
+
   // src/content/actionExecutor.js
   async function executeAction(action, resolveToken) {
     console.log(`[ActionExecutor] Executing action: ${action.type}`);
@@ -12,7 +343,7 @@
     }
     let targetElement = null;
     if (action.target_element_id) {
-      targetElement = document.querySelector(`[data-ext-id="${action.target_element_id}"]`);
+      targetElement = document.querySelector(`[data-ext-id="${CSS.escape(action.target_element_id)}"]`);
       if (!targetElement) {
         targetElement = document.getElementById(action.target_element_id);
       }
@@ -75,6 +406,11 @@
 
   // src/content/confirmationUI.js
   var confirmationOverlay = null;
+  function findAgentElement(elementId) {
+    if (!elementId) return null;
+    const escaped = CSS.escape(elementId);
+    return document.querySelector(`[data-ext-id="${escaped}"]`) || document.getElementById(elementId);
+  }
   function createOverlay() {
     if (confirmationOverlay) return confirmationOverlay;
     confirmationOverlay = document.createElement("div");
@@ -172,291 +508,13 @@
   function requiresConfirmation(action) {
     if (action.risk_tier === RISK_TIERS.RISKY) return true;
     if (action.type === "click" && action.target_element_id) {
-      let el = document.querySelector(`[data-element-id="${action.target_element_id}"]`);
-      if (!el) el = document.getElementById(action.target_element_id);
-      if (el) {
-        if (el.type === "submit" || el.textContent && el.textContent.match(/pay|submit|delete|confirm/i)) {
-          return true;
-        }
+      const el = findAgentElement(action.target_element_id);
+      if (!el) return true;
+      if (el.type === "submit" || el.textContent && el.textContent.match(/pay|submit|delete|confirm/i)) {
+        return true;
       }
     }
     return false;
-  }
-
-  // src/shared/schemas.js
-  function validateActionResponse(response) {
-    if (!response || typeof response !== "object") {
-      throw new Error("Invalid response: Not an object");
-    }
-    if (!response.session_id) {
-      throw new Error("Invalid response: Missing session_id");
-    }
-    if (typeof response.step_number !== "number") {
-      throw new Error("Invalid response: Invalid step_number");
-    }
-    const action = response.action;
-    if (!action || typeof action !== "object") {
-      throw new Error("Invalid response: Missing action object");
-    }
-    const validTypes = ["click", "type", "scroll", "wait", "ask_user_confirmation", "task_complete", "task_failed"];
-    if (!validTypes.includes(action.type)) {
-      throw new Error(`Invalid response: Unknown action type '${action.type}'`);
-    }
-    if (!["safe", "risky"].includes(action.risk_tier)) {
-      throw new Error(`Invalid response: Unknown risk_tier '${action.risk_tier}'`);
-    }
-    return true;
-  }
-
-  // dev2/leakage-auditor.js
-  var SEMANTIC_TOKEN_PATTERN = /^\[[A-Z0-9_]+(?:\?|: [^\]]+)?\]$/;
-  var SENSITIVE_KEY_PATTERN = /password|pwd|secret|credit_card|cvv|ssn|aadhaar|otp/i;
-  function walkStrings(node, path, callback, seen) {
-    if (node === null || node === void 0) return;
-    if (seen.has(node)) return;
-    if (typeof node === "string") {
-      callback(node, path);
-      return;
-    }
-    if (typeof node !== "object") return;
-    seen.add(node);
-    if (Array.isArray(node)) {
-      for (let i = 0; i < node.length; i++) {
-        walkStrings(node[i], path + "[" + i + "]", callback, seen);
-      }
-      return;
-    }
-    const keys = Object.keys(node);
-    for (const key of keys) {
-      const childPath = path ? path + "." + key : key;
-      walkStrings(node[key], childPath, callback, seen);
-    }
-  }
-  function auditPayload(payload, piiDetectFn) {
-    const violations = [];
-    if (!payload || typeof payload !== "object") {
-      return { passed: true, violations };
-    }
-    if (typeof piiDetectFn !== "function") {
-      return { passed: true, violations };
-    }
-    const seen = /* @__PURE__ */ new Set();
-    walkStrings(payload, "", function onString(value, path) {
-      if (path === "redacted_image_base64") {
-        if (typeof value === "string" && value.length < 100) {
-          violations.push({
-            path,
-            reason: "redacted_image_base64 is suspiciously short or malformed",
-            matched_type: "IMAGE_DATA_WARNING"
-          });
-        }
-        return;
-      }
-      if (SEMANTIC_TOKEN_PATTERN.test(value)) {
-        return;
-      }
-      const matches = piiDetectFn(value);
-      if (Array.isArray(matches) && matches.length > 0) {
-        for (const match of matches) {
-          violations.push({
-            path,
-            reason: "raw PII value found outside semantic token",
-            matched_type: match.type || "UNKNOWN"
-          });
-        }
-      }
-      if (SENSITIVE_KEY_PATTERN.test(path) && value && !SEMANTIC_TOKEN_PATTERN.test(value)) {
-        violations.push({
-          path,
-          reason: "unredacted password or secret string found in sensitive field",
-          matched_type: "PASSWORD"
-        });
-      }
-    }, seen);
-    return {
-      passed: violations.length === 0,
-      violations
-    };
-  }
-  function assertSafeToSend(payload, piiDetectFn) {
-    const result = auditPayload(payload, piiDetectFn);
-    if (!result.passed) {
-      const details = result.violations.map(function(v) {
-        return "  - [" + v.matched_type + '] at "' + v.path + '": ' + v.reason;
-      }).join("\n");
-      throw new Error(
-        "Payload safety audit failed with " + result.violations.length + " violation(s). Blocking network request.\n" + details
-      );
-    }
-  }
-
-  // dev2/channel-consistency-check.js
-  function checkChannelConsistency(payload, redactedRegions) {
-    const mismatches = [];
-    const elements = payload && payload.dom_summary && Array.isArray(payload.dom_summary.elements) ? payload.dom_summary.elements : [];
-    const regions = Array.isArray(redactedRegions) ? redactedRegions : [];
-    const shouldBeRedacted = /* @__PURE__ */ new Set();
-    for (const el of elements) {
-      if (el && el.is_sensitive === true) {
-        if (el.element_id) {
-          shouldBeRedacted.add(el.element_id);
-        }
-      }
-    }
-    const actuallyRedacted = /* @__PURE__ */ new Set();
-    for (const region of regions) {
-      if (region && region.element_id) {
-        actuallyRedacted.add(region.element_id);
-      }
-    }
-    for (const id of shouldBeRedacted) {
-      if (!actuallyRedacted.has(id)) {
-        mismatches.push({
-          element_id: id,
-          issue: "structural redaction claimed but visual redaction missing"
-        });
-      }
-    }
-    for (const id of actuallyRedacted) {
-      if (!shouldBeRedacted.has(id)) {
-        mismatches.push({
-          element_id: id,
-          issue: "visual redaction present but structural summary shows no sensitivity \u2014 possible over-redaction or stale data"
-        });
-      }
-    }
-    return {
-      consistent: mismatches.length === 0,
-      mismatches
-    };
-  }
-  function assertChannelsConsistent(payload, redactedRegions) {
-    const result = checkChannelConsistency(payload, redactedRegions);
-    if (!result.consistent) {
-      const details = result.mismatches.map((m) => `  - [${m.element_id}]: ${m.issue}`).join("\n");
-      throw new Error(
-        `Channel consistency check failed with ${result.mismatches.length} mismatch(es):
-${details}`
-      );
-    }
-  }
-
-  // dev2/pii-patterns.js
-  function detectPII(text) {
-    if (typeof text !== "string" || !text) {
-      return [];
-    }
-    const results = [];
-    const patterns = [
-      { type: "EMAIL", regex: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g },
-      { type: "PHONE", regex: /(?<!\d)[6-9]\d{9}(?!\d)/g },
-      { type: "CARD_NUMBER", regex: /(?<!\d[ -]?)(?:\d[ -]?){15}\d(?![ -]?\d)/g },
-      { type: "AADHAAR", regex: /(?<!\d[ -]?)(?:\d[ -]?){11}\d(?![ -]?\d)/g },
-      { type: "IFSC", regex: /\b[A-Za-z]{4}0[A-Za-z0-9]{6}\b/g }
-    ];
-    for (const { type, regex } of patterns) {
-      let match2;
-      regex.lastIndex = 0;
-      while ((match2 = regex.exec(text)) !== null) {
-        results.push({
-          type,
-          match: match2[0],
-          startIndex: match2.index,
-          endIndex: match2.index + match2[0].length
-        });
-      }
-    }
-    const otpRegex = /(?<!\d[ -]?)\d{4,6}(?![ -]?\d)/g;
-    const otpContextRegex = /\b(otp|code|verification)\b/i;
-    let match;
-    while ((match = otpRegex.exec(text)) !== null) {
-      const startIndex = match.index;
-      const endIndex = startIndex + match[0].length;
-      const contextStart = Math.max(0, startIndex - 30);
-      const contextEnd = Math.min(text.length, endIndex + 30);
-      const context = text.substring(contextStart, contextEnd);
-      if (otpContextRegex.test(context)) {
-        results.push({
-          type: "OTP",
-          match: match[0],
-          startIndex,
-          endIndex
-        });
-      }
-    }
-    return results;
-  }
-
-  // src/background/transport.js
-  console.log("transport.js loaded");
-  var BACKEND_URL = "http://localhost:8000";
-  var ANALYZE_ENDPOINT = "/analyze";
-  var TIMEOUT_MS = 3e4;
-  var PayloadLeakageError = class extends Error {
-    constructor(message) {
-      super(message);
-      this.name = "PayloadLeakageError";
-    }
-  };
-  var TransportError = class extends Error {
-    constructor(message) {
-      super(message);
-      this.name = "TransportError";
-    }
-  };
-  async function sendToBackend(payload) {
-    try {
-      assertSafeToSend(payload, detectPII);
-      if (payload.redacted_regions) {
-        assertChannelsConsistent(payload, payload.redacted_regions);
-      }
-    } catch (err) {
-      throw new PayloadLeakageError(err.message);
-    }
-    const jsonString = JSON.stringify(payload);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-    try {
-      const response = await fetch(`${BACKEND_URL}${ANALYZE_ENDPOINT}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: jsonString,
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      if (!response.ok) {
-        let errorDetail = "";
-        try {
-          const errorBody = await response.json();
-          errorDetail = JSON.stringify(errorBody);
-        } catch (e) {
-          errorDetail = await response.text().catch(() => "(could not read error body)");
-        }
-        console.error("[Transport] Backend rejected request:", response.status, errorDetail);
-        throw new TransportError(`Server returned ${response.status}: ${errorDetail}`);
-      }
-      const actionResponse = await response.json();
-      validateActionResponse(actionResponse);
-      return actionResponse;
-    } catch (err) {
-      clearTimeout(timeoutId);
-      if (err.name === "AbortError") {
-        throw new TransportError("Request timed out");
-      }
-      throw err;
-    }
-  }
-  if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage) {
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (message.type === "SEND_PAYLOAD") {
-        sendToBackend(message.payload).then((action) => {
-          sendResponse({ success: true, action });
-        }).catch((error) => {
-          sendResponse({ success: false, error: error.message, errorType: error.name });
-        });
-        return true;
-      }
-    });
   }
 
   // dev2/token-vault.js
@@ -737,7 +795,11 @@ ${details}`
     return generatedId;
   }
 
+  // dev2/redaction-engine.js
+  init_pii_patterns();
+
   // dev2/sensitivity-tiers.js
+  init_pii_patterns();
   var TIER_1_TYPES = /* @__PURE__ */ new Set(["PASSWORD", "CARD_NUMBER", "AADHAAR", "OTP"]);
   var TIER_2_TYPES = /* @__PURE__ */ new Set(["NAME", "AMOUNT", "EMAIL", "PHONE", "IFSC"]);
   function getTierNumber(type) {
@@ -1075,17 +1137,36 @@ ${details}`
     };
   }
   var BACKEND_URL2 = "http://localhost:8000";
+  var BACKEND_API_KEY2 = "my-test-secret-123";
   var delay = (ms) => new Promise((res) => setTimeout(res, ms));
+  function sendMessageAsync(message) {
+    return new Promise((resolve, reject) => {
+      if (typeof chrome === "undefined" || !chrome.runtime || !chrome.runtime.sendMessage) {
+        resolve(null);
+        return;
+      }
+      chrome.runtime.sendMessage(message, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
   async function finalizeTask(sessionId, reason) {
     console.log(`[Orchestrator] Finalizing task ${sessionId}. Reason: ${reason}`);
     endSession(sessionId);
     try {
-      fetch(`${BACKEND_URL2}/session/${sessionId}/end`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason })
-      }).catch(() => {
-      });
+      const response = await sendMessageAsync({ type: "END_SESSION", sessionId, reason });
+      if (response === null) {
+        fetch(`${BACKEND_URL2}/session/${sessionId}/end`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-API-Key": BACKEND_API_KEY2 },
+          body: JSON.stringify({ reason })
+        }).catch(() => {
+        });
+      }
     } catch (e) {
     }
     window.dispatchEvent(new CustomEvent("agent-session-end", {
@@ -1095,8 +1176,10 @@ ${details}`
   async function runTaskLoop(taskInstruction, captureOverride = null) {
     const sessionId = crypto.randomUUID();
     let stepNumber = 0;
-    if (window.__activeVaults === void 0) window.__activeVaults = 0;
-    window.__activeVaults++;
+    if (typeof process !== "undefined" && process.env && true) {
+      if (window.__activeVaults === void 0) window.__activeVaults = 0;
+      window.__activeVaults++;
+    }
     const vault = getVaultForSession(sessionId);
     const resolveToken = vault.resolveToken.bind(vault);
     try {
@@ -1112,7 +1195,15 @@ ${details}`
             if (window.__mockBackendResponse) {
               actionResponse = window.__mockBackendResponse(stepNumber, payload);
             } else {
-              actionResponse = await sendToBackend(payload);
+              const bgResponse = await sendMessageAsync({ type: "SEND_PAYLOAD", payload });
+              if (bgResponse === null) {
+                const { sendToBackend: sendToBackend2 } = await Promise.resolve().then(() => (init_transport(), transport_exports));
+                actionResponse = await sendToBackend2(payload);
+              } else if (!bgResponse.success) {
+                throw new Error(bgResponse.error || "Background transport failed");
+              } else {
+                actionResponse = bgResponse.action;
+              }
             }
             if (actionResponse.action.type === "task_complete") {
               await finalizeTask(sessionId, "completed");
@@ -1164,7 +1255,9 @@ ${details}`
       throw fatalError;
     }
   }
-  window.__runTaskLoop = runTaskLoop;
+  if (typeof process !== "undefined" && process.env && true) {
+    window.__runTaskLoop = runTaskLoop;
+  }
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "RUN_TASK") {
       const capture = async () => {

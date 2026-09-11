@@ -8,6 +8,7 @@ import { detectPII } from '../../dev2/pii-patterns.js';
 const BACKEND_URL = 'http://localhost:8000';
 const ANALYZE_ENDPOINT = '/analyze';
 const TIMEOUT_MS = 30000;
+const BACKEND_API_KEY = 'my-test-secret-123'; // must match server/.env BACKEND_API_KEY
 
 class PayloadLeakageError extends Error {
     constructor(message) {
@@ -44,7 +45,7 @@ export async function sendToBackend(payload) {
     try {
         const response = await fetch(`${BACKEND_URL}${ANALYZE_ENDPOINT}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-API-Key': BACKEND_API_KEY },
             body: jsonString,
             signal: controller.signal,
         });
@@ -77,6 +78,24 @@ export async function sendToBackend(payload) {
     }
 }
 
+/**
+ * Sends a fire-and-forget POST to /session/{sessionId}/end in the background.
+ */
+async function endSessionOnBackend(sessionId, reason) {
+    try {
+        const response = await fetch(`${BACKEND_URL}/session/${sessionId}/end`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-API-Key': BACKEND_API_KEY },
+            body: JSON.stringify({ reason }),
+        });
+        if (!response.ok) {
+            console.warn('[Transport] END_SESSION backend call failed:', response.status);
+        }
+    } catch (err) {
+        console.warn('[Transport] END_SESSION fetch error:', err.message);
+    }
+}
+
 // Background script message listener for passing messages from content script
 if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -87,6 +106,17 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
               })
               .catch(error => {
                   sendResponse({ success: false, error: error.message, errorType: error.name });
+              });
+          return true; // Keep message channel open for async response
+      }
+
+      if (message.type === 'END_SESSION') {
+          endSessionOnBackend(message.sessionId, message.reason)
+              .then(() => {
+                  sendResponse({ success: true });
+              })
+              .catch(error => {
+                  sendResponse({ success: false, error: error.message });
               });
           return true; // Keep message channel open for async response
       }
