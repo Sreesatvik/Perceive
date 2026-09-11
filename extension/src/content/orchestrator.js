@@ -103,8 +103,10 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
     let stepNumber = 0;
     
     // Track active vaults for E2E testing
-    if (window.__activeVaults === undefined) window.__activeVaults = 0;
-    window.__activeVaults++;
+    if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production') {
+        if (window.__activeVaults === undefined) window.__activeVaults = 0;
+        window.__activeVaults++;
+    }
 
     // Obtain vault ONCE at task start
     const vault = getVaultForSession(sessionId);
@@ -199,7 +201,9 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
 }
 
 // Expose for testing
-window.__runTaskLoop = runTaskLoop;
+if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production') {
+    window.__runTaskLoop = runTaskLoop;
+}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'RUN_TASK') {

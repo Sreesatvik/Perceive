@@ -20,7 +20,7 @@ export async function executeAction(action, resolveToken) {
     // For click, type, scroll, we need a target element
     let targetElement = null;
     if (action.target_element_id) {
-        targetElement = document.querySelector(`[data-ext-id="${action.target_element_id}"]`);
+        targetElement = document.querySelector(`[data-ext-id="${CSS.escape(action.target_element_id)}"]`);
         if (!targetElement) {
             targetElement = document.getElementById(action.target_element_id);
         }

@@ -3,37 +3,29 @@ import json
 import asyncio
 from typing import Any, Dict
 
-from dotenv import load_dotenv
 from groq import AsyncGroq
 
 from .models import ClientPayload, ActionInstruction
 from .session import get_or_create_session
-
-server_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-load_dotenv(os.path.join(server_dir, ".env"))
-
-print(f"[DEBUG] GROQ_API_KEY loaded: {'YES' if os.getenv('GROQ_API_KEY') else 'NO'}")
-print(f"[DEBUG] Current working directory: {os.getcwd()}")
+from .config import settings
 
 def get_llm_client():
-    provider = os.getenv("LLM_PROVIDER", "groq").lower()
+    provider = settings.llm_provider
     if provider == "offline":
-        base_url = os.getenv("OFFLINE_API_BASE", "http://localhost:11434/v1")
+        base_url = settings.offline_api_base
         return AsyncGroq(
             api_key="offline-local",
             base_url=base_url,
         )
     else:
-        api_key = os.getenv("GROQ_API_KEY")
-        if not api_key:
-            raise ValueError("GROQ_API_KEY environment variable not set")
+        api_key = settings.groq_api_key
         return AsyncGroq(api_key=api_key)
 
 async def generate_action(payload: ClientPayload) -> ActionInstruction:
     session = get_or_create_session(payload.session_id)
     history_context = session.get_context_string()
     
-    model_name = os.getenv("MODEL_NAME", "openai/gpt-oss-120b")
+    model_name = settings.model_name
     client = get_llm_client()
     
     system_prompt = """You are a highly capable browser automation agent.
@@ -72,7 +64,7 @@ Detection Confidence Notes:
 Determine the next action to take. Output strictly as JSON.
 """
 
-    print(f"[LLM] Starting Groq call for session {payload.session_id}, step {payload.step_number}")
+    print(f"[LLM] Starting {settings.llm_provider} call with model {settings.model_name} for session {payload.session_id}, step {payload.step_number}")
     try:
         response = await asyncio.wait_for(
             client.chat.completions.create(

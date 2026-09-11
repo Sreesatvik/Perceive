@@ -32,7 +32,6 @@ server/*.jsonl
 *.swp
 *.swo
 
-
-.env
-
-.env
+server/audit.jsonl
+audit.jsonl
+shipready_results/

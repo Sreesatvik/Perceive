@@ -2,6 +2,15 @@ import { RISK_TIERS } from '../shared/constants.js';
 
 let confirmationOverlay = null;
 
+export function findAgentElement(elementId) {
+  if (!elementId) return null;
+  const escaped = CSS.escape(elementId);
+  return (
+    document.querySelector(`[data-ext-id="${escaped}"]`) ||
+    document.getElementById(elementId)
+  );
+}
+
 function createOverlay() {
     if (confirmationOverlay) return confirmationOverlay;
 
@@ -132,13 +141,11 @@ export function requiresConfirmation(action) {
     
     // Additional local heuristics
     if (action.type === 'click' && action.target_element_id) {
-        let el = document.querySelector(`[data-element-id="${action.target_element_id}"]`);
-        if (!el) el = document.getElementById(action.target_element_id);
+        const el = findAgentElement(action.target_element_id);
+        if (!el) return true;
         
-        if (el) {
-            if (el.type === 'submit' || (el.textContent && el.textContent.match(/pay|submit|delete|confirm/i))) {
-                return true;
-            }
+        if (el.type === 'submit' || (el.textContent && el.textContent.match(/pay|submit|delete|confirm/i))) {
+            return true;
         }
     }
     return false;

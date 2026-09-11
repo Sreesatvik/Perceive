@@ -1,3 +1,4 @@
+import threading
 from typing import Dict, List, Any
 from .models import ActionInstruction
 
@@ -5,13 +6,20 @@ class Session:
     def __init__(self, session_id: str):
         self.session_id = session_id
         self.history: List[Dict[str, Any]] = []
+        self.last_step = 0
+        self._lock = threading.Lock()
 
     def add_step(self, step_number: int, instruction: str, action: ActionInstruction):
-        self.history.append({
-            "step_number": step_number,
-            "instruction": instruction,
-            "action": action.model_dump()
-        })
+        with self._lock:
+            expected = self.last_step + 1
+            if step_number != expected:
+                raise ValueError(f"Expected step {expected}, got {step_number}")
+            self.history.append({
+                "step_number": step_number,
+                "instruction": instruction,
+                "action": action.model_dump() if hasattr(action, "model_dump") else action,
+            })
+            self.last_step = step_number
         
     def get_context_string(self) -> str:
         if not self.history:

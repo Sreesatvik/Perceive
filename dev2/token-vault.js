@@ -8,10 +8,20 @@
  *   getStats: () => { totalTokens: number, byType: Record<string, number> }
  * }}
  */
+
+let currentReverseMap = null;
+
+export function isValidVaultToken(token) {
+  if (typeof token !== 'string' || !token || !currentReverseMap) {
+    return false;
+  }
+  return currentReverseMap.has(token);
+}
+
 export function createTokenVault() {
   const forwardMap = new Map(); // rawValue -> token
   const reverseMap = new Map(); // token -> rawValue
-  const typeCounters = new Map(); // sensitivityType -> current counter integer
+  currentReverseMap = reverseMap;
 
   return {
     /**
@@ -31,10 +41,8 @@ export function createTokenVault() {
         return forwardMap.get(rawValue);
       }
 
-      const currentCount = (typeCounters.get(typeKey) || 0) + 1;
-      typeCounters.set(typeKey, currentCount);
-
-      const token = `[${typeKey}_${currentCount}]`;
+      const rand = Math.random().toString(36).slice(2, 10);
+      const token = `[${typeKey}_${rand}]`;
       forwardMap.set(rawValue, token);
       reverseMap.set(token, rawValue);
 
@@ -71,7 +79,6 @@ export function createTokenVault() {
     clear() {
       forwardMap.clear();
       reverseMap.clear();
-      typeCounters.clear();
     },
 
     /**
@@ -82,7 +89,7 @@ export function createTokenVault() {
       const byType = {};
 
       for (const [token] of reverseMap.entries()) {
-        const match = token.match(/^\[([A-Z_]+)_\d+\]$/);
+        const match = token.match(/^\[([A-Z_]+)_[a-z0-9]+\]$/);
         const type = match ? match[1] : 'UNKNOWN';
         byType[type] = (byType[type] || 0) + 1;
       }

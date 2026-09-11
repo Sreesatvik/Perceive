@@ -65,7 +65,7 @@ export async function sendToBackend(payload) {
         const actionResponse = await response.json();
         
         // Schema validation
-        validateActionResponse(actionResponse);  
+        validateActionResponse(actionResponse, payload.session_id, payload.step_number);  
         
         return actionResponse;
     } catch (err) {

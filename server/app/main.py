@@ -1,5 +1,7 @@
+import os
 import traceback
-from fastapi import FastAPI, HTTPException, Request
+import logging
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel as _BaseModel, ValidationError
@@ -8,13 +10,19 @@ from .models import ClientPayload, ServerResponse, ActionInstruction
 from .llm_client import generate_action
 from .session import get_or_create_session, clear_session
 from .logger import log_audit_event
+from .auth import require_api_key
+from .policy import evaluate_action_risk
+from .config import settings
+
+logger = logging.getLogger(__name__)
+
+allowed_origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
 
 app = FastAPI(title="Lightweight Browser Agent Backend")
 
-# TODO before any real/production deployment: replace allow_origins=['*'] with the specific extension origin (chrome-extension://<id>) — wildcard CORS is a dev-only convenience, not safe for a real deployment.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Dev-only: permissive for hackathon testing across file:// and extension origins
+    allow_origins=allowed_origins,
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,7 +30,7 @@ app.add_middleware(
 
 MAX_RETRIES = 3
 
-@app.post("/analyze", response_model=ServerResponse)
+@app.post("/analyze", response_model=ServerResponse, dependencies=[Depends(require_api_key)])
 async def analyze_step(payload: ClientPayload):
     """
     Receives a sanitized payload, fetches session history,
@@ -62,12 +70,11 @@ async def analyze_step(payload: ClientPayload):
                     raise ValueError(f"Hallucinated target_element_id '{action.target_element_id}'. Must be one of {valid_ids}")
                     
             # Server-authoritative risk tier override / enforcement
-            # If it's a type action, or interacting with a sensitive field, ensure it's marked risky
-            # This prevents a high-confidence LLM from silently bypassing the safety tier
+            target_el = None
             if action.target_element_id:
                 target_el = next((el for el in payload.dom_summary.elements if el.element_id == action.target_element_id), None)
-                if target_el and target_el.is_sensitive:
-                    action.risk_tier = "risky"
+            
+            action.risk_tier = evaluate_action_risk(action.model_dump(), target_el.model_dump() if target_el else None)
             
             # Record step to session history
             session.add_step(payload.step_number, payload.task_instruction, action)
@@ -112,32 +119,30 @@ async def analyze_step(payload: ClientPayload):
             )
         except Exception as e:
             # Other errors (e.g., API failures)
-            print("=== FULL TRACEBACK FOR 500 ERROR ===")
-            traceback.print_exc()
-            print("=====================================")
+            logger.error("API Failure in analyze_step", exc_info=True)
             log_audit_event(
                 session_id=payload.session_id,
                 step_number=payload.step_number,
                 instruction=payload.task_instruction,
-                action={"error": f"API Failure: {str(e)}"},
+                action={"error": "API Failure"},
                 confidence=0.0,
                 payload_notes=[n.model_dump() for n in payload.detection_confidence_notes]
             )
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(status_code=500, detail="Internal server error")
             
     # If we hit the max retries, fail
-    error_msg = f"Failed to generate a valid action after {MAX_RETRIES} attempts. Last error: {str(last_exception)}"
+    logger.error(f"Failed to generate a valid action after {MAX_RETRIES} attempts. Last error: {str(last_exception)}", exc_info=True)
     log_audit_event(
         session_id=payload.session_id,
         step_number=payload.step_number,
         instruction=payload.task_instruction,
-        action={"error": error_msg},
+        action={"error": "Failed to generate valid action"},
         confidence=0.0,
         payload_notes=[n.model_dump() for n in payload.detection_confidence_notes]
     )
     raise HTTPException(
         status_code=500, 
-        detail=error_msg
+        detail="Internal server error"
     )
 
 @app.exception_handler(ValidationError)
@@ -155,7 +160,7 @@ async def health_check():
 class SessionEndRequest(_BaseModel):
     reason: str = "unspecified"
 
-@app.post("/session/{session_id}/end")
+@app.post("/session/{session_id}/end", dependencies=[Depends(require_api_key)])
 async def end_session(session_id: str, body: SessionEndRequest):
     """
     Called by the client when a task session completes, fails, or is aborted.

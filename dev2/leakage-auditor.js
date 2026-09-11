@@ -1,3 +1,5 @@
+import { isValidVaultToken } from './token-vault.js';
+
 const SEMANTIC_TOKEN_PATTERN = /^\[[A-Z0-9_]+(?:\?|: [^\]]+)?\]$/;
 const SENSITIVE_KEY_PATTERN = /password|pwd|secret|credit_card|cvv|ssn|aadhaar|otp/i;
 
@@ -69,8 +71,11 @@ export function auditPayload(payload, piiDetectFn) {
       return;
     }
 
+    const isTokenShape = SEMANTIC_TOKEN_PATTERN.test(value);
+    const isActuallyVaultIssued = typeof isValidVaultToken === 'function' && isValidVaultToken(value);
+
     // Skip values that are semantic token placeholders
-    if (SEMANTIC_TOKEN_PATTERN.test(value)) {
+    if (isTokenShape && isActuallyVaultIssued) {
       return;
     }
 
@@ -87,7 +92,7 @@ export function auditPayload(payload, piiDetectFn) {
     }
 
     // 2. Check for unredacted passwords or secrets in sensitive fields/keys
-    if (SENSITIVE_KEY_PATTERN.test(path) && value && !SEMANTIC_TOKEN_PATTERN.test(value)) {
+    if (SENSITIVE_KEY_PATTERN.test(path) && value && !(isTokenShape && isActuallyVaultIssued)) {
       violations.push({
         path,
         reason: 'unredacted password or secret string found in sensitive field',

@@ -1,5 +1,13 @@
 document.getElementById('run-btn').addEventListener('click', async () => {
   const status = document.getElementById('status');
+  const taskInput = document.getElementById('task-input');
+  const taskInstruction = taskInput ? taskInput.value.trim() : '';
+
+  if (!taskInstruction) {
+    if (status) status.textContent = 'Enter a task first';
+    return;
+  }
+
   status.textContent = '● Running...';
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -7,7 +15,7 @@ document.getElementById('run-btn').addEventListener('click', async () => {
     tab.id,
     {
       type: 'RUN_TASK',
-      taskInstruction: "Log in to this website using username 'tomsmith' and password 'SuperSecretPassword!', then confirm the login was successful."
+      taskInstruction: taskInstruction
     },
     (response) => {
       if (chrome.runtime.lastError) {
