@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live E2E Integration Test - Perceive</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    h1, h2 {
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="tel"] {
+      background-color: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+    }
+
+    #total-amount-display {
+      margin: 16px 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #38bdf8;
+      padding: 10px;
+      background: #0f172a;
+      border-radius: 6px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    button.btn-secondary {
+      background-color: #475569;
+    }
+    button.btn-secondary:hover {
+      background-color: #334155;
+    }
+
+    button.btn-success {
+      background-color: var(--success);
+    }
+    button.btn-success:hover {
+      background-color: #059669;
+    }
+
+    #log-panel {
+      background-color: #030712;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      height: 360px;
+      overflow-y: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .log-line {
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+    .log-info { color: #e2e8f0; }
+    .log-warn { color: var(--warning); }
+    .log-error { color: var(--error); font-weight: bold; }
+    .log-success { color: var(--success); font-weight: bold; }
+    .log-summary { color: var(--success); font-weight: bold; }
+    .test-note { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Perceive Live E2E Integration Test</h1>
+      <p class="test-note">Requires: backend running at localhost:8000, and this file served via local HTTP server (not file://). Form submission is disabled for safe repeated testing.</p>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        Direct sandbox form test against the live backend at <code>http://localhost:8000</code>.
+      </p>
+    </header>
+
+    <!-- Sandbox Form -->
+    <section class="card" id="sandbox-card">
+      <h2>Sandbox Checkout Form</h2>
+      <form id="sandbox-checkout-form" onsubmit="return false;">
+        <div class="form-group">
+          <label for="pwd-input">Password</label>
+          <input type="password" id="pwd-input" placeholder="Enter password" value="TestPass123!">
+        </div>
+
+        <div class="form-group">
+          <label for="email-input">Email Address</label>
+          <input type="email" id="email-input" autocomplete="email" placeholder="you@example.com" value="testuser@example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="fullname-input">Full Name</label>
+          <input type="text" id="fullname-input" placeholder="First and Last Name" value="Jane Doe">
+        </div>
+
+        <div class="form-group">
+          <label for="card-number-input">Card Number</label>
+          <input type="text" id="card-number-input" autocomplete="cc-number" value="4111 1111 1111 1111">
+        </div>
+
+        <div class="form-group">
+          <label for="phone-input">Phone Number</label>
+          <input type="tel" id="phone-input" placeholder="+1234567890" value="9876543210">
+        </div>
+
+        <div id="total-amount-display">Total: $45.99</div>
+
+        <button type="submit" id="checkout-submit-btn">Submit Order</button>
+      </form>
+    </section>
+
+    <!-- Test Actions & Controls -->
+    <section class="card">
+      <h2>Test Controls</h2>
+      <div class="btn-group">
+        <button id="btn-run-test" class="btn-success">Run Live E2E Test</button>
+        <button id="btn-check-health" class="btn-secondary">Check Backend Health First</button>
+        <button id="btn-clear-log" class="btn-secondary">Clear Log</button>
+      </div>
+    </section>
+
+    <!-- Mirror Log Panel -->
+    <section class="card">
+      <h2>Execution & Console Log</h2>
+      <div id="log-panel"></div>
+    </section>
+  </div>
+
+  <script type="module">
+    /**
+     * ARCHITECTURAL NOTE:
+     * orchestrator.js currently has mockDev1 hardcoded internally (not injectable).
+     * orchestrator.js's mockDev1 must be temporarily edited to call window.__testCapture()
+     * instead of returning the hardcoded mock object, OR orchestrator.js needs a proper
+     * dependency-injection parameter added for capture — this test assumes the latter has been done:
+     * runTaskLoop(taskInstruction, captureOverride) accepts an optional second parameter used in place of
+     * mockDev1 when provided.
+     */
+
+    const logPanel = document.getElementById('log-panel');
+
+    function appendLog(message, type = 'info') {
+      const line = document.createElement('div');
+      line.className = `log-line log-${type}`;
+      const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
+      line.textContent = `[${timestamp}] ${message}`;
+      logPanel.appendChild(line);
+      logPanel.scrollTop = logPanel.scrollHeight;
+    }
+
+    // Mirror native console methods to the in-page log panel
+    const origLog = console.log;
+    const origWarn = console.warn;
+    const origError = console.error;
+
+    console.log = function(...args) {
+      origLog.apply(console, args);
+      appendLog(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' '), 'info');
+    };
+
+    console.warn = function(...args) {
+      origWarn.apply(console, args);
+      appendLog(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' '), 'warn');
+    };
+
+    console.error = function(...args) {
+      origError.apply(console, args);
+      appendLog(args.map(a => typeof a === 'object' ? (a?.stack || JSON.stringify(a, null, 2)) : String(a)).join(' '), 'error');
+    };
+
+    // Button: Clear Log
+    document.getElementById('btn-clear-log').addEventListener('click', () => {
+      logPanel.innerHTML = '';
+      appendLog('Log cleared.', 'info');
+    });
+
+    // Button: Check Backend Health First
+    document.getElementById('btn-check-health').addEventListener('click', async () => {
+      appendLog('Checking backend health at http://localhost:8000/health...', 'info');
+      try {
+        const res = await fetch('http://localhost:8000/health');
+        const rawResponse = await res.text();
+        appendLog(`Health response (${res.status} ${res.statusText}): ${rawResponse}`, res.ok ? 'success' : 'error');
+      } catch (err) {
+        appendLog(`Backend connection failed: ${err.stack || err.message}. Is the FastAPI server running?`, 'error');
+      }
+    });
+
+    // Button: Run Live E2E Test
+    document.getElementById('btn-run-test').addEventListener('click', async () => {
+      appendLog('--- Starting Live E2E Integration Test ---', 'info');
+
+      window.__testCapture = async () => {
+        const elements = Array.from(document.querySelectorAll('#sandbox-checkout-form input, #sandbox-checkout-form button, #sandbox-checkout-form div#total-amount-display'));
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 600;
+        return { elements, canvas };
+      };
+
+      try {
+        appendLog('Importing runTaskLoop from ../../src/content/orchestrator.js...', 'info');
+        const { runTaskLoop } = await import('../../src/content/orchestrator.js');
+
+        appendLog('Invoking runTaskLoop("Fill out and submit the checkout form", window.__testCapture)...', 'info');
+        const result = await runTaskLoop("Fill out and submit the checkout form", window.__testCapture);
+
+        appendLog(`E2E Result: ${JSON.stringify(result, null, 2)}`, result?.success ? 'success' : 'warn');
+        appendLog(`Status: ${result?.success ? 'SUCCESS' : 'FAILED'} | Steps: ${result?.steps ?? 'N/A'} | Reason: ${result?.reason ?? 'None'}`, result?.success ? 'summary' : 'error');
+      } catch (err) {
+        console.error('Fatal Integration Test Failure:', err.stack || err);
+        appendLog('Status: FAILED | Steps: N/A | Reason: See caught error above.', 'error');
+      }
+    });
+
+    // Assumption: form-level onsubmit and the action executor's submit guard prevent reloads during this test.
+  </script>
+</body>
+</html>

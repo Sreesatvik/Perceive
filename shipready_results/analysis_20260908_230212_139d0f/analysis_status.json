@@ -1,0 +1,82 @@
+{
+  "schema_version": "shipreadyv2.customer_analysis_status.v9",
+  "runner_version": "shipreadyv2.customer_mvp.v9",
+  "updated_at": "2026-09-08T17:33:01.555283+00:00",
+  "analysis_directory": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f",
+  "repository": "C:\\Users\\Sreesatvik\\Documents\\sih",
+  "engine_root": "C:\\Users\\Sreesatvik\\AppData\\Local\\Temp\\unvibecode-engine-qgp27dml\\engine",
+  "repository_estimate": {
+    "method": "supported_source_bytes_divided_by_3.2",
+    "source_files": 13,
+    "source_bytes": 83175,
+    "approximate_tokens": 25993,
+    "unreadable_files": []
+  },
+  "large_repository_policy": {
+    "limit_tokens": 2000000,
+    "is_large_repository": false,
+    "decision": "CONNECTED_CODE_MAP_AND_BUSINESS_REVIEW"
+  },
+  "overall_status": "COMPLETED",
+  "lanes": {
+    "FAST_LANE": {
+      "status": "COMPLETED",
+      "message": "Codebase map and connected code downloads are ready",
+      "started_at": "2026-09-08T17:32:15.576893+00:00",
+      "completed_at": "2026-09-08T17:32:15.576904+00:00",
+      "duration_seconds": 2.432,
+      "run_folder": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\fast_lane\\sih_shipreadyv2_20260908_230213",
+      "artifacts": {
+        "resolved_graph": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\fast_lane\\sih_shipreadyv2_20260908_230213\\shipreadyv2_resolved_graph.json",
+        "repository_profile": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\fast_lane\\sih_shipreadyv2_20260908_230213\\fast_lane_repository_profile.json",
+        "interactive_graph": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\fast_lane\\sih_shipreadyv2_20260908_230213\\fast_lane_symbol_resolution_graph.html",
+        "browser_context_store": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\fast_lane\\sih_shipreadyv2_20260908_230213\\fast_lane_context_store.js",
+        "api_context_store": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\fast_lane\\sih_shipreadyv2_20260908_230213\\fast_lane_context_store.json",
+        "complete_repository_context": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\fast_lane\\sih_shipreadyv2_20260908_230213\\shipready_complete_repository_context.zip",
+        "timing": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\fast_lane\\sih_shipreadyv2_20260908_230213\\fast_lane_timing.json"
+      },
+      "error": null
+    },
+    "FULL_ANALYSIS": {
+      "status": "COMPLETED",
+      "message": "Business review completed with no evidence-supported findings",
+      "started_at": "2026-09-08T17:33:01.125150+00:00",
+      "completed_at": "2026-09-08T17:33:01.125164+00:00",
+      "duration_seconds": 47.968,
+      "active_stage": null,
+      "completed_stages": [
+        "STEP_01",
+        "STEP_02",
+        "STEP_03",
+        "STEP_04",
+        "STEP_05",
+        "NO_FINDINGS_REPORT"
+      ],
+      "run_folder": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\full_analysis\\sih_shipreadyv2_20260908_230213",
+      "artifacts": {
+        "report_folder": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\full_analysis\\sih_shipreadyv2_20260908_230213",
+        "business_workflow_context": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\full_analysis\\sih_shipreadyv2_20260908_230213\\business_workflow_context.html",
+        "business_flaw_report": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\lanes\\full_analysis\\sih_shipreadyv2_20260908_230213\\shipreadyv2_customer_business_flaw_report_no_findings.html"
+      },
+      "review_outcome": "NO_REPORTABLE_FINDINGS",
+      "selection_summary": {
+        "selected_count": 0,
+        "candidate_count": 2,
+        "rejected_count": 2,
+        "investigation_gap_count": 0,
+        "repository_name": "sih",
+        "coverage": "COMPLETE",
+        "expected_requests": 1,
+        "completed_requests": 1,
+        "missing_requests": 0
+      },
+      "error": null
+    }
+  },
+  "customer_results": {
+    "connected_code_map": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\customer_results\\01_connected_code_map_for_llm.html",
+    "complete_repository_context": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\customer_results\\complete_repository_context_for_llm.zip",
+    "business_workflow_map": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\customer_results\\02_business_workflow_map.html",
+    "business_risk_findings": "C:\\Users\\Sreesatvik\\Documents\\sih\\shipready_results\\analysis_20260908_230212_139d0f\\customer_results\\03_business_risk_findings.html"
+  }
+}

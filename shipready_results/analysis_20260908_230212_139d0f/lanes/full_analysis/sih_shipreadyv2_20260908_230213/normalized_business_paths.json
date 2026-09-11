@@ -1,0 +1,3230 @@
+{
+  "schema_version": "shipready.normalized_business_paths.v1",
+  "compiler_contract_version": "1.0.4",
+  "source_manifest": {
+    "sources": [
+      {
+        "role": "PASS1_RESULTS",
+        "path": "shipreadyv2_pass1_full_results.jsonl",
+        "sha256": "f2ef4684b6f1e0ab3801f66a42642031815e106b35838af70dca3833e7c29d8d",
+        "record_count": 1
+      },
+      {
+        "role": "PASS1_REQUESTS",
+        "path": "shipreadyv2_pass1_llm_inputs.jsonl",
+        "sha256": "a53287f5a8225b6ad6ac7d93fb8323bb186e8c51a10c92fb213dcafb73cdb554",
+        "record_count": 2
+      },
+      {
+        "role": "RESOLVED_GRAPH",
+        "path": "shipreadyv2_resolved_graph.json",
+        "sha256": "c6852087cfd1e0ec3c288ac55c9c82519c5e133ac06a67493902c9319df568ef"
+      },
+      {
+        "role": "OTHER",
+        "path": "normalized_business_path.schema.json",
+        "sha256": "5d408b2cce353ab6ef4b37a0686330ff5610c6d7aaf4bc37fdf9b0aa1fc665cd"
+      },
+      {
+        "role": "OTHER",
+        "path": "universal_insight_rules.yaml",
+        "sha256": "4aa10f8c581100190c24365fa4188862c49738403db36c6c298ba15c54067ab7"
+      },
+      {
+        "role": "COMPACT_TAXONOMY",
+        "path": "archetype_taxonomy_pass1_compact.yaml",
+        "sha256": "93452175b35bd74bc9043766324c8442607e920a70548115c32a0b09a33673e3"
+      },
+      {
+        "role": "SEMANTIC_PACKS",
+        "path": "shipreadyv2_semantic_packs.jsonl",
+        "sha256": "27365a8dc02cc348ff84299a7fa3e2eaa1b6fd41c2c2cb2c60f63f48a0ff5733",
+        "record_count": 1
+      }
+    ],
+    "pass1_prompt_versions": [
+      "shipreadyv2.pass1.semantic_skim_test.v3"
+    ],
+    "pass1_models": [
+      "gpt-5.4-mini"
+    ],
+    "normalization_rules_version": "shipready.business_path_compiler.v4.1.1-narrow-normalization"
+  },
+  "scan": {
+    "completeness": "COMPLETE",
+    "expected_request_ids": [
+      "semantic_pack_001_part_01"
+    ],
+    "completed_request_ids": [
+      "semantic_pack_001_part_01"
+    ],
+    "missing_requests": [],
+    "semantic_pack_ids": [
+      "semantic_pack_001"
+    ],
+    "repository_wide_conclusions_allowed": false,
+    "qualification_message": "Repository-wide absence conclusions are prohibited: 1 significant production source files are not represented by normalized paths."
+  },
+  "repository": {
+    "repository_id": "repository_8b4b76b1fa0c0f95",
+    "repo_name": "sih",
+    "workspace_root_redacted": "<repository_root>",
+    "languages": {
+      "html": 3,
+      "javascript": 10
+    },
+    "source_file_count": 13,
+    "repository_summary_fragments": [
+      {
+        "source_fragment_ref": "semantic_pack_001_part_01",
+        "summary": "Privacy and redaction pipeline for detecting sensitive user data in DOM/content, tokenizing it, redacting visual output, auditing outgoing payloads, and verifying channel consistency before transport.",
+        "semantic_status": "INFERRED",
+        "evidence_refs": [
+          "evidence_e506e490ffa44c7f",
+          "evidence_91004f023cc409e4",
+          "evidence_0ba20a47a43e806a",
+          "evidence_b1f27a0564e7d1e3"
+        ]
+      }
+    ]
+  },
+  "components": [
+    {
+      "component_id": "component_b9d0d228c07ccc20",
+      "component_name": "cli (1 path)",
+      "component_type": "CLI",
+      "component_reachability": {
+        "llm_assertions": [],
+        "canonical_value": "PRODUCTION_ENTRYPOINT",
+        "canonicalization_status": "VERIFIED",
+        "semantic_status": "OBSERVED",
+        "canonicalization_reason": "Component reachability is derived from the canonical reachability of its member paths.",
+        "rule_ids": [
+          "COMPONENT_REACHABILITY_FROM_MEMBER_PATHS"
+        ],
+        "evidence_refs": [
+          "evidence_9b6cbca6677ba8ed",
+          "evidence_6ba2cf9dd39160f6",
+          "evidence_8696e41ce508aeb2",
+          "evidence_4abbb1f26ea5b9ab",
+          "evidence_a461a3764c513aea",
+          "evidence_30613013357bca47",
+          "evidence_583b6c6c976bb627",
+          "evidence_53a1f4633182a72c",
+          "evidence_c5e18cd07fa5829c",
+          "evidence_1ea01197043e44b8",
+          "evidence_1d29b03867b4d7ef",
+          "evidence_4ef402a9aa91fcca",
+          "evidence_6be1f01f30e5a987",
+          "evidence_7e60c5366638d49d",
+          "evidence_3f0b68e5355e6105",
+          "evidence_8cc61fa1daf91075",
+          "evidence_251581edefd11ef3",
+          "evidence_807a4629cd4288d2",
+          "evidence_a316b21d4f948eec",
+          "evidence_a293f60976e54b7f",
+          "evidence_b7e51d8bdb24c10e",
+          "evidence_be57706bc73d898d",
+          "evidence_6e8bcd56122cf21d",
+          "evidence_87497202ebede506",
+          "evidence_79e33dd3c5829371",
+          "evidence_41bf1a2a81c445f2",
+          "evidence_71447a1f53b0c87c",
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db",
+          "evidence_ac4dbcad5e0d7756",
+          "evidence_9bd57aef78bcd014",
+          "evidence_46fdcfb9733008a0",
+          "evidence_e61366d44f5c6da6",
+          "evidence_9c98af9824a42240"
+        ],
+        "canonical_confidence": {
+          "score": 78,
+          "label": "MEDIUM",
+          "components": {
+            "evidence_strength": 40,
+            "path_completeness": 25,
+            "independent_corroboration": 0,
+            "reachability_confidence": 0,
+            "evidence_integrity": 0
+          },
+          "reasons": [
+            "Component reachability is derived from the canonical reachability of its member paths."
+          ],
+          "caps_applied": []
+        }
+      },
+      "component_relationship_to_primary_application": "PRIMARY",
+      "file_paths": [
+        "dev 2/channel-consistency-check.js",
+        "dev 2/dom-heuristics.js",
+        "dev 2/e2e-test.html",
+        "dev 2/leakage-auditor.js",
+        "dev 2/pii-patterns.js",
+        "dev 2/redaction-engine.js",
+        "dev 2/redaction-renderer.js",
+        "dev 2/sensitivity-tiers.js",
+        "dev 2/session-vault-manager.js",
+        "dev 2/token-vault.js"
+      ],
+      "graph_node_ids": [
+        "chunk_32bff1c580ffdd53",
+        "chunk_acae45ec085ae4dd",
+        "chunk_673f99a40f4762f8",
+        "chunk_fb04c958c99d0987",
+        "chunk_d8e2621583ecfe86",
+        "chunk_629652fe2a334c23",
+        "chunk_278ebdb2b721c12a"
+      ],
+      "entrypoint_ids": [
+        "entrypoint_597b29989525d4e0",
+        "entrypoint_3998e6c6258deee4",
+        "entrypoint_da7e8a6028a879de"
+      ],
+      "normalized_path_ids": [
+        "business_path_c9bde9037f1f2ad0"
+      ],
+      "canonical_confidence": {
+        "score": 90,
+        "label": "HIGH",
+        "components": {
+          "evidence_strength": 20,
+          "path_completeness": 20,
+          "independent_corroboration": 5,
+          "reachability_confidence": 10,
+          "evidence_integrity": 10
+        },
+        "reasons": [
+          "CLI invocation evidence is directly present."
+        ],
+        "caps_applied": []
+      },
+      "evidence_refs": [
+        "evidence_9b6cbca6677ba8ed",
+        "evidence_6ba2cf9dd39160f6",
+        "evidence_8696e41ce508aeb2",
+        "evidence_4abbb1f26ea5b9ab",
+        "evidence_a461a3764c513aea",
+        "evidence_30613013357bca47",
+        "evidence_583b6c6c976bb627",
+        "evidence_53a1f4633182a72c",
+        "evidence_c5e18cd07fa5829c",
+        "evidence_1ea01197043e44b8",
+        "evidence_1d29b03867b4d7ef",
+        "evidence_4ef402a9aa91fcca",
+        "evidence_6be1f01f30e5a987",
+        "evidence_7e60c5366638d49d",
+        "evidence_3f0b68e5355e6105",
+        "evidence_8cc61fa1daf91075",
+        "evidence_251581edefd11ef3",
+        "evidence_807a4629cd4288d2",
+        "evidence_a316b21d4f948eec",
+        "evidence_a293f60976e54b7f",
+        "evidence_b7e51d8bdb24c10e",
+        "evidence_be57706bc73d898d",
+        "evidence_6e8bcd56122cf21d",
+        "evidence_87497202ebede506",
+        "evidence_79e33dd3c5829371",
+        "evidence_41bf1a2a81c445f2",
+        "evidence_71447a1f53b0c87c",
+        "evidence_5460d85c8615acc6",
+        "evidence_6ccdccc17427a1be",
+        "evidence_daea818b8e5cf5db",
+        "evidence_ac4dbcad5e0d7756",
+        "evidence_9bd57aef78bcd014",
+        "evidence_46fdcfb9733008a0",
+        "evidence_e61366d44f5c6da6",
+        "evidence_9c98af9824a42240"
+      ]
+    }
+  ],
+  "paths": [
+    {
+      "normalized_path_id": "business_path_c9bde9037f1f2ad0",
+      "component_id": "component_b9d0d228c07ccc20",
+      "source_fragments": [
+        {
+          "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+          "request_id": "semantic_pack_001_part_01",
+          "semantic_pack_id": "semantic_pack_001",
+          "semantic_part_sequence": 1,
+          "local_path_id": "path_1_dom_to_redacted_payload",
+          "pass1_schema_version": "shipreadyv2.pass1_semantic_skim_result.v2",
+          "pass1_prompt_version": "shipreadyv2.pass1.semantic_skim_test.v3"
+        }
+      ],
+      "path_summary": {
+        "statement": "Browser page inspection turns sensitive DOM fields into semantic tokens and a redacted canvas payload for the privacy demo.",
+        "semantic_status": "OBSERVED",
+        "evidence_refs": [
+          "evidence_9b6cbca6677ba8ed",
+          "evidence_6ba2cf9dd39160f6",
+          "evidence_8696e41ce508aeb2",
+          "evidence_4abbb1f26ea5b9ab",
+          "evidence_a461a3764c513aea",
+          "evidence_30613013357bca47",
+          "evidence_583b6c6c976bb627",
+          "evidence_53a1f4633182a72c",
+          "evidence_c5e18cd07fa5829c",
+          "evidence_1ea01197043e44b8",
+          "evidence_1d29b03867b4d7ef",
+          "evidence_4ef402a9aa91fcca",
+          "evidence_6be1f01f30e5a987",
+          "evidence_7e60c5366638d49d",
+          "evidence_3f0b68e5355e6105",
+          "evidence_8cc61fa1daf91075",
+          "evidence_251581edefd11ef3",
+          "evidence_807a4629cd4288d2",
+          "evidence_a316b21d4f948eec",
+          "evidence_a293f60976e54b7f",
+          "evidence_b7e51d8bdb24c10e",
+          "evidence_be57706bc73d898d",
+          "evidence_6e8bcd56122cf21d",
+          "evidence_87497202ebede506",
+          "evidence_79e33dd3c5829371",
+          "evidence_41bf1a2a81c445f2",
+          "evidence_71447a1f53b0c87c",
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db",
+          "evidence_ac4dbcad5e0d7756",
+          "evidence_9bd57aef78bcd014",
+          "evidence_46fdcfb9733008a0",
+          "evidence_e61366d44f5c6da6",
+          "evidence_9c98af9824a42240"
+        ]
+      },
+      "capability": {
+        "statement": "Privacy and redaction orchestration",
+        "semantic_status": "INFERRED",
+        "evidence_refs": [
+          "evidence_9b6cbca6677ba8ed",
+          "evidence_6ba2cf9dd39160f6",
+          "evidence_8696e41ce508aeb2",
+          "evidence_4abbb1f26ea5b9ab",
+          "evidence_a461a3764c513aea",
+          "evidence_30613013357bca47",
+          "evidence_583b6c6c976bb627",
+          "evidence_53a1f4633182a72c",
+          "evidence_c5e18cd07fa5829c",
+          "evidence_1ea01197043e44b8",
+          "evidence_1d29b03867b4d7ef",
+          "evidence_4ef402a9aa91fcca",
+          "evidence_6be1f01f30e5a987",
+          "evidence_7e60c5366638d49d",
+          "evidence_3f0b68e5355e6105",
+          "evidence_8cc61fa1daf91075",
+          "evidence_251581edefd11ef3",
+          "evidence_807a4629cd4288d2",
+          "evidence_a316b21d4f948eec",
+          "evidence_a293f60976e54b7f",
+          "evidence_b7e51d8bdb24c10e",
+          "evidence_be57706bc73d898d",
+          "evidence_6e8bcd56122cf21d",
+          "evidence_87497202ebede506",
+          "evidence_79e33dd3c5829371",
+          "evidence_41bf1a2a81c445f2",
+          "evidence_71447a1f53b0c87c",
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db",
+          "evidence_ac4dbcad5e0d7756",
+          "evidence_9bd57aef78bcd014",
+          "evidence_46fdcfb9733008a0",
+          "evidence_e61366d44f5c6da6",
+          "evidence_9c98af9824a42240"
+        ]
+      },
+      "business_context": {
+        "actor_goal": "inspect a checkout-style page and convert sensitive fields into safe representations",
+        "business_object": "DOM elements and outgoing redaction payload",
+        "affected_actor_or_counterparty": "browser user / transport consumer",
+        "business_value_or_consequence": [
+          "prevents raw sensitive values from appearing in the outgoing payload",
+          "produces a sanitized canvas image and structured DOM summary",
+          "preserves locally resolvable semantic tokens for the same sensitive values"
+        ]
+      },
+      "repo_specific_intent": {
+        "statement": "inspect page fields, classify sensitivity, tokenize sensitive values, and build a redacted payload",
+        "semantic_status": "INFERRED",
+        "evidence_refs": [
+          "evidence_9b6cbca6677ba8ed",
+          "evidence_6ba2cf9dd39160f6",
+          "evidence_8696e41ce508aeb2",
+          "evidence_4abbb1f26ea5b9ab",
+          "evidence_a461a3764c513aea",
+          "evidence_30613013357bca47",
+          "evidence_583b6c6c976bb627",
+          "evidence_53a1f4633182a72c",
+          "evidence_c5e18cd07fa5829c",
+          "evidence_1ea01197043e44b8",
+          "evidence_1d29b03867b4d7ef",
+          "evidence_4ef402a9aa91fcca",
+          "evidence_6be1f01f30e5a987",
+          "evidence_7e60c5366638d49d",
+          "evidence_3f0b68e5355e6105",
+          "evidence_8cc61fa1daf91075",
+          "evidence_251581edefd11ef3",
+          "evidence_807a4629cd4288d2",
+          "evidence_a316b21d4f948eec",
+          "evidence_a293f60976e54b7f",
+          "evidence_b7e51d8bdb24c10e",
+          "evidence_be57706bc73d898d",
+          "evidence_6e8bcd56122cf21d",
+          "evidence_87497202ebede506",
+          "evidence_79e33dd3c5829371",
+          "evidence_41bf1a2a81c445f2",
+          "evidence_71447a1f53b0c87c",
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db",
+          "evidence_ac4dbcad5e0d7756",
+          "evidence_9bd57aef78bcd014",
+          "evidence_46fdcfb9733008a0",
+          "evidence_e61366d44f5c6da6",
+          "evidence_9c98af9824a42240"
+        ]
+      },
+      "intent_classification": {
+        "llm_assertions": [
+          {
+            "value": "OTHER_REPO_SPECIFIC_INTENT",
+            "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+            "evidence_status": "INFERRED",
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2",
+              "evidence_4abbb1f26ea5b9ab",
+              "evidence_a461a3764c513aea",
+              "evidence_30613013357bca47",
+              "evidence_583b6c6c976bb627",
+              "evidence_53a1f4633182a72c",
+              "evidence_c5e18cd07fa5829c",
+              "evidence_1ea01197043e44b8",
+              "evidence_1d29b03867b4d7ef",
+              "evidence_4ef402a9aa91fcca",
+              "evidence_6be1f01f30e5a987",
+              "evidence_7e60c5366638d49d",
+              "evidence_3f0b68e5355e6105",
+              "evidence_8cc61fa1daf91075",
+              "evidence_251581edefd11ef3",
+              "evidence_807a4629cd4288d2",
+              "evidence_a316b21d4f948eec",
+              "evidence_a293f60976e54b7f",
+              "evidence_b7e51d8bdb24c10e",
+              "evidence_be57706bc73d898d",
+              "evidence_6e8bcd56122cf21d",
+              "evidence_87497202ebede506",
+              "evidence_79e33dd3c5829371",
+              "evidence_41bf1a2a81c445f2",
+              "evidence_71447a1f53b0c87c",
+              "evidence_5460d85c8615acc6",
+              "evidence_6ccdccc17427a1be",
+              "evidence_daea818b8e5cf5db",
+              "evidence_ac4dbcad5e0d7756",
+              "evidence_9bd57aef78bcd014",
+              "evidence_46fdcfb9733008a0",
+              "evidence_e61366d44f5c6da6",
+              "evidence_9c98af9824a42240"
+            ],
+            "llm_confidence": "HIGH"
+          }
+        ],
+        "canonical_value": "OTHER_REPO_SPECIFIC_INTENT",
+        "canonicalization_status": "SUPPORTED",
+        "semantic_status": "INFERRED",
+        "canonicalization_reason": "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact.",
+        "rule_ids": [
+          "TAXONOMY_MEMBERSHIP_PLUS_PATH_EVIDENCE"
+        ],
+        "evidence_refs": [
+          "evidence_9b6cbca6677ba8ed",
+          "evidence_6ba2cf9dd39160f6",
+          "evidence_8696e41ce508aeb2",
+          "evidence_4abbb1f26ea5b9ab",
+          "evidence_a461a3764c513aea",
+          "evidence_30613013357bca47",
+          "evidence_583b6c6c976bb627",
+          "evidence_53a1f4633182a72c",
+          "evidence_c5e18cd07fa5829c",
+          "evidence_1ea01197043e44b8",
+          "evidence_1d29b03867b4d7ef",
+          "evidence_4ef402a9aa91fcca",
+          "evidence_6be1f01f30e5a987",
+          "evidence_7e60c5366638d49d",
+          "evidence_3f0b68e5355e6105",
+          "evidence_8cc61fa1daf91075",
+          "evidence_251581edefd11ef3",
+          "evidence_807a4629cd4288d2",
+          "evidence_a316b21d4f948eec",
+          "evidence_a293f60976e54b7f",
+          "evidence_b7e51d8bdb24c10e",
+          "evidence_be57706bc73d898d",
+          "evidence_6e8bcd56122cf21d",
+          "evidence_87497202ebede506",
+          "evidence_79e33dd3c5829371",
+          "evidence_41bf1a2a81c445f2",
+          "evidence_71447a1f53b0c87c",
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db",
+          "evidence_ac4dbcad5e0d7756",
+          "evidence_9bd57aef78bcd014",
+          "evidence_46fdcfb9733008a0",
+          "evidence_e61366d44f5c6da6",
+          "evidence_9c98af9824a42240"
+        ],
+        "canonical_confidence": {
+          "score": 68,
+          "label": "MEDIUM",
+          "components": {
+            "evidence_strength": 40,
+            "path_completeness": 25,
+            "independent_corroboration": 0,
+            "reachability_confidence": 0,
+            "evidence_integrity": 0
+          },
+          "reasons": [
+            "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact."
+          ],
+          "caps_applied": []
+        }
+      },
+      "intent_object": "privacy & redaction payload",
+      "desired_outcome": {
+        "statement": "a payload with semantic tokens and redacted image output that can be safely used downstream",
+        "semantic_status": "INFERRED",
+        "evidence_refs": [
+          "evidence_9b6cbca6677ba8ed",
+          "evidence_6ba2cf9dd39160f6",
+          "evidence_8696e41ce508aeb2",
+          "evidence_4abbb1f26ea5b9ab",
+          "evidence_a461a3764c513aea",
+          "evidence_30613013357bca47",
+          "evidence_583b6c6c976bb627",
+          "evidence_53a1f4633182a72c",
+          "evidence_c5e18cd07fa5829c",
+          "evidence_1ea01197043e44b8",
+          "evidence_1d29b03867b4d7ef",
+          "evidence_4ef402a9aa91fcca",
+          "evidence_6be1f01f30e5a987",
+          "evidence_7e60c5366638d49d",
+          "evidence_3f0b68e5355e6105",
+          "evidence_8cc61fa1daf91075",
+          "evidence_251581edefd11ef3",
+          "evidence_807a4629cd4288d2",
+          "evidence_a316b21d4f948eec",
+          "evidence_a293f60976e54b7f",
+          "evidence_b7e51d8bdb24c10e",
+          "evidence_be57706bc73d898d",
+          "evidence_6e8bcd56122cf21d",
+          "evidence_87497202ebede506",
+          "evidence_79e33dd3c5829371",
+          "evidence_41bf1a2a81c445f2",
+          "evidence_71447a1f53b0c87c",
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db",
+          "evidence_ac4dbcad5e0d7756",
+          "evidence_9bd57aef78bcd014",
+          "evidence_46fdcfb9733008a0",
+          "evidence_e61366d44f5c6da6",
+          "evidence_9c98af9824a42240"
+        ]
+      },
+      "reachability": {
+        "llm_assertions": [],
+        "canonical_value": "PRODUCTION_ENTRYPOINT",
+        "canonicalization_status": "VERIFIED",
+        "semantic_status": "OBSERVED",
+        "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+        "rule_ids": [
+          "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+        ],
+        "evidence_refs": [
+          "evidence_9b6cbca6677ba8ed",
+          "evidence_6ba2cf9dd39160f6",
+          "evidence_8696e41ce508aeb2",
+          "evidence_4abbb1f26ea5b9ab",
+          "evidence_a461a3764c513aea",
+          "evidence_30613013357bca47",
+          "evidence_583b6c6c976bb627",
+          "evidence_53a1f4633182a72c",
+          "evidence_c5e18cd07fa5829c",
+          "evidence_1ea01197043e44b8",
+          "evidence_1d29b03867b4d7ef",
+          "evidence_4ef402a9aa91fcca",
+          "evidence_6be1f01f30e5a987",
+          "evidence_7e60c5366638d49d",
+          "evidence_3f0b68e5355e6105",
+          "evidence_8cc61fa1daf91075",
+          "evidence_251581edefd11ef3",
+          "evidence_807a4629cd4288d2",
+          "evidence_a316b21d4f948eec",
+          "evidence_a293f60976e54b7f",
+          "evidence_b7e51d8bdb24c10e",
+          "evidence_be57706bc73d898d",
+          "evidence_6e8bcd56122cf21d",
+          "evidence_87497202ebede506",
+          "evidence_79e33dd3c5829371",
+          "evidence_41bf1a2a81c445f2",
+          "evidence_71447a1f53b0c87c",
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db",
+          "evidence_ac4dbcad5e0d7756",
+          "evidence_9bd57aef78bcd014",
+          "evidence_46fdcfb9733008a0",
+          "evidence_e61366d44f5c6da6",
+          "evidence_9c98af9824a42240"
+        ],
+        "canonical_confidence": {
+          "score": 82,
+          "label": "HIGH",
+          "components": {
+            "evidence_strength": 40,
+            "path_completeness": 25,
+            "independent_corroboration": 0,
+            "reachability_confidence": 0,
+            "evidence_integrity": 0
+          },
+          "reasons": [
+            "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+          ],
+          "caps_applied": []
+        }
+      },
+      "runtime_classifications": [
+        {
+          "llm_assertions": [
+            {
+              "value": "SERVER_SIDE_RENDERED_SSR_ENGINE",
+              "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+              "evidence_status": "INFERRED",
+              "evidence_refs": [
+                "evidence_9b6cbca6677ba8ed",
+                "evidence_6ba2cf9dd39160f6",
+                "evidence_8696e41ce508aeb2",
+                "evidence_4abbb1f26ea5b9ab",
+                "evidence_a461a3764c513aea",
+                "evidence_30613013357bca47",
+                "evidence_583b6c6c976bb627",
+                "evidence_53a1f4633182a72c",
+                "evidence_c5e18cd07fa5829c",
+                "evidence_1ea01197043e44b8",
+                "evidence_1d29b03867b4d7ef",
+                "evidence_4ef402a9aa91fcca",
+                "evidence_6be1f01f30e5a987",
+                "evidence_7e60c5366638d49d",
+                "evidence_3f0b68e5355e6105",
+                "evidence_8cc61fa1daf91075",
+                "evidence_251581edefd11ef3",
+                "evidence_807a4629cd4288d2",
+                "evidence_a316b21d4f948eec",
+                "evidence_a293f60976e54b7f",
+                "evidence_b7e51d8bdb24c10e",
+                "evidence_be57706bc73d898d",
+                "evidence_6e8bcd56122cf21d",
+                "evidence_87497202ebede506",
+                "evidence_79e33dd3c5829371",
+                "evidence_41bf1a2a81c445f2",
+                "evidence_71447a1f53b0c87c",
+                "evidence_5460d85c8615acc6",
+                "evidence_6ccdccc17427a1be",
+                "evidence_daea818b8e5cf5db",
+                "evidence_ac4dbcad5e0d7756",
+                "evidence_9bd57aef78bcd014",
+                "evidence_46fdcfb9733008a0",
+                "evidence_e61366d44f5c6da6",
+                "evidence_9c98af9824a42240"
+              ],
+              "llm_confidence": "HIGH"
+            }
+          ],
+          "canonical_value": "SERVER_SIDE_RENDERED_SSR_ENGINE",
+          "canonicalization_status": "SUPPORTED",
+          "semantic_status": "INFERRED",
+          "canonicalization_reason": "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact.",
+          "rule_ids": [
+            "TAXONOMY_MEMBERSHIP_PLUS_PATH_EVIDENCE"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2",
+            "evidence_4abbb1f26ea5b9ab",
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca",
+            "evidence_6be1f01f30e5a987",
+            "evidence_7e60c5366638d49d",
+            "evidence_3f0b68e5355e6105",
+            "evidence_8cc61fa1daf91075",
+            "evidence_251581edefd11ef3",
+            "evidence_807a4629cd4288d2",
+            "evidence_a316b21d4f948eec",
+            "evidence_a293f60976e54b7f",
+            "evidence_b7e51d8bdb24c10e",
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d",
+            "evidence_87497202ebede506",
+            "evidence_79e33dd3c5829371",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_71447a1f53b0c87c",
+            "evidence_5460d85c8615acc6",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_9bd57aef78bcd014",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6",
+            "evidence_9c98af9824a42240"
+          ],
+          "canonical_confidence": {
+            "score": 68,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 40,
+              "path_completeness": 25,
+              "independent_corroboration": 0,
+              "reachability_confidence": 0,
+              "evidence_integrity": 0
+            },
+            "reasons": [
+              "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact."
+            ],
+            "caps_applied": []
+          }
+        },
+        {
+          "llm_assertions": [
+            {
+              "value": "SINGLE_PAGE_APPLICATION_SPA",
+              "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+              "evidence_status": "INFERRED",
+              "evidence_refs": [
+                "evidence_9b6cbca6677ba8ed",
+                "evidence_6ba2cf9dd39160f6",
+                "evidence_8696e41ce508aeb2",
+                "evidence_4abbb1f26ea5b9ab",
+                "evidence_a461a3764c513aea",
+                "evidence_30613013357bca47",
+                "evidence_583b6c6c976bb627",
+                "evidence_53a1f4633182a72c",
+                "evidence_c5e18cd07fa5829c",
+                "evidence_1ea01197043e44b8",
+                "evidence_1d29b03867b4d7ef",
+                "evidence_4ef402a9aa91fcca",
+                "evidence_6be1f01f30e5a987",
+                "evidence_7e60c5366638d49d",
+                "evidence_3f0b68e5355e6105",
+                "evidence_8cc61fa1daf91075",
+                "evidence_251581edefd11ef3",
+                "evidence_807a4629cd4288d2",
+                "evidence_a316b21d4f948eec",
+                "evidence_a293f60976e54b7f",
+                "evidence_b7e51d8bdb24c10e",
+                "evidence_be57706bc73d898d",
+                "evidence_6e8bcd56122cf21d",
+                "evidence_87497202ebede506",
+                "evidence_79e33dd3c5829371",
+                "evidence_41bf1a2a81c445f2",
+                "evidence_71447a1f53b0c87c",
+                "evidence_5460d85c8615acc6",
+                "evidence_6ccdccc17427a1be",
+                "evidence_daea818b8e5cf5db",
+                "evidence_ac4dbcad5e0d7756",
+                "evidence_9bd57aef78bcd014",
+                "evidence_46fdcfb9733008a0",
+                "evidence_e61366d44f5c6da6",
+                "evidence_9c98af9824a42240"
+              ],
+              "llm_confidence": "HIGH"
+            }
+          ],
+          "canonical_value": "SINGLE_PAGE_APPLICATION_SPA",
+          "canonicalization_status": "SUPPORTED",
+          "semantic_status": "INFERRED",
+          "canonicalization_reason": "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact.",
+          "rule_ids": [
+            "TAXONOMY_MEMBERSHIP_PLUS_PATH_EVIDENCE"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2",
+            "evidence_4abbb1f26ea5b9ab",
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca",
+            "evidence_6be1f01f30e5a987",
+            "evidence_7e60c5366638d49d",
+            "evidence_3f0b68e5355e6105",
+            "evidence_8cc61fa1daf91075",
+            "evidence_251581edefd11ef3",
+            "evidence_807a4629cd4288d2",
+            "evidence_a316b21d4f948eec",
+            "evidence_a293f60976e54b7f",
+            "evidence_b7e51d8bdb24c10e",
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d",
+            "evidence_87497202ebede506",
+            "evidence_79e33dd3c5829371",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_71447a1f53b0c87c",
+            "evidence_5460d85c8615acc6",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_9bd57aef78bcd014",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6",
+            "evidence_9c98af9824a42240"
+          ],
+          "canonical_confidence": {
+            "score": 68,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 40,
+              "path_completeness": 25,
+              "independent_corroboration": 0,
+              "reachability_confidence": 0,
+              "evidence_integrity": 0
+            },
+            "reasons": [
+              "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact."
+            ],
+            "caps_applied": []
+          }
+        }
+      ],
+      "workload_classifications": [
+        {
+          "llm_assertions": [
+            {
+              "value": "DATA_DENORMALIZATION_FLAT_SERIALIZATION",
+              "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+              "evidence_status": "INFERRED",
+              "evidence_refs": [
+                "evidence_9b6cbca6677ba8ed",
+                "evidence_6ba2cf9dd39160f6",
+                "evidence_8696e41ce508aeb2",
+                "evidence_4abbb1f26ea5b9ab",
+                "evidence_a461a3764c513aea",
+                "evidence_30613013357bca47",
+                "evidence_583b6c6c976bb627",
+                "evidence_53a1f4633182a72c",
+                "evidence_c5e18cd07fa5829c",
+                "evidence_1ea01197043e44b8",
+                "evidence_1d29b03867b4d7ef",
+                "evidence_4ef402a9aa91fcca",
+                "evidence_6be1f01f30e5a987",
+                "evidence_7e60c5366638d49d",
+                "evidence_3f0b68e5355e6105",
+                "evidence_8cc61fa1daf91075",
+                "evidence_251581edefd11ef3",
+                "evidence_807a4629cd4288d2",
+                "evidence_a316b21d4f948eec",
+                "evidence_a293f60976e54b7f",
+                "evidence_b7e51d8bdb24c10e",
+                "evidence_be57706bc73d898d",
+                "evidence_6e8bcd56122cf21d",
+                "evidence_87497202ebede506",
+                "evidence_79e33dd3c5829371",
+                "evidence_41bf1a2a81c445f2",
+                "evidence_71447a1f53b0c87c",
+                "evidence_5460d85c8615acc6",
+                "evidence_6ccdccc17427a1be",
+                "evidence_daea818b8e5cf5db",
+                "evidence_ac4dbcad5e0d7756",
+                "evidence_9bd57aef78bcd014",
+                "evidence_46fdcfb9733008a0",
+                "evidence_e61366d44f5c6da6",
+                "evidence_9c98af9824a42240"
+              ],
+              "llm_confidence": "HIGH"
+            }
+          ],
+          "canonical_value": "DATA_DENORMALIZATION_FLAT_SERIALIZATION",
+          "canonicalization_status": "SUPPORTED",
+          "semantic_status": "INFERRED",
+          "canonicalization_reason": "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact.",
+          "rule_ids": [
+            "TAXONOMY_MEMBERSHIP_PLUS_PATH_EVIDENCE"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2",
+            "evidence_4abbb1f26ea5b9ab",
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca",
+            "evidence_6be1f01f30e5a987",
+            "evidence_7e60c5366638d49d",
+            "evidence_3f0b68e5355e6105",
+            "evidence_8cc61fa1daf91075",
+            "evidence_251581edefd11ef3",
+            "evidence_807a4629cd4288d2",
+            "evidence_a316b21d4f948eec",
+            "evidence_a293f60976e54b7f",
+            "evidence_b7e51d8bdb24c10e",
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d",
+            "evidence_87497202ebede506",
+            "evidence_79e33dd3c5829371",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_71447a1f53b0c87c",
+            "evidence_5460d85c8615acc6",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_9bd57aef78bcd014",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6",
+            "evidence_9c98af9824a42240"
+          ],
+          "canonical_confidence": {
+            "score": 68,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 40,
+              "path_completeness": 25,
+              "independent_corroboration": 0,
+              "reachability_confidence": 0,
+              "evidence_integrity": 0
+            },
+            "reasons": [
+              "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact."
+            ],
+            "caps_applied": []
+          }
+        },
+        {
+          "llm_assertions": [
+            {
+              "value": "API_RESPONSE_PAYLOAD_REDACTION",
+              "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+              "evidence_status": "INFERRED",
+              "evidence_refs": [
+                "evidence_9b6cbca6677ba8ed",
+                "evidence_6ba2cf9dd39160f6",
+                "evidence_8696e41ce508aeb2",
+                "evidence_4abbb1f26ea5b9ab",
+                "evidence_a461a3764c513aea",
+                "evidence_30613013357bca47",
+                "evidence_583b6c6c976bb627",
+                "evidence_53a1f4633182a72c",
+                "evidence_c5e18cd07fa5829c",
+                "evidence_1ea01197043e44b8",
+                "evidence_1d29b03867b4d7ef",
+                "evidence_4ef402a9aa91fcca",
+                "evidence_6be1f01f30e5a987",
+                "evidence_7e60c5366638d49d",
+                "evidence_3f0b68e5355e6105",
+                "evidence_8cc61fa1daf91075",
+                "evidence_251581edefd11ef3",
+                "evidence_807a4629cd4288d2",
+                "evidence_a316b21d4f948eec",
+                "evidence_a293f60976e54b7f",
+                "evidence_b7e51d8bdb24c10e",
+                "evidence_be57706bc73d898d",
+                "evidence_6e8bcd56122cf21d",
+                "evidence_87497202ebede506",
+                "evidence_79e33dd3c5829371",
+                "evidence_41bf1a2a81c445f2",
+                "evidence_71447a1f53b0c87c",
+                "evidence_5460d85c8615acc6",
+                "evidence_6ccdccc17427a1be",
+                "evidence_daea818b8e5cf5db",
+                "evidence_ac4dbcad5e0d7756",
+                "evidence_9bd57aef78bcd014",
+                "evidence_46fdcfb9733008a0",
+                "evidence_e61366d44f5c6da6",
+                "evidence_9c98af9824a42240"
+              ],
+              "llm_confidence": "HIGH"
+            }
+          ],
+          "canonical_value": "API_RESPONSE_PAYLOAD_REDACTION",
+          "canonicalization_status": "SUPPORTED",
+          "semantic_status": "INFERRED",
+          "canonicalization_reason": "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact.",
+          "rule_ids": [
+            "TAXONOMY_MEMBERSHIP_PLUS_PATH_EVIDENCE"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2",
+            "evidence_4abbb1f26ea5b9ab",
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca",
+            "evidence_6be1f01f30e5a987",
+            "evidence_7e60c5366638d49d",
+            "evidence_3f0b68e5355e6105",
+            "evidence_8cc61fa1daf91075",
+            "evidence_251581edefd11ef3",
+            "evidence_807a4629cd4288d2",
+            "evidence_a316b21d4f948eec",
+            "evidence_a293f60976e54b7f",
+            "evidence_b7e51d8bdb24c10e",
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d",
+            "evidence_87497202ebede506",
+            "evidence_79e33dd3c5829371",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_71447a1f53b0c87c",
+            "evidence_5460d85c8615acc6",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_9bd57aef78bcd014",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6",
+            "evidence_9c98af9824a42240"
+          ],
+          "canonical_confidence": {
+            "score": 68,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 40,
+              "path_completeness": 25,
+              "independent_corroboration": 0,
+              "reachability_confidence": 0,
+              "evidence_integrity": 0
+            },
+            "reasons": [
+              "The LLM label exists in the approved taxonomy and the path has validated structural evidence; the label remains supported rather than treated as a direct code fact."
+            ],
+            "caps_applied": []
+          }
+        }
+      ],
+      "entrypoints": [
+        {
+          "entrypoint_id": "entrypoint_597b29989525d4e0",
+          "repo_native_entrypoint": "processPageForRedaction(elements, mockCanvas, tokenVault)",
+          "entrypoint_kind": "UI_ACTION",
+          "reachability": {
+            "llm_assertions": [],
+            "canonical_value": "PRODUCTION_ENTRYPOINT",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+            "rule_ids": [
+              "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2"
+            ],
+            "canonical_confidence": {
+              "score": 82,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 30,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+              ],
+              "caps_applied": []
+            }
+          },
+          "graph_node_ids": [
+            "chunk_32bff1c580ffdd53",
+            "chunk_acae45ec085ae4dd",
+            "chunk_673f99a40f4762f8",
+            "chunk_fb04c958c99d0987",
+            "chunk_d8e2621583ecfe86",
+            "chunk_629652fe2a334c23",
+            "chunk_278ebdb2b721c12a"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        },
+        {
+          "entrypoint_id": "entrypoint_3998e6c6258deee4",
+          "repo_native_entrypoint": "executePipeline(simulateLeak=false)",
+          "entrypoint_kind": "PUBLIC_FUNCTION_OR_METHOD",
+          "reachability": {
+            "llm_assertions": [],
+            "canonical_value": "PRODUCTION_ENTRYPOINT",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+            "rule_ids": [
+              "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2"
+            ],
+            "canonical_confidence": {
+              "score": 82,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 30,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+              ],
+              "caps_applied": []
+            }
+          },
+          "graph_node_ids": [
+            "chunk_32bff1c580ffdd53",
+            "chunk_acae45ec085ae4dd",
+            "chunk_673f99a40f4762f8",
+            "chunk_fb04c958c99d0987",
+            "chunk_d8e2621583ecfe86",
+            "chunk_629652fe2a334c23",
+            "chunk_278ebdb2b721c12a"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        },
+        {
+          "entrypoint_id": "entrypoint_da7e8a6028a879de",
+          "repo_native_entrypoint": "btn-run-pipeline click",
+          "entrypoint_kind": "CLI_COMMAND",
+          "reachability": {
+            "llm_assertions": [],
+            "canonical_value": "PRODUCTION_ENTRYPOINT",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+            "rule_ids": [
+              "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2"
+            ],
+            "canonical_confidence": {
+              "score": 82,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 30,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+              ],
+              "caps_applied": []
+            }
+          },
+          "graph_node_ids": [
+            "chunk_32bff1c580ffdd53",
+            "chunk_acae45ec085ae4dd",
+            "chunk_673f99a40f4762f8",
+            "chunk_fb04c958c99d0987",
+            "chunk_d8e2621583ecfe86",
+            "chunk_629652fe2a334c23",
+            "chunk_278ebdb2b721c12a"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        }
+      ],
+      "actors": [
+        {
+          "actor_id": "actor_111d5d8e774a18b4",
+          "repo_native_actor": "browser user",
+          "business_role": "demo operator",
+          "actor_classification": {
+            "llm_assertions": [
+              {
+                "value": "REGISTERED_FREE_USER",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_9b6cbca6677ba8ed",
+                  "evidence_6ba2cf9dd39160f6"
+                ],
+                "llm_confidence": "MEDIUM"
+              }
+            ],
+            "canonical_value": "REGISTERED_FREE_USER",
+            "canonicalization_status": "SUPPORTED",
+            "semantic_status": "INFERRED",
+            "canonicalization_reason": "Actor archetype is supported by cited behavior, but remains a normalized interpretation of the repo-native actor.",
+            "rule_ids": [
+              "ACTOR_REQUIRES_BEHAVIORAL_EVIDENCE"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6"
+            ],
+            "canonical_confidence": {
+              "score": 68,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Actor archetype is supported by cited behavior, but remains a normalized interpretation of the repo-native actor."
+              ],
+              "caps_applied": []
+            }
+          },
+          "authentication_context": {
+            "llm_assertions": [
+              {
+                "value": "UNKNOWN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_9b6cbca6677ba8ed",
+                  "evidence_6ba2cf9dd39160f6"
+                ],
+                "llm_confidence": "MEDIUM"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Caller labels or user-controlled fields do not establish authenticated identity.",
+            "rule_ids": [
+              "AUTH_CONTEXT_REQUIRES_IDENTITY_EVIDENCE"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Caller labels or user-controlled fields do not establish authenticated identity."
+              ],
+              "caps_applied": []
+            }
+          },
+          "lifecycle_status": "interactive page visitor",
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6"
+          ]
+        },
+        {
+          "actor_id": "actor_19aa622d346ca97a",
+          "repo_native_actor": "token vault",
+          "business_role": "session-scoped sensitive value mapper",
+          "actor_classification": {
+            "llm_assertions": [
+              {
+                "value": "UNKNOWN_ACTOR",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_8696e41ce508aeb2",
+                  "evidence_4abbb1f26ea5b9ab"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN_ACTOR",
+            "canonicalization_status": "SUPPORTED",
+            "semantic_status": "INFERRED",
+            "canonicalization_reason": "Actor archetype is supported by cited behavior, but remains a normalized interpretation of the repo-native actor.",
+            "rule_ids": [
+              "ACTOR_REQUIRES_BEHAVIORAL_EVIDENCE"
+            ],
+            "evidence_refs": [
+              "evidence_8696e41ce508aeb2",
+              "evidence_4abbb1f26ea5b9ab"
+            ],
+            "canonical_confidence": {
+              "score": 68,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Actor archetype is supported by cited behavior, but remains a normalized interpretation of the repo-native actor."
+              ],
+              "caps_applied": []
+            }
+          },
+          "authentication_context": {
+            "llm_assertions": [
+              {
+                "value": "UNKNOWN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_8696e41ce508aeb2",
+                  "evidence_4abbb1f26ea5b9ab"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Caller labels or user-controlled fields do not establish authenticated identity.",
+            "rule_ids": [
+              "AUTH_CONTEXT_REQUIRES_IDENTITY_EVIDENCE"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Caller labels or user-controlled fields do not establish authenticated identity."
+              ],
+              "caps_applied": []
+            }
+          },
+          "lifecycle_status": "active during pipeline execution",
+          "evidence_refs": [
+            "evidence_8696e41ce508aeb2",
+            "evidence_4abbb1f26ea5b9ab"
+          ]
+        }
+      ],
+      "resources": [
+        {
+          "resource_id": "resource_70e6fabffe4b0bc1",
+          "repo_native_resource": "DOM element set / page fields",
+          "resource_classification": {
+            "llm_assertions": [
+              {
+                "value": "DOM element set / page fields",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "OBSERVED",
+                "evidence_refs": [
+                  "evidence_a461a3764c513aea",
+                  "evidence_30613013357bca47"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "DOM element set / page fields",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "The repo-native resource is preserved when its cited symbol or operation is validated.",
+            "rule_ids": [
+              "PRESERVE_REPO_NATIVE_RESOURCE"
+            ],
+            "evidence_refs": [
+              "evidence_a461a3764c513aea",
+              "evidence_30613013357bca47"
+            ],
+            "canonical_confidence": {
+              "score": 80,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "The repo-native resource is preserved when its cited symbol or operation is validated."
+              ],
+              "caps_applied": []
+            }
+          },
+          "scope_classification": {
+            "llm_assertions": [
+              {
+                "value": "PUBLIC_RESOURCE",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_a461a3764c513aea",
+                  "evidence_30613013357bca47"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "PUBLIC_RESOURCE",
+            "canonicalization_status": "SUPPORTED",
+            "semantic_status": "INFERRED",
+            "canonicalization_reason": "Resource scope is supported by explicit ownership/tenant/global access evidence.",
+            "rule_ids": [
+              "SCOPE_REQUIRES_ACCESS_BOUNDARY_EVIDENCE"
+            ],
+            "evidence_refs": [
+              "evidence_a461a3764c513aea",
+              "evidence_30613013357bca47"
+            ],
+            "canonical_confidence": {
+              "score": 65,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Resource scope is supported by explicit ownership/tenant/global access evidence."
+              ],
+              "caps_applied": []
+            }
+          },
+          "ownership_or_scope_key": "UNKNOWN",
+          "evidence_refs": [
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47"
+          ]
+        },
+        {
+          "resource_id": "resource_e5186c205dbcf1bd",
+          "repo_native_resource": "token vault",
+          "resource_classification": {
+            "llm_assertions": [
+              {
+                "value": "token vault",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "OBSERVED",
+                "evidence_refs": [
+                  "evidence_583b6c6c976bb627",
+                  "evidence_53a1f4633182a72c"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "token vault",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "The repo-native resource is preserved when its cited symbol or operation is validated.",
+            "rule_ids": [
+              "PRESERVE_REPO_NATIVE_RESOURCE"
+            ],
+            "evidence_refs": [
+              "evidence_583b6c6c976bb627",
+              "evidence_53a1f4633182a72c"
+            ],
+            "canonical_confidence": {
+              "score": 80,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "The repo-native resource is preserved when its cited symbol or operation is validated."
+              ],
+              "caps_applied": []
+            }
+          },
+          "scope_classification": {
+            "llm_assertions": [
+              {
+                "value": "SYSTEM_INTERNAL_RESOURCE",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_583b6c6c976bb627",
+                  "evidence_53a1f4633182a72c"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "SYSTEM_INTERNAL_RESOURCE",
+            "canonicalization_status": "SUPPORTED",
+            "semantic_status": "INFERRED",
+            "canonicalization_reason": "Resource scope is supported by explicit ownership/tenant/global access evidence.",
+            "rule_ids": [
+              "SCOPE_REQUIRES_ACCESS_BOUNDARY_EVIDENCE"
+            ],
+            "evidence_refs": [
+              "evidence_583b6c6c976bb627",
+              "evidence_53a1f4633182a72c"
+            ],
+            "canonical_confidence": {
+              "score": 65,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Resource scope is supported by explicit ownership/tenant/global access evidence."
+              ],
+              "caps_applied": []
+            }
+          },
+          "ownership_or_scope_key": "session-scoped rawValue->token map",
+          "evidence_refs": [
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c"
+          ]
+        }
+      ],
+      "states": [
+        {
+          "state_id": "state_ddafaa1c5e09437e",
+          "repo_native_state": "sensitivity_tier",
+          "source_symbol_or_field": "classifySensitivity / processPageForRedaction summaryElements",
+          "state_classification": {
+            "llm_assertions": [
+              {
+                "value": "PROCESSING_STATUS",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_c5e18cd07fa5829c",
+                  "evidence_1ea01197043e44b8"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "CLIENT_SESSION_CREDENTIAL_STATE",
+            "canonicalization_status": "RECLASSIFIED",
+            "semantic_status": "INFERRED",
+            "canonicalization_reason": "Evidence establishes session or credential state.",
+            "rule_ids": [
+              "STATE_SEMANTICS_FROM_SOURCE_AND_OPERATION"
+            ],
+            "evidence_refs": [
+              "evidence_c5e18cd07fa5829c",
+              "evidence_1ea01197043e44b8"
+            ],
+            "canonical_confidence": {
+              "score": 68,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Evidence establishes session or credential state."
+              ],
+              "caps_applied": []
+            }
+          },
+          "observed_values": [
+            "1",
+            "2",
+            "3"
+          ],
+          "evidence_refs": [
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8"
+          ]
+        },
+        {
+          "state_id": "state_6586e00f32eaa6d1",
+          "repo_native_state": "semantic_token",
+          "source_symbol_or_field": "tokenVault / classifySensitivity",
+          "state_classification": {
+            "llm_assertions": [
+              {
+                "value": "SESSION_STATUS",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_1d29b03867b4d7ef",
+                  "evidence_4ef402a9aa91fcca"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "CONFIGURATION_STATE",
+            "canonicalization_status": "RECLASSIFIED",
+            "semantic_status": "INFERRED",
+            "canonicalization_reason": "Evidence establishes configuration state, not a business-resource lifecycle.",
+            "rule_ids": [
+              "STATE_SEMANTICS_FROM_SOURCE_AND_OPERATION"
+            ],
+            "evidence_refs": [
+              "evidence_1d29b03867b4d7ef",
+              "evidence_4ef402a9aa91fcca"
+            ],
+            "canonical_confidence": {
+              "score": 68,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Evidence establishes configuration state, not a business-resource lifecycle."
+              ],
+              "caps_applied": []
+            }
+          },
+          "observed_values": [
+            "[CARD_NUMBER_1]",
+            "[EMAIL_1]",
+            "[PASSWORD_1]"
+          ],
+          "evidence_refs": [
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca"
+          ]
+        }
+      ],
+      "transitions": [
+        {
+          "transition_id": "transition_e801749b2b015643",
+          "resource_id": "resource_70e6fabffe4b0bc1",
+          "starting_state": "UNKNOWN",
+          "resulting_state": "tier assigned per element",
+          "transition_operation": "classifySensitivity / processPageForRedaction summaryElements",
+          "semantic_status": "OBSERVED",
+          "guard_ids": [],
+          "effect_ids": [],
+          "evidence_refs": [
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8"
+          ]
+        },
+        {
+          "transition_id": "transition_7ff8e91ce980a3a8",
+          "resource_id": "resource_70e6fabffe4b0bc1",
+          "starting_state": "UNKNOWN",
+          "resulting_state": "token assigned or null",
+          "transition_operation": "tokenVault / classifySensitivity",
+          "semantic_status": "OBSERVED",
+          "guard_ids": [],
+          "effect_ids": [],
+          "evidence_refs": [
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca"
+          ]
+        }
+      ],
+      "guards": [
+        {
+          "guard_id": "guard_ad3d5c83841b9aa9",
+          "statement": "Only elements with is_sensitive === true and a non-null semantic_token are marked for visual redaction consistency checks.",
+          "source_condition": "checkChannelConsistency shouldBeRedacted set",
+          "guard_classification": {
+            "llm_assertions": [
+              {
+                "value": "OTHER_GUARD",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "OBSERVED",
+                "evidence_refs": [
+                  "evidence_6be1f01f30e5a987"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "OTHER_GUARD",
+            "canonicalization_status": "SUPPORTED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "The guard is retained only when its cited condition validates.",
+            "rule_ids": [
+              "GUARD_REQUIRES_CONDITION_EVIDENCE"
+            ],
+            "evidence_refs": [
+              "evidence_6be1f01f30e5a987"
+            ],
+            "canonical_confidence": {
+              "score": 78,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 10,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "The guard is retained only when its cited condition validates."
+              ],
+              "caps_applied": []
+            }
+          },
+          "semantic_status": "OBSERVED",
+          "evidence_refs": [
+            "evidence_6be1f01f30e5a987"
+          ]
+        },
+        {
+          "guard_id": "guard_39d2891220065e14",
+          "statement": "Tier 1 and Tier 2 sensitivity results are redacted; tier 3 is left unredacted.",
+          "source_condition": "processPageForRedaction sensitivity_tier check",
+          "guard_classification": {
+            "llm_assertions": [
+              {
+                "value": "OTHER_GUARD",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "OBSERVED",
+                "evidence_refs": [
+                  "evidence_7e60c5366638d49d",
+                  "evidence_3f0b68e5355e6105"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "OTHER_GUARD",
+            "canonicalization_status": "SUPPORTED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "The guard is retained only when its cited condition validates.",
+            "rule_ids": [
+              "GUARD_REQUIRES_CONDITION_EVIDENCE"
+            ],
+            "evidence_refs": [
+              "evidence_7e60c5366638d49d",
+              "evidence_3f0b68e5355e6105"
+            ],
+            "canonical_confidence": {
+              "score": 78,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "The guard is retained only when its cited condition validates."
+              ],
+              "caps_applied": []
+            }
+          },
+          "semantic_status": "OBSERVED",
+          "evidence_refs": [
+            "evidence_7e60c5366638d49d",
+            "evidence_3f0b68e5355e6105"
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "effect_id": "effect_d2210d158befcd97",
+          "repo_native_effect": "returns a structured redaction payload",
+          "effect_classification": {
+            "llm_assertions": [
+              {
+                "value": "STRUCTURED_OBJECT_RETURNED",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_71447a1f53b0c87c",
+                  "evidence_3f0b68e5355e6105",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_807a4629cd4288d2",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_6ccdccc17427a1be"
+                ],
+                "llm_confidence": "HIGH"
+              },
+              {
+                "value": "FILE_WRITTEN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_71447a1f53b0c87c",
+                  "evidence_3f0b68e5355e6105",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_807a4629cd4288d2",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_6ccdccc17427a1be"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category.",
+            "rule_ids": [
+              "EFFECT_SPECIFIC_EVIDENCE",
+              "EFFECT_FROM_OPERATION_NOT_POSITION"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category."
+              ],
+              "caps_applied": []
+            }
+          },
+          "materiality": 1,
+          "ordering_index": 1,
+          "evidence_refs": [
+            "evidence_71447a1f53b0c87c",
+            "evidence_3f0b68e5355e6105",
+            "evidence_a316b21d4f948eec",
+            "evidence_807a4629cd4288d2",
+            "evidence_79e33dd3c5829371",
+            "evidence_6ccdccc17427a1be"
+          ]
+        },
+        {
+          "effect_id": "effect_94d256276b263411",
+          "repo_native_effect": "creates visually redacted canvas output",
+          "effect_classification": {
+            "llm_assertions": [
+              {
+                "value": "STRUCTURED_OBJECT_RETURNED",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_41bf1a2a81c445f2",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_5460d85c8615acc6",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_3f0b68e5355e6105"
+                ],
+                "llm_confidence": "HIGH"
+              },
+              {
+                "value": "FILE_WRITTEN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_41bf1a2a81c445f2",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_5460d85c8615acc6",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_3f0b68e5355e6105"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category.",
+            "rule_ids": [
+              "EFFECT_SPECIFIC_EVIDENCE",
+              "EFFECT_FROM_OPERATION_NOT_POSITION"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category."
+              ],
+              "caps_applied": []
+            }
+          },
+          "materiality": 1,
+          "ordering_index": 2,
+          "evidence_refs": [
+            "evidence_41bf1a2a81c445f2",
+            "evidence_a316b21d4f948eec",
+            "evidence_5460d85c8615acc6",
+            "evidence_79e33dd3c5829371",
+            "evidence_3f0b68e5355e6105"
+          ]
+        },
+        {
+          "effect_id": "effect_b92e4ef52b33697b",
+          "repo_native_effect": "creates or reuses semantic tokens for sensitive values",
+          "effect_classification": {
+            "llm_assertions": [
+              {
+                "value": "STRUCTURED_OBJECT_RETURNED",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_1d29b03867b4d7ef",
+                  "evidence_8696e41ce508aeb2",
+                  "evidence_c5e18cd07fa5829c",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_7e60c5366638d49d",
+                  "evidence_6be1f01f30e5a987"
+                ],
+                "llm_confidence": "HIGH"
+              },
+              {
+                "value": "FILE_WRITTEN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_1d29b03867b4d7ef",
+                  "evidence_8696e41ce508aeb2",
+                  "evidence_c5e18cd07fa5829c",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_7e60c5366638d49d",
+                  "evidence_6be1f01f30e5a987"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category.",
+            "rule_ids": [
+              "EFFECT_SPECIFIC_EVIDENCE",
+              "EFFECT_FROM_OPERATION_NOT_POSITION"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category."
+              ],
+              "caps_applied": []
+            }
+          },
+          "materiality": 1,
+          "ordering_index": 3,
+          "evidence_refs": [
+            "evidence_1d29b03867b4d7ef",
+            "evidence_8696e41ce508aeb2",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_a316b21d4f948eec",
+            "evidence_7e60c5366638d49d",
+            "evidence_6be1f01f30e5a987"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "rule_id": "rule_33b95a7085aeb2ad",
+          "statement": "Sensitive DOM elements are classified by heuristic label/type and PII patterns before tokenization and redaction.",
+          "rule_classification": {
+            "llm_assertions": [
+              {
+                "value": "OTHER_REPO_SPECIFIC_RULE",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "OBSERVED",
+                "evidence_refs": [
+                  "evidence_8cc61fa1daf91075",
+                  "evidence_251581edefd11ef3"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "OTHER_REPO_SPECIFIC_RULE",
+            "canonicalization_status": "SUPPORTED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "Rule classification is retained only with validated condition, contract, test, or documentation evidence.",
+            "rule_ids": [
+              "RULE_REQUIRES_ORACLE_OR_CODE_EVIDENCE"
+            ],
+            "evidence_refs": [
+              "evidence_8cc61fa1daf91075",
+              "evidence_251581edefd11ef3"
+            ],
+            "canonical_confidence": {
+              "score": 75,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Rule classification is retained only with validated condition, contract, test, or documentation evidence."
+              ],
+              "caps_applied": []
+            }
+          },
+          "semantic_status": "OBSERVED",
+          "evidence_refs": [
+            "evidence_8cc61fa1daf91075",
+            "evidence_251581edefd11ef3"
+          ]
+        },
+        {
+          "rule_id": "rule_30c5f208fdaef604",
+          "statement": "Raw PII values must not survive into the final outgoing payload tree except as semantic placeholders.",
+          "rule_classification": {
+            "llm_assertions": [
+              {
+                "value": "PRIVACY_REDACTION_RULE",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "OBSERVED",
+                "evidence_refs": [
+                  "evidence_807a4629cd4288d2",
+                  "evidence_a316b21d4f948eec"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "PRIVACY_REDACTION_RULE",
+            "canonicalization_status": "SUPPORTED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "Rule classification is retained only with validated condition, contract, test, or documentation evidence.",
+            "rule_ids": [
+              "RULE_REQUIRES_ORACLE_OR_CODE_EVIDENCE"
+            ],
+            "evidence_refs": [
+              "evidence_807a4629cd4288d2",
+              "evidence_a316b21d4f948eec"
+            ],
+            "canonical_confidence": {
+              "score": 75,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Rule classification is retained only with validated condition, contract, test, or documentation evidence."
+              ],
+              "caps_applied": []
+            }
+          },
+          "semantic_status": "OBSERVED",
+          "evidence_refs": [
+            "evidence_807a4629cd4288d2",
+            "evidence_a316b21d4f948eec"
+          ]
+        },
+        {
+          "rule_id": "rule_a55d5ab7e0c53c81",
+          "statement": "Visual redaction must correspond to structural sensitivity claims, otherwise the check fails closed.",
+          "rule_classification": {
+            "llm_assertions": [
+              {
+                "value": "OUTPUT_CONTRACT_RULE",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "OBSERVED",
+                "evidence_refs": [
+                  "evidence_a293f60976e54b7f",
+                  "evidence_b7e51d8bdb24c10e"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "OUTPUT_CONTRACT_RULE",
+            "canonicalization_status": "SUPPORTED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "Rule classification is retained only with validated condition, contract, test, or documentation evidence.",
+            "rule_ids": [
+              "RULE_REQUIRES_ORACLE_OR_CODE_EVIDENCE"
+            ],
+            "evidence_refs": [
+              "evidence_a293f60976e54b7f",
+              "evidence_b7e51d8bdb24c10e"
+            ],
+            "canonical_confidence": {
+              "score": 75,
+              "label": "MEDIUM",
+              "components": {
+                "evidence_strength": 20,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Rule classification is retained only with validated condition, contract, test, or documentation evidence."
+              ],
+              "caps_applied": []
+            }
+          },
+          "semantic_status": "OBSERVED",
+          "evidence_refs": [
+            "evidence_a293f60976e54b7f",
+            "evidence_b7e51d8bdb24c10e"
+          ]
+        }
+      ],
+      "invariants": [
+        {
+          "statement": "Semantic tokens are indexed per sensitive type within a session-scoped vault.",
+          "semantic_status": "INFERRED",
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2",
+            "evidence_4abbb1f26ea5b9ab",
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca",
+            "evidence_6be1f01f30e5a987",
+            "evidence_7e60c5366638d49d",
+            "evidence_3f0b68e5355e6105",
+            "evidence_8cc61fa1daf91075",
+            "evidence_251581edefd11ef3",
+            "evidence_807a4629cd4288d2",
+            "evidence_a316b21d4f948eec",
+            "evidence_a293f60976e54b7f",
+            "evidence_b7e51d8bdb24c10e",
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d",
+            "evidence_87497202ebede506",
+            "evidence_79e33dd3c5829371",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_71447a1f53b0c87c",
+            "evidence_5460d85c8615acc6",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_9bd57aef78bcd014",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6",
+            "evidence_9c98af9824a42240"
+          ],
+          "inference_boundary": "An invariant remains inferred unless an explicit code/test/document oracle states it."
+        },
+        {
+          "statement": "Redacted payloads may retain token placeholders but not raw sensitive strings.",
+          "semantic_status": "INFERRED",
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2",
+            "evidence_4abbb1f26ea5b9ab",
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca",
+            "evidence_6be1f01f30e5a987",
+            "evidence_7e60c5366638d49d",
+            "evidence_3f0b68e5355e6105",
+            "evidence_8cc61fa1daf91075",
+            "evidence_251581edefd11ef3",
+            "evidence_807a4629cd4288d2",
+            "evidence_a316b21d4f948eec",
+            "evidence_a293f60976e54b7f",
+            "evidence_b7e51d8bdb24c10e",
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d",
+            "evidence_87497202ebede506",
+            "evidence_79e33dd3c5829371",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_71447a1f53b0c87c",
+            "evidence_5460d85c8615acc6",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_9bd57aef78bcd014",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6",
+            "evidence_9c98af9824a42240"
+          ],
+          "inference_boundary": "An invariant remains inferred unless an explicit code/test/document oracle states it."
+        },
+        {
+          "statement": "Tier 1 and Tier 2 data are the only classes redacted by the visual renderer when enabled.",
+          "semantic_status": "INFERRED",
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2",
+            "evidence_4abbb1f26ea5b9ab",
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca",
+            "evidence_6be1f01f30e5a987",
+            "evidence_7e60c5366638d49d",
+            "evidence_3f0b68e5355e6105",
+            "evidence_8cc61fa1daf91075",
+            "evidence_251581edefd11ef3",
+            "evidence_807a4629cd4288d2",
+            "evidence_a316b21d4f948eec",
+            "evidence_a293f60976e54b7f",
+            "evidence_b7e51d8bdb24c10e",
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d",
+            "evidence_87497202ebede506",
+            "evidence_79e33dd3c5829371",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_71447a1f53b0c87c",
+            "evidence_5460d85c8615acc6",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_9bd57aef78bcd014",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6",
+            "evidence_9c98af9824a42240"
+          ],
+          "inference_boundary": "An invariant remains inferred unless an explicit code/test/document oracle states it."
+        }
+      ],
+      "raw_activation_facts": [
+        {
+          "value": {
+            "fact_name": "external_input_present",
+            "value": "TRUE",
+            "reason": "The pipeline consumes live DOM elements and canvas/image input from the page."
+          },
+          "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+          "evidence_status": "OBSERVED",
+          "evidence_refs": [
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d"
+          ]
+        },
+        {
+          "value": {
+            "fact_name": "state_transition_present",
+            "value": "TRUE",
+            "reason": "Elements transition from raw values to classified/tiered/tokenized summary entries and redacted regions."
+          },
+          "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+          "evidence_status": "OBSERVED",
+          "evidence_refs": [
+            "evidence_87497202ebede506",
+            "evidence_79e33dd3c5829371"
+          ]
+        },
+        {
+          "value": {
+            "fact_name": "irreversible_effect_present",
+            "value": "TRUE",
+            "reason": "Redaction draws solid black boxes over sensitive regions and the outgoing audit blocks raw PII."
+          },
+          "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+          "evidence_status": "OBSERVED",
+          "evidence_refs": [
+            "evidence_41bf1a2a81c445f2",
+            "evidence_71447a1f53b0c87c"
+          ]
+        }
+      ],
+      "canonical_activation_signals": [
+        {
+          "signal_id": "REACHABLE_ENTRYPOINT",
+          "value": "TRUE",
+          "semantic_status": "OBSERVED",
+          "derivation_rule_ids": [
+            "DERIVE_REACHABLE_ENTRYPOINT"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ],
+          "canonical_confidence": {
+            "score": 78,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 35,
+              "path_completeness": 16,
+              "independent_corroboration": 12,
+              "reachability_confidence": 8,
+              "evidence_integrity": 8
+            },
+            "reasons": [
+              "Canonical entrypoint and reachability evidence establish a materially reachable path."
+            ],
+            "caps_applied": []
+          }
+        },
+        {
+          "signal_id": "EXTERNAL_OR_CALLER_CONTROLLED_INPUT",
+          "value": "TRUE",
+          "semantic_status": "OBSERVED",
+          "derivation_rule_ids": [
+            "DERIVE_EXTERNAL_INPUT_FROM_ENTRYPOINT_AND_CONSUMPTION"
+          ],
+          "evidence_refs": [
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d"
+          ],
+          "canonical_confidence": {
+            "score": 68,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 28,
+              "path_completeness": 16,
+              "independent_corroboration": 8,
+              "reachability_confidence": 8,
+              "evidence_integrity": 8
+            },
+            "reasons": [
+              "Caller, event, CLI, file or public-API input is directly consumed in the cited code."
+            ],
+            "caps_applied": []
+          }
+        },
+        {
+          "signal_id": "RESOURCE_OR_SCOPE_SELECTION",
+          "value": "TRUE",
+          "semantic_status": "OBSERVED",
+          "derivation_rule_ids": [
+            "DERIVE_RESOURCE_SELECTION"
+          ],
+          "evidence_refs": [
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c"
+          ],
+          "canonical_confidence": {
+            "score": 78,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 40,
+              "path_completeness": 16,
+              "independent_corroboration": 15,
+              "reachability_confidence": 8,
+              "evidence_integrity": 8
+            },
+            "reasons": [
+              "Validated path evidence establishes selection of a resource, target or operation."
+            ],
+            "caps_applied": []
+          }
+        },
+        {
+          "signal_id": "REPEATABLE_INVOCATION",
+          "value": "TRUE",
+          "semantic_status": "INFERRED",
+          "derivation_rule_ids": [
+            "DERIVE_REPEATABLE_INVOCATION"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ],
+          "canonical_confidence": {
+            "score": 68,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 35,
+              "path_completeness": 16,
+              "independent_corroboration": 12,
+              "reachability_confidence": 8,
+              "evidence_integrity": 5
+            },
+            "reasons": [
+              "The public, scheduled, event or CLI entrypoint can be invoked more than once."
+            ],
+            "caps_applied": []
+          }
+        },
+        {
+          "signal_id": "DATA_INPUT_CONTRACT",
+          "value": "TRUE",
+          "semantic_status": "OBSERVED",
+          "derivation_rule_ids": [
+            "DERIVE_DATA_INPUT_CONTRACT"
+          ],
+          "evidence_refs": [
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d"
+          ],
+          "canonical_confidence": {
+            "score": 68,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 28,
+              "path_completeness": 16,
+              "independent_corroboration": 8,
+              "reachability_confidence": 8,
+              "evidence_integrity": 8
+            },
+            "reasons": [
+              "Caller/file/event data is parsed or consumed with an observed structural contract."
+            ],
+            "caps_applied": []
+          }
+        },
+        {
+          "signal_id": "DATA_TRANSFORMATION",
+          "value": "TRUE",
+          "semantic_status": "OBSERVED",
+          "derivation_rule_ids": [
+            "DERIVE_DATA_TRANSFORMATION"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2",
+            "evidence_4abbb1f26ea5b9ab",
+            "evidence_a461a3764c513aea",
+            "evidence_30613013357bca47",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca",
+            "evidence_6be1f01f30e5a987",
+            "evidence_7e60c5366638d49d",
+            "evidence_3f0b68e5355e6105",
+            "evidence_8cc61fa1daf91075",
+            "evidence_251581edefd11ef3",
+            "evidence_807a4629cd4288d2",
+            "evidence_a316b21d4f948eec",
+            "evidence_a293f60976e54b7f",
+            "evidence_b7e51d8bdb24c10e",
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d",
+            "evidence_87497202ebede506",
+            "evidence_79e33dd3c5829371",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_71447a1f53b0c87c",
+            "evidence_5460d85c8615acc6",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_9bd57aef78bcd014",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6",
+            "evidence_9c98af9824a42240"
+          ],
+          "canonical_confidence": {
+            "score": 78,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 40,
+              "path_completeness": 16,
+              "independent_corroboration": 15,
+              "reachability_confidence": 8,
+              "evidence_integrity": 8
+            },
+            "reasons": [
+              "Validated code maps, aggregates, serializes or otherwise changes data shape or meaning."
+            ],
+            "caps_applied": []
+          }
+        },
+        {
+          "signal_id": "DOWNSTREAM_CONSUMER_OR_SINK",
+          "value": "TRUE",
+          "semantic_status": "OBSERVED",
+          "derivation_rule_ids": [
+            "DERIVE_DOWNSTREAM_SINK"
+          ],
+          "evidence_refs": [
+            "evidence_71447a1f53b0c87c",
+            "evidence_3f0b68e5355e6105",
+            "evidence_a316b21d4f948eec",
+            "evidence_807a4629cd4288d2",
+            "evidence_79e33dd3c5829371",
+            "evidence_6ccdccc17427a1be",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_5460d85c8615acc6",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_8696e41ce508aeb2",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_7e60c5366638d49d",
+            "evidence_6be1f01f30e5a987"
+          ],
+          "canonical_confidence": {
+            "score": 78,
+            "label": "MEDIUM",
+            "components": {
+              "evidence_strength": 40,
+              "path_completeness": 16,
+              "independent_corroboration": 15,
+              "reachability_confidence": 8,
+              "evidence_integrity": 8
+            },
+            "reasons": [
+              "Transformed or selected data reaches a public, persistent or external sink."
+            ],
+            "caps_applied": []
+          }
+        }
+      ],
+      "graph_node_ids": [
+        "chunk_32bff1c580ffdd53",
+        "chunk_acae45ec085ae4dd",
+        "chunk_673f99a40f4762f8",
+        "chunk_fb04c958c99d0987",
+        "chunk_d8e2621583ecfe86",
+        "chunk_629652fe2a334c23",
+        "chunk_278ebdb2b721c12a"
+      ],
+      "graph_edges": [
+        {
+          "source_node_id": "dev 2/redaction-engine.js",
+          "target_node_id": "dev 2/dom-heuristics.js",
+          "edge_type": "RESOLVED_FILE_DEPENDENCY",
+          "confidence": "HIGH",
+          "evidence_refs": []
+        },
+        {
+          "source_node_id": "dev 2/redaction-engine.js",
+          "target_node_id": "dev 2/pii-patterns.js",
+          "edge_type": "RESOLVED_FILE_DEPENDENCY",
+          "confidence": "HIGH",
+          "evidence_refs": []
+        },
+        {
+          "source_node_id": "dev 2/redaction-engine.js",
+          "target_node_id": "dev 2/redaction-renderer.js",
+          "edge_type": "RESOLVED_FILE_DEPENDENCY",
+          "confidence": "HIGH",
+          "evidence_refs": []
+        },
+        {
+          "source_node_id": "dev 2/redaction-engine.js",
+          "target_node_id": "dev 2/sensitivity-tiers.js",
+          "edge_type": "RESOLVED_FILE_DEPENDENCY",
+          "confidence": "HIGH",
+          "evidence_refs": []
+        },
+        {
+          "source_node_id": "dev 2/sensitivity-tiers.js",
+          "target_node_id": "dev 2/dom-heuristics.js",
+          "edge_type": "RESOLVED_FILE_DEPENDENCY",
+          "confidence": "HIGH",
+          "evidence_refs": []
+        },
+        {
+          "source_node_id": "dev 2/sensitivity-tiers.js",
+          "target_node_id": "dev 2/pii-patterns.js",
+          "edge_type": "RESOLVED_FILE_DEPENDENCY",
+          "confidence": "HIGH",
+          "evidence_refs": []
+        },
+        {
+          "source_node_id": "dev 2/session-vault-manager.js",
+          "target_node_id": "dev 2/token-vault.js",
+          "edge_type": "RESOLVED_FILE_DEPENDENCY",
+          "confidence": "HIGH",
+          "evidence_refs": []
+        }
+      ],
+      "evidence": [
+        {
+          "evidence_id": "evidence_9b6cbca6677ba8ed",
+          "chunk_id": "chunk_8db9c3d07fa96cc9",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 259,
+          "end_line": 264,
+          "symbol_or_node_id": "executePipeline",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "User-facing buttons trigger the pipeline and the page presents a live demo interface.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_6ba2cf9dd39160f6",
+          "chunk_id": "chunk_278ebdb2b721c12a",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 463,
+          "end_line": 464,
+          "symbol_or_node_id": "executePipeline",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Button handlers start the pipeline or the deliberate leak simulation.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_8696e41ce508aeb2",
+          "chunk_id": "chunk_673f99a40f4762f8",
+          "file_path": "dev 2/token-vault.js",
+          "start_line": 11,
+          "end_line": 41,
+          "symbol_or_node_id": "createTokenVault/getOrCreateToken",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Creates and maintains forward/reverse mappings between raw values and indexed tokens.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_4abbb1f26ea5b9ab",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 72,
+          "end_line": 83,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Uses tokenVault.hasToken to confirm a semantic token exists for sensitive elements.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_a461a3764c513aea",
+          "chunk_id": "chunk_acae45ec085ae4dd",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 218,
+          "end_line": 235,
+          "symbol_or_node_id": "checkout-form",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "The demo page contains visible input fields for name, email, password, card number, phone, and total amount.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_30613013357bca47",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 41,
+          "end_line": 57,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Iterates over supplied elements and computes a bounding box for each.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_583b6c6c976bb627",
+          "chunk_id": "chunk_673f99a40f4762f8",
+          "file_path": "dev 2/token-vault.js",
+          "start_line": 12,
+          "end_line": 15,
+          "symbol_or_node_id": "createTokenVault",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Maintains in-memory forward, reverse, and counter maps internal to the vault.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_53a1f4633182a72c",
+          "chunk_id": "chunk_0067432d917d6e5b",
+          "file_path": "dev 2/session-vault-manager.js",
+          "start_line": 3,
+          "end_line": 5,
+          "symbol_or_node_id": "sessionVaults/DEFAULT_SESSION_TTL_MS",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Stores token vaults per session id with TTL-based lifecycle management.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_c5e18cd07fa5829c",
+          "chunk_id": "chunk_fb04c958c99d0987",
+          "file_path": "dev 2/sensitivity-tiers.js",
+          "start_line": 87,
+          "end_line": 163,
+          "symbol_or_node_id": "classifySensitivity",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Maps detected sensitivity types to tier 1/2/3 and emits semantic tokens for tier 1 or 2.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_1ea01197043e44b8",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 72,
+          "end_line": 96,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Stores sensitivity_tier in the DOM summary for each element.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_1d29b03867b4d7ef",
+          "chunk_id": "chunk_673f99a40f4762f8",
+          "file_path": "dev 2/token-vault.js",
+          "start_line": 23,
+          "end_line": 41,
+          "symbol_or_node_id": "getOrCreateToken",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Creates indexed tokens like [TYPE_N] and reuses them for repeated raw values.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_4ef402a9aa91fcca",
+          "chunk_id": "chunk_fb04c958c99d0987",
+          "file_path": "dev 2/sensitivity-tiers.js",
+          "start_line": 145,
+          "end_line": 162,
+          "symbol_or_node_id": "classifySensitivity",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Assigns semantic_token for tier 1 and 2 sensitivities, optionally via the token vault.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_6be1f01f30e5a987",
+          "chunk_id": "chunk_8b94513436b4d877",
+          "file_path": "dev 2/channel-consistency-check.js",
+          "start_line": 24,
+          "end_line": 32,
+          "symbol_or_node_id": "checkChannelConsistency",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Builds expected-redaction set only for sensitive elements that have a semantic token.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_7e60c5366638d49d",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 115,
+          "end_line": 136,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Only tier 1 or 2 elements are added to redacted regions and sensitive raw values.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_3f0b68e5355e6105",
+          "chunk_id": "chunk_fb04c958c99d0987",
+          "file_path": "dev 2/sensitivity-tiers.js",
+          "start_line": 159,
+          "end_line": 163,
+          "symbol_or_node_id": "classifySensitivity",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Returns sensitivity_tier in the 1/2/3 model.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_8cc61fa1daf91075",
+          "chunk_id": "chunk_d8e2621583ecfe86",
+          "file_path": "dev 2/dom-heuristics.js",
+          "start_line": 64,
+          "end_line": 181,
+          "symbol_or_node_id": "classifyElement",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Applies ordered heuristics for password, card number, email, amount, phone, and name.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_251581edefd11ef3",
+          "chunk_id": "chunk_32bff1c580ffdd53",
+          "file_path": "dev 2/pii-patterns.js",
+          "start_line": 13,
+          "end_line": 56,
+          "symbol_or_node_id": "detectPII",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Detects EMAIL, PHONE, CARD_NUMBER, AADHAAR, IFSC, and OTP patterns.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_807a4629cd4288d2",
+          "chunk_id": "chunk_04240ed2b40a31ea",
+          "file_path": "dev 2/leakage-auditor.js",
+          "start_line": 58,
+          "end_line": 96,
+          "symbol_or_node_id": "auditPayload",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Flags raw PII matches and unredacted secrets in sensitive paths.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_a316b21d4f948eec",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 153,
+          "end_line": 183,
+          "symbol_or_node_id": "walkAndAssert",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Recursively asserts that raw sensitive values do not appear in the output object tree.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_a293f60976e54b7f",
+          "chunk_id": "chunk_8b94513436b4d877",
+          "file_path": "dev 2/channel-consistency-check.js",
+          "start_line": 42,
+          "end_line": 67,
+          "symbol_or_node_id": "checkChannelConsistency",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Reports mismatches when structural redaction is claimed without visual coverage or when visual redaction appears without structural sensitivity.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_b7e51d8bdb24c10e",
+          "chunk_id": "chunk_278ebdb2b721c12a",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 449,
+          "end_line": 458,
+          "symbol_or_node_id": "executePipeline",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "The demo runs assertChannelsConsistent and logs pass/fail based on agreement.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_be57706bc73d898d",
+          "chunk_id": "chunk_8db9c3d07fa96cc9",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 264,
+          "end_line": 271,
+          "symbol_or_node_id": "module imports",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Imports the processing and audit modules into the demo page.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_6e8bcd56122cf21d",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 32,
+          "end_line": 41,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Takes elements and a source canvas/image as inputs.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_87497202ebede506",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 85,
+          "end_line": 150,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Builds dom_summary.elements and redacted_regions from inspected elements.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_79e33dd3c5829371",
+          "chunk_id": "chunk_fb04c958c99d0987",
+          "file_path": "dev 2/sensitivity-tiers.js",
+          "start_line": 159,
+          "end_line": 163,
+          "symbol_or_node_id": "classifySensitivity",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Outputs sensitivity_tier, sensitivity_type, and semantic_token.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_41bf1a2a81c445f2",
+          "chunk_id": "chunk_221be66be448f92f",
+          "file_path": "dev 2/redaction-renderer.js",
+          "start_line": 51,
+          "end_line": 83,
+          "symbol_or_node_id": "redactImage",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Overlays black rectangles onto the output canvas for sensitive regions.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_71447a1f53b0c87c",
+          "chunk_id": "chunk_04240ed2b40a31ea",
+          "file_path": "dev 2/leakage-auditor.js",
+          "start_line": 112,
+          "end_line": 126,
+          "symbol_or_node_id": "assertSafeToSend",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Throws to block a network request when payload audit finds violations.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_5460d85c8615acc6",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 143,
+          "end_line": 151,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Constructs the declared output object shape.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_6ccdccc17427a1be",
+          "chunk_id": "chunk_04240ed2b40a31ea",
+          "file_path": "dev 2/leakage-auditor.js",
+          "start_line": 112,
+          "end_line": 126,
+          "symbol_or_node_id": "assertSafeToSend",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Blocks payloads containing raw PII before transport.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_daea818b8e5cf5db",
+          "chunk_id": "chunk_8b94513436b4d877",
+          "file_path": "dev 2/channel-consistency-check.js",
+          "start_line": 63,
+          "end_line": 88,
+          "symbol_or_node_id": "assertChannelsConsistent",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Throws when structural and visual redactions do not agree.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_ac4dbcad5e0d7756",
+          "chunk_id": "chunk_acae45ec085ae4dd",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 218,
+          "end_line": 235,
+          "symbol_or_node_id": "checkout-form",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Demo page exposes a checkout-like form with name, email, password, card, phone, and amount fields.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_9bd57aef78bcd014",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 32,
+          "end_line": 185,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Main redaction orchestrator over DOM inputs, PII, token vault, canvas redaction, and recursive privacy assertion.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_46fdcfb9733008a0",
+          "chunk_id": "chunk_04240ed2b40a31ea",
+          "file_path": "dev 2/leakage-auditor.js",
+          "start_line": 45,
+          "end_line": 147,
+          "symbol_or_node_id": "auditPayload/assertSafeToSend/createSecureTransport",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Audits payloads for raw PII and prevents transport on violations.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_e61366d44f5c6da6",
+          "chunk_id": "chunk_8b94513436b4d877",
+          "file_path": "dev 2/channel-consistency-check.js",
+          "start_line": 15,
+          "end_line": 88,
+          "symbol_or_node_id": "checkChannelConsistency/assertChannelsConsistent",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Checks that structural and visual redaction channels agree and throws on mismatch.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        },
+        {
+          "evidence_id": "evidence_9c98af9824a42240",
+          "chunk_id": "chunk_0067432d917d6e5b",
+          "file_path": "dev 2/session-vault-manager.js",
+          "start_line": 14,
+          "end_line": 79,
+          "symbol_or_node_id": "getVaultForSession/endSession/cleanExpiredSessions",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Manages session-scoped token vault lifecycle with TTL cleanup.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false
+        }
+      ],
+      "evidence_gaps": [
+        {
+          "statement": "Transport call site outside the demo page is not shown in this fragment.",
+          "semantic_status": "UNKNOWN",
+          "evidence_refs": [],
+          "inference_boundary": "A reported evidence gap describes an unresolved boundary; it is not proof that a control or behavior is absent."
+        },
+        {
+          "statement": "No explicit backend or remote API contract is supplied for the final transport target.",
+          "semantic_status": "UNKNOWN",
+          "evidence_refs": [],
+          "inference_boundary": "A reported evidence gap describes an unresolved boundary; it is not proof that a control or behavior is absent."
+        }
+      ],
+      "requirement_alignment": {
+        "oracle_sources": [
+          "API_SCHEMA_OR_CONTRACT",
+          "OBSERVED_CONNECTED_CODE_RULE",
+          "AUTHORITATIVE_EXISTING_TEST"
+        ],
+        "requirement_statements": [
+          "The payload object includes dom_summary, redacted_image_base64, detection_confidence_notes, and redacted_regions.",
+          "Semantic tokens must be preserved in outgoing payloads while raw sensitive strings are rejected.",
+          "Structural redaction and visual redaction must agree."
+        ],
+        "conflicts_or_gaps": [],
+        "evidence_refs": [
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db"
+        ]
+      },
+      "implementation_group_ids": [],
+      "canonical_confidence": {
+        "score": 49,
+        "label": "LOW",
+        "components": {
+          "evidence_strength": 30,
+          "path_completeness": 10,
+          "independent_corroboration": 10,
+          "reachability_confidence": 10,
+          "evidence_integrity": 10
+        },
+        "reasons": [
+          "Effect coverage: 0/3 canonical effects; unknown ratio 100%; reclassified ratio 0%.",
+          "Evidence specificity: 12 unique chunks; 0/3 effects have effect-specific citations."
+        ],
+        "caps_applied": [
+          "NO_CANONICAL_EFFECT_MAX_LOW",
+          "UNRESOLVED_RUNTIME_CONFLICT_MAX_LOW"
+        ]
+      },
+      "llm_confidences": [
+        "HIGH"
+      ]
+    }
+  ],
+  "implementation_groups": [],
+  "path_relationships": [],
+  "coverage": {
+    "source_fragment_count": 1,
+    "normalized_path_count": 1,
+    "component_count": 1,
+    "reachable_path_count": 1,
+    "internal_only_path_count": 0,
+    "test_demo_path_count": 0,
+    "unknown_reachability_path_count": 0,
+    "valid_evidence_count": 35,
+    "repaired_evidence_count": 0,
+    "invalid_evidence_count": 0,
+    "files_represented": [
+      "dev 2/channel-consistency-check.js",
+      "dev 2/dom-heuristics.js",
+      "dev 2/e2e-test.html",
+      "dev 2/leakage-auditor.js",
+      "dev 2/pii-patterns.js",
+      "dev 2/redaction-engine.js",
+      "dev 2/redaction-renderer.js",
+      "dev 2/sensitivity-tiers.js",
+      "dev 2/session-vault-manager.js",
+      "dev 2/token-vault.js"
+    ],
+    "uncovered_files": [
+      "dev 2/test-consistency-check.html",
+      "dev 2/test-dev2.js",
+      "dev 2/test-token-vault.html"
+    ],
+    "coverage_warnings": [
+      "Material source coverage gate: 9/10 significant source files represented (90.0%); repository-wide absence conclusions are prohibited."
+    ]
+  },
+  "normalization_summary": {
+    "raw_assertion_count": 26,
+    "verified_count": 6,
+    "supported_count": 14,
+    "reclassified_count": 2,
+    "rejected_count": 0,
+    "unknown_count": 5,
+    "merged_fragment_count": 0,
+    "implementation_group_count": 0,
+    "warnings": [
+      "Material source coverage gate: 9/10 significant source files represented (90.0%); repository-wide absence conclusions are prohibited."
+    ]
+  },
+  "audit_log_ref": "business_path_compiler_audit.jsonl"
+}

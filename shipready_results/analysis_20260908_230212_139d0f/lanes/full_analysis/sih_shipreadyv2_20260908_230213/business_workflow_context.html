@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sih · Business Workflow Context</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f7f9fc;color:#0f172a;font-family:Segoe UI,Arial,sans-serif}
+.hero{padding:28px max(20px,6vw) 24px;background:linear-gradient(125deg,#111827,#312e81);color:#fff}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:#7c3aed}.hero .eyebrow{color:#c4b5fd}
+.hero h1{margin:5px 0 7px;font-size:32px;line-height:1.15;letter-spacing:-.02em}.hero p{max-width:840px;margin:0;color:#e0e7ff;font-size:14px;line-height:1.45}.hero-meta{margin-top:12px;font-size:12px;color:#cbd5e1}
+.wrap{max-width:1180px;margin:20px auto;padding:0 20px 50px}.workflow-group{margin:18px 0 24px;padding:18px;background:#eef2ff;border:1px solid #dbe3f5;border-radius:22px}.group-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:2px 4px 14px}.group-header h2{margin:4px 0 0;font-size:25px;line-height:1.2}.group-count{flex:0 0 auto;padding:7px 11px;background:#fff;border:1px solid #d8def0;border-radius:999px;color:#475569;font-size:12px;font-weight:750}
+.workflow-card{display:flex;gap:18px;margin:10px 0;padding:21px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 7px 20px rgba(15,23,42,.05)}
+.workflow-number{flex:0 0 44px;font-size:27px;font-weight:850;color:#c4b5fd}.workflow-content{flex:1;min-width:0}.workflow-title{margin:5px 0 13px;font-size:22px;line-height:1.25;color:#0f172a}h3{margin:0 0 6px;font-size:13px;color:#475569}p,li{color:#334155;line-height:1.52}
+.workflow-summary{padding:13px 15px;margin-bottom:13px;background:#f5f3ff;border-left:4px solid #7c3aed;border-radius:9px}.workflow-summary p{margin:0;font-size:15px}
+.context-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.context-panel{padding:13px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:11px}.context-panel p{margin:0;font-size:13px}
+.value-section{margin-top:15px;padding-top:13px;border-top:1px solid #e2e8f0}.value-section ul{margin:6px 0 0;padding-left:21px}.value-section li{margin:4px 0;font-size:13px}
+.supporting-code{margin-top:15px;padding-top:12px;border-top:1px solid #e2e8f0}summary{cursor:pointer;color:#475569;font-weight:700;font-size:13px}.evidence-list{margin-top:10px}.evidence-item{margin:9px 0;padding:10px;background:#0f172a;border-radius:10px;overflow:hidden}.code-location{margin-bottom:7px;color:#c4b5fd;font-size:11px;font-weight:700;word-break:break-all}pre{margin:0;overflow:auto;color:#e2e8f0;font:11px/1.45 Consolas,monospace;white-space:pre}.empty-state{padding:30px;background:#fff;border-radius:16px;text-align:center}
+@media(max-width:760px){.hero{padding:20px 15px 17px}.hero h1{font-size:25px}.wrap{margin-top:12px;padding:0 12px 35px}.workflow-group{padding:12px;margin:12px 0 18px;border-radius:16px}.group-header{display:block;padding:2px 2px 10px}.group-header h2{font-size:21px}.group-count{display:inline-block;margin-top:9px}.workflow-card{display:block;padding:16px;margin:9px 0}.workflow-number{font-size:20px;margin-bottom:3px}.workflow-title{font-size:19px}.context-grid{grid-template-columns:1fr}.workflow-summary{padding:11px 12px}pre{font-size:10px}}
+</style></head><body>
+<header class="hero"><div class="eyebrow">ShipReady Business Workflows</div><h1>Business Workflow Context</h1>
+<p>Related workflows are grouped into business areas and shown from their entry point through downstream processing and outcomes.</p>
+<div class="hero-meta">sih · 1 workflow · 1 area</div></header>
+<main class="wrap">
+        <section class="workflow-group">
+          <header class="group-header">
+            <div><div class="eyebrow">Workflow area 1</div><h2>Privacy and redaction orchestration</h2></div>
+            <div class="group-count">1 workflow</div>
+          </header>
+          <div class="group-paths">
+            <article class="workflow-card">
+              <div class="workflow-number">01</div>
+              <div class="workflow-content">
+                <div class="eyebrow">Workflow 1</div>
+                <h3 class="workflow-title">Privacy and redaction orchestration</h3>
+                <section class="workflow-summary"><h3>What this workflow does</h3><p>Browser page inspection turns sensitive DOM fields into semantic tokens and a redacted canvas payload for the privacy demo.</p></section>
+                <div class="context-grid"><section class="context-panel"><h3>Purpose</h3><p>inspect a checkout-style page and convert sensitive fields into safe representations</p></section><section class="context-panel"><h3>What it produces</h3><p>DOM elements and outgoing redaction payload</p></section><section class="context-panel"><h3>Who relies on it</h3><p>browser user / transport consumer</p></section></div>
+                <section class="value-section"><h3>Why this workflow matters</h3><ul><li>prevents raw sensitive values from appearing in the outgoing payload</li><li>produces a sanitized canvas image and structured DOM summary</li><li>preserves locally resolvable semantic tokens for the same sensitive values</li></ul></section>
+                <details class="supporting-code"><summary>View supporting code</summary><div class="evidence-list"><article class="evidence-item"><div class="code-location">dev 2/e2e-test.html · lines 259–264 · executePipeline</div><pre><code>   259 |   &lt;div class=&quot;actions-bar&quot;&gt;
+   260 |     &lt;button class=&quot;action-btn btn-run&quot; id=&quot;btn-run-pipeline&quot;&gt;Run Full Pipeline&lt;/button&gt;
+   261 |     &lt;button class=&quot;action-btn btn-leak&quot; id=&quot;btn-simulate-leak&quot;&gt;Simulate Leak (Break It On Purpose)&lt;/button&gt;
+   262 |   &lt;/div&gt;
+   263 | 
+   264 |   &lt;script type=&quot;module&quot;&gt;</code></pre></article><article class="evidence-item"><div class="code-location">dev 2/e2e-test.html · lines 463–464 · executePipeline</div><pre><code>   463 |     document.getElementById(&#x27;btn-run-pipeline&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; executePipeline(false));
+   464 |     document.getElementById(&#x27;btn-simulate-leak&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; executePipeline(true));</code></pre></article><article class="evidence-item"><div class="code-location">dev 2/token-vault.js · lines 11–41 · createTokenVault/getOrCreateToken</div><pre><code>    11 | export function createTokenVault() {
+    12 |   const forwardMap = new Map(); // rawValue -&gt; token
+    13 |   const reverseMap = new Map(); // token -&gt; rawValue
+    14 |   const typeCounters = new Map(); // sensitivityType -&gt; current counter integer
+    15 | 
+    16 |   return {
+    17 |     /**
+    18 |      * Gets existing token for rawValue or creates a new indexed token [TYPE_N].
+    19 |      * @param {string} rawValue
+    20 |      * @param {string} sensitivityType
+    21 |      * @returns {string}
+    22 |      */
+    23 |     getOrCreateToken(rawValue, sensitivityType) {
+    24 |       if (typeof rawValue !== &#x27;string&#x27; || !rawValue) {
+    25 |         return &#x27;&#x27;;
+    26 |       }
+    27 | 
+    28 |       const typeKey = (sensitivityType || &#x27;UNKNOWN&#x27;).toUpperCase();
+    29 | 
+    30 |       if (forwardMap.has(rawValue)) {
+    31 |         return forwardMap.get(rawValue);
+    32 |       }
+    33 | 
+    34 |       const currentCount = (typeCounters.get(typeKey) || 0) + 1;
+    35 |       typeCounters.set(typeKey, currentCount);
+    36 | 
+    37 |       const &lt;redacted&gt;
+    38 |       forwardMap.set(rawValue, token);
+    39 |       reverseMap.set(token, rawValue);
+    40 | 
+    41 |       return token;</code></pre></article><article class="evidence-item"><div class="code-location">dev 2/redaction-engine.js · lines 72–83 · processPageForRedaction</div><pre><code>    72 |       // 2. Classify sensitivity passing rawValue and tokenVault
+    73 |       const sensitivity = classifySensitivity(elementClassification, piiMatches, rawValue, tokenVault);
+    74 |       const { sensitivity_tier, sensitivity_type, semantic_token } = sensitivity;
+    75 |       const is_sensitive = sensitivity_tier !== 3;
+    76 | 
+    77 |       // 3. Verify token presence in vault
+    78 |       const has_stable_&lt;redacted&gt;
+    79 |         semantic_token &amp;&amp;
+    80 |         tokenVault &amp;&amp;
+    81 |         typeof tokenVault.has&lt;redacted&gt; &#x27;function&#x27; &amp;&amp;
+    82 |         tokenVault.hasToken(semantic_token)
+    83 |       );</code></pre></article><article class="evidence-item"><div class="code-location">dev 2/e2e-test.html · lines 218–235 · checkout-form</div><pre><code>   218 |       &lt;div class=&quot;fake-form&quot; id=&quot;checkout-form&quot;&gt;
+   219 |         &lt;div class=&quot;form-group&quot;&gt;
+   220 |           &lt;label for=&quot;fullname-input&quot;&gt;Full Name&lt;/label&gt;
+   221 |           &lt;input type=&quot;text&quot; id=&quot;fullname-input&quot; value=&quot;Jane Doe&quot;&gt;
+   222 |         &lt;/div&gt;
+   223 |         &lt;div class=&quot;form-group&quot;&gt;
+   224 |           &lt;label for=&quot;email-input&quot;&gt;Email Address&lt;/label&gt;
+   225 |           &lt;input type=&quot;email&quot; id=&quot;email-input&quot; autocomplete=&quot;email&quot; value=&quot;jane.doe@example.com&quot;&gt;
+   226 |         &lt;/div&gt;
+   227 |         &lt;div class=&quot;form-group&quot;&gt;
+   228 |           &lt;label for=&quot;pwd-input&quot;&gt;Password&lt;/label&gt;
+   229 |           &lt;input type=&quot;password&quot; id=&quot;pwd-input&quot; value=&quot;SuperSecret123!&quot;&gt;
+   230 |         &lt;/div&gt;
+   231 |         &lt;div class=&quot;form-group&quot;&gt;
+   232 |           &lt;label for=&quot;card-number-input&quot;&gt;Card Number&lt;/label&gt;
+   233 |           &lt;input type=&quot;text&quot; id=&quot;card-number-input&quot; autocomplete=&quot;cc-number&quot; value=&quot;4111 1111 1111 1111&quot;&gt;
+   234 |         &lt;/div&gt;
+   235 |         &lt;div class=&quot;form-group&quot;&gt;</code></pre></article><article class="evidence-item"><div class="code-location">dev 2/redaction-engine.js · lines 41–57 · processPageForRedaction</div><pre><code>    41 |   if (Array.isArray(elements)) {
+    42 |     for (const el of elements) {
+    43 |       if (!el) continue;
+    44 | 
+    45 |       const element_id = getElementId(el);
+    46 |       const elementClassification = classifyElement(el);
+    47 | 
+    48 |       const rect = typeof el.getBoundingClientRect === &#x27;function&#x27;
+    49 |         ? el.getBoundingClientRect()
+    50 |         : { x: 0, y: 0, left: 0, top: 0, width: 0, height: 0 };
+    51 | 
+    52 |       const bounding_box = {
+    53 |         x: Math.round(rect.x || rect.left || 0),
+    54 |         y: Math.round(rect.y || rect.top || 0),
+    55 |         w: Math.round(rect.width || 0),
+    56 |         h: Math.round(rect.height || 0)
+    57 |       };</code></pre></article></div></details>
+              </div>
+            </article></div>
+        </section></main></body></html>

@@ -61,16 +61,33 @@ function getNearbyLabelText(el) {
 }
 
 /**
+ * Resolves a non-null default ARIA-style role for an element based on its tag,
+ * used whenever the element has no explicit role attribute. The backend schema
+ * requires role to always be a string, never null.
+ * @param {HTMLElement} el
+ * @param {string} tag
+ * @param {string} typeAttr
+ * @returns {string}
+ */
+function getDefaultRole(el, tag, typeAttr) {
+  if (tag === 'button' || typeAttr === 'submit' || typeAttr === 'button') return 'button';
+  if (tag === 'input' || tag === 'textarea') return 'textbox';
+  if (tag === 'select') return 'combobox';
+  if (tag === 'a') return 'link';
+  return 'generic';
+}
+
+/**
  * Classifies a DOM element based on form heuristics and sensitivity rules.
  * Order of evaluation: PASSWORD -> CARD_NUMBER -> EMAIL -> AMOUNT -> PHONE -> NAME -> UNKNOWN
  * @param {HTMLElement} el
- * @returns {{ tag: string, role: string|null, label_text: string|null, is_sensitive: boolean, sensitivity_type: "PASSWORD"|"CARD_NUMBER"|"EMAIL"|"PHONE"|"NAME"|"AMOUNT"|"UNKNOWN"|null }}
+ * @returns {{ tag: string, role: string, label_text: string|null, is_sensitive: boolean, sensitivity_type: "PASSWORD"|"CARD_NUMBER"|"EMAIL"|"PHONE"|"NAME"|"AMOUNT"|"UNKNOWN"|null }}
  */
 export function classifyElement(el) {
   if (!el || typeof el.getAttribute !== 'function') {
     return {
       tag: '',
-      role: null,
+      role: 'generic',
       label_text: null,
       is_sensitive: false,
       sensitivity_type: 'UNKNOWN'
@@ -78,10 +95,13 @@ export function classifyElement(el) {
   }
 
   const tag = el.tagName ? el.tagName.toLowerCase() : '';
-  const role = el.getAttribute('role') || null;
   const typeAttr = (el.getAttribute('type') || '').toLowerCase();
   const autocompleteAttr = (el.getAttribute('autocomplete') || '').toLowerCase();
   const placeholderAttr = (el.getAttribute('placeholder') || '').toLowerCase();
+
+  // role: explicit ARIA role attribute wins; otherwise derive a sensible default
+  // from the tag/type so this NEVER returns null (backend requires a string).
+  const role = el.getAttribute('role') || getDefaultRole(el, tag, typeAttr);
 
   // Hard exclusion for buttons
   if (tag === 'button' || typeAttr === 'submit' || typeAttr === 'button' || role === 'button') {

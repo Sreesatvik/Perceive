@@ -1,0 +1,28 @@
+{
+  "schema_version": "shipready.critical_business_insight_selector.v4",
+  "rules_version": "proof_obligations.v1.reporting_ceiling.v4",
+  "generated_at": "2026-09-08T17:33:01.096214+00:00",
+  "repository_id": "repository_8b4b76b1fa0c0f95",
+  "repository_name": "sih",
+  "interpretation_boundary": "Selected records are prioritized detections, not automatically confirmed defects. For each record, reporting_ceiling.maximum_allowed_claim is an absolute ceiling. Step 4 may retain or downgrade that category and must never upgrade it.",
+  "reporting_contract": {
+    "category_levels": {
+      "NOT_REPORTABLE": -1,
+      "WORKFLOW_OBSERVATION": 0,
+      "INVESTIGATION_HYPOTHESIS": 1,
+      "EVIDENCE_BACKED_RISK": 2,
+      "CONFIRMED_FLAW": 3
+    },
+    "category_descriptions": {
+      "NOT_REPORTABLE": "The trigger check did not establish a reportable material path.",
+      "WORKFLOW_OBSERVATION": "The code behaviour is observed, but no adverse mechanism is established.",
+      "INVESTIGATION_HYPOTHESIS": "A material detection exists, but one or more required links are inferred or incomplete.",
+      "EVIDENCE_BACKED_RISK": "The risk-shaped mechanism and material consequence are observed; a violated business policy is not proved.",
+      "CONFIRMED_FLAW": "An observed repository rule, requirement, or internal contract is explicitly contradicted by validated evidence."
+    },
+    "step4_may_downgrade": true,
+    "step4_may_upgrade": false,
+    "selected_means": "A prioritized detection, not a confirmed defect."
+  },
+  "selected_insights": []
+}

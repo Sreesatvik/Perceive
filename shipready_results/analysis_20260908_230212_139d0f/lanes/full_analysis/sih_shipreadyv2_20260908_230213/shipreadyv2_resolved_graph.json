@@ -1,0 +1,2513 @@
+{
+  "schema_version": "shipreadyv2.resolved_graph.v1",
+  "generated_at": "2026-09-08T23:02:13",
+  "workspace_root": "C:\\Users\\Sreesatvik\\Documents\\sih",
+  "repo_name": "sih",
+  "tree_sitter_backend": "tree_sitter_language_pack",
+  "summary": {
+    "files_scanned": 13,
+    "edges": 15,
+    "unresolved_or_external_imports": 1,
+    "language_counts": {
+      "html": 3,
+      "javascript": 10
+    },
+    "nodes_with_parse_errors": 0,
+    "nodes_without_ast_parser": 0
+  },
+  "nodes": [
+    {
+      "file": "dev 2/channel-consistency-check.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\channel-consistency-check.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter_language_pack:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 2876,
+      "line_count": 90,
+      "role_hints": [],
+      "entities": [
+        {
+          "name": "checkChannelConsistency",
+          "kind": "function",
+          "line_range": {
+            "start_line": 15,
+            "end_line": 68
+          },
+          "exported": true
+        },
+        {
+          "name": "assertChannelsConsistent",
+          "kind": "function",
+          "line_range": {
+            "start_line": 77,
+            "end_line": 89
+          },
+          "exported": true
+        }
+      ],
+      "imports": [],
+      "imported_by": [
+        "dev 2/test-dev2.js"
+      ],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/dom-heuristics.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\dom-heuristics.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 5473,
+      "line_count": 210,
+      "role_hints": [],
+      "entities": [
+        {
+          "name": "getNearbyLabelText",
+          "kind": "function",
+          "line_range": {
+            "start_line": 8,
+            "end_line": 61
+          },
+          "exported": false
+        },
+        {
+          "name": "classifyElement",
+          "kind": "function",
+          "line_range": {
+            "start_line": 69,
+            "end_line": 182
+          },
+          "exported": true
+        },
+        {
+          "name": "getElementId",
+          "kind": "function",
+          "line_range": {
+            "start_line": 191,
+            "end_line": 209
+          },
+          "exported": true
+        }
+      ],
+      "imports": [],
+      "imported_by": [
+        "dev 2/redaction-engine.js",
+        "dev 2/sensitivity-tiers.js",
+        "dev 2/test-dev2.js"
+      ],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/e2e-test.html",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\e2e-test.html",
+      "language": "html",
+      "extension": ".html",
+      "parser_used": "python_htmlparser",
+      "parser_confidence": "high",
+      "size_bytes": 15606,
+      "line_count": 468,
+      "role_hints": [
+        "html_page"
+      ],
+      "entities": [
+        {
+          "name": "e2e-test.html",
+          "kind": "html_document",
+          "line_range": {
+            "start_line": 1,
+            "end_line": 468
+          },
+          "exported": true
+        },
+        {
+          "name": "viewport",
+          "kind": "html_meta",
+          "line_range": {
+            "start_line": 5,
+            "end_line": 5
+          },
+          "content_preview": "width=device-width, initial-scale=1.0",
+          "exported": true
+        },
+        {
+          "name": "Dev 2 Redaction Pipeline E2E Demo",
+          "kind": "html_title",
+          "line_range": {
+            "start_line": 6,
+            "end_line": 6
+          },
+          "exported": true
+        },
+        {
+          "name": "Dev 2 Privacy & Redaction Pipeline — End-to-End Demo",
+          "kind": "html_heading_h1",
+          "line_range": {
+            "start_line": 197,
+            "end_line": 197
+          },
+          "exported": true
+        }
+      ],
+      "imports": [],
+      "imported_by": [],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/leakage-auditor.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\leakage-auditor.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 4982,
+      "line_count": 149,
+      "role_hints": [],
+      "entities": [
+        {
+          "name": "walkStrings",
+          "kind": "function",
+          "line_range": {
+            "start_line": 11,
+            "end_line": 37
+          },
+          "exported": false
+        },
+        {
+          "name": "auditPayload",
+          "kind": "function",
+          "line_range": {
+            "start_line": 45,
+            "end_line": 103
+          },
+          "exported": true
+        },
+        {
+          "name": "assertSafeToSend",
+          "kind": "function",
+          "line_range": {
+            "start_line": 112,
+            "end_line": 127
+          },
+          "exported": true
+        },
+        {
+          "name": "createSecureTransport",
+          "kind": "function",
+          "line_range": {
+            "start_line": 138,
+            "end_line": 148
+          },
+          "exported": true
+        }
+      ],
+      "imports": [],
+      "imported_by": [
+        "dev 2/test-dev2.js"
+      ],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/pii-patterns.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\pii-patterns.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 1655,
+      "line_count": 58,
+      "role_hints": [],
+      "entities": [
+        {
+          "name": "detectPII",
+          "kind": "function",
+          "line_range": {
+            "start_line": 6,
+            "end_line": 57
+          },
+          "exported": true
+        }
+      ],
+      "imports": [],
+      "imported_by": [
+        "dev 2/redaction-engine.js",
+        "dev 2/sensitivity-tiers.js",
+        "dev 2/test-dev2.js"
+      ],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/redaction-engine.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\redaction-engine.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 6118,
+      "line_count": 187,
+      "role_hints": [],
+      "entities": [
+        {
+          "name": "processPageForRedaction",
+          "kind": "function",
+          "line_range": {
+            "start_line": 32,
+            "end_line": 186
+          },
+          "exported": true
+        },
+        {
+          "name": "walkAndAssert",
+          "kind": "function",
+          "line_range": {
+            "start_line": 154,
+            "end_line": 181
+          },
+          "exported": true
+        }
+      ],
+      "imports": [
+        {
+          "raw": "./dom-heuristics.js",
+          "module": "./dom-heuristics.js",
+          "symbols": [
+            "classifyElement",
+            "getElementId"
+          ],
+          "import_style": "import_statement",
+          "line": 1,
+          "resolved_file": "dev 2/dom-heuristics.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/dom-heuristics.js",
+          "resolved_paths": [
+            "dev 2/dom-heuristics.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "classifyElement",
+              "resolved_path": "dev 2/dom-heuristics.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            },
+            {
+              "symbol": "getElementId",
+              "resolved_path": "dev 2/dom-heuristics.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./pii-patterns.js",
+          "module": "./pii-patterns.js",
+          "symbols": [
+            "detectPII"
+          ],
+          "import_style": "import_statement",
+          "line": 2,
+          "resolved_file": "dev 2/pii-patterns.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/pii-patterns.js",
+          "resolved_paths": [
+            "dev 2/pii-patterns.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "detectPII",
+              "resolved_path": "dev 2/pii-patterns.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./sensitivity-tiers.js",
+          "module": "./sensitivity-tiers.js",
+          "symbols": [
+            "classifySensitivity"
+          ],
+          "import_style": "import_statement",
+          "line": 3,
+          "resolved_file": "dev 2/sensitivity-tiers.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/sensitivity-tiers.js",
+          "resolved_paths": [
+            "dev 2/sensitivity-tiers.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "classifySensitivity",
+              "resolved_path": "dev 2/sensitivity-tiers.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./redaction-renderer.js",
+          "module": "./redaction-renderer.js",
+          "symbols": [
+            "redactImage",
+            "canvasToBase64"
+          ],
+          "import_style": "import_statement",
+          "line": 4,
+          "resolved_file": "dev 2/redaction-renderer.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/redaction-renderer.js",
+          "resolved_paths": [
+            "dev 2/redaction-renderer.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "redactImage",
+              "resolved_path": "dev 2/redaction-renderer.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            },
+            {
+              "symbol": "canvasToBase64",
+              "resolved_path": "dev 2/redaction-renderer.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        }
+      ],
+      "imported_by": [
+        "dev 2/test-dev2.js"
+      ],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/redaction-renderer.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\redaction-renderer.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 3139,
+      "line_count": 101,
+      "role_hints": [],
+      "entities": [
+        {
+          "name": "setRedactTier2",
+          "kind": "function",
+          "line_range": {
+            "start_line": 8,
+            "end_line": 10
+          },
+          "exported": true
+        },
+        {
+          "name": "redactImage",
+          "kind": "function",
+          "line_range": {
+            "start_line": 18,
+            "end_line": 87
+          },
+          "exported": true
+        },
+        {
+          "name": "canvasToBase64",
+          "kind": "function",
+          "line_range": {
+            "start_line": 94,
+            "end_line": 100
+          },
+          "exported": true
+        }
+      ],
+      "imports": [],
+      "imported_by": [
+        "dev 2/redaction-engine.js"
+      ],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/sensitivity-tiers.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\sensitivity-tiers.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 8751,
+      "line_count": 278,
+      "role_hints": [],
+      "entities": [
+        {
+          "name": "getTierNumber",
+          "kind": "function",
+          "line_range": {
+            "start_line": 13,
+            "end_line": 18
+          },
+          "exported": false
+        },
+        {
+          "name": "formatAmountRange",
+          "kind": "function",
+          "line_range": {
+            "start_line": 25,
+            "end_line": 33
+          },
+          "exported": false
+        },
+        {
+          "name": "getAmountToken",
+          "kind": "function",
+          "line_range": {
+            "start_line": 41,
+            "end_line": 76
+          },
+          "exported": false
+        },
+        {
+          "name": "classifySensitivity",
+          "kind": "function",
+          "line_range": {
+            "start_line": 87,
+            "end_line": 164
+          },
+          "exported": true
+        },
+        {
+          "name": "classifySensitivityWithConfidence",
+          "kind": "function",
+          "line_range": {
+            "start_line": 176,
+            "end_line": 228
+          },
+          "exported": true
+        },
+        {
+          "name": "getConfidenceBadgeColor",
+          "kind": "function",
+          "line_range": {
+            "start_line": 235,
+            "end_line": 239
+          },
+          "exported": true
+        },
+        {
+          "name": "classifyActionRisk",
+          "kind": "function",
+          "line_range": {
+            "start_line": 247,
+            "end_line": 276
+          },
+          "exported": true
+        }
+      ],
+      "imports": [
+        {
+          "raw": "./dom-heuristics.js",
+          "module": "./dom-heuristics.js",
+          "symbols": [
+            "classifyElement"
+          ],
+          "import_style": "import_statement",
+          "line": 1,
+          "resolved_file": "dev 2/dom-heuristics.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/dom-heuristics.js",
+          "resolved_paths": [
+            "dev 2/dom-heuristics.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "classifyElement",
+              "resolved_path": "dev 2/dom-heuristics.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./pii-patterns.js",
+          "module": "./pii-patterns.js",
+          "symbols": [
+            "detectPII"
+          ],
+          "import_style": "import_statement",
+          "line": 2,
+          "resolved_file": "dev 2/pii-patterns.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/pii-patterns.js",
+          "resolved_paths": [
+            "dev 2/pii-patterns.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "detectPII",
+              "resolved_path": "dev 2/pii-patterns.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        }
+      ],
+      "imported_by": [
+        "dev 2/redaction-engine.js",
+        "dev 2/test-dev2.js"
+      ],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/session-vault-manager.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\session-vault-manager.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 2799,
+      "line_count": 89,
+      "role_hints": [
+        "auth_related_file"
+      ],
+      "entities": [
+        {
+          "name": "getVaultForSession",
+          "kind": "function",
+          "line_range": {
+            "start_line": 14,
+            "end_line": 45
+          },
+          "exported": true
+        },
+        {
+          "name": "endSession",
+          "kind": "function",
+          "line_range": {
+            "start_line": 51,
+            "end_line": 61
+          },
+          "exported": true
+        },
+        {
+          "name": "cleanExpiredSessions",
+          "kind": "function",
+          "line_range": {
+            "start_line": 68,
+            "end_line": 80
+          },
+          "exported": true
+        },
+        {
+          "name": "getActiveSessionCount",
+          "kind": "function",
+          "line_range": {
+            "start_line": 86,
+            "end_line": 88
+          },
+          "exported": true
+        }
+      ],
+      "imports": [
+        {
+          "raw": "./token-vault.js",
+          "module": "./token-vault.js",
+          "symbols": [
+            "createTokenVault"
+          ],
+          "import_style": "import_statement",
+          "line": 1,
+          "resolved_file": "dev 2/token-vault.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/token-vault.js",
+          "resolved_paths": [
+            "dev 2/token-vault.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "createTokenVault",
+              "resolved_path": "dev 2/token-vault.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        }
+      ],
+      "imported_by": [
+        "dev 2/test-dev2.js"
+      ],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/test-consistency-check.html",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\test-consistency-check.html",
+      "language": "html",
+      "extension": ".html",
+      "parser_used": "python_htmlparser",
+      "parser_confidence": "high",
+      "size_bytes": 6235,
+      "line_count": 197,
+      "role_hints": [
+        "html_page"
+      ],
+      "entities": [
+        {
+          "name": "test-consistency-check.html",
+          "kind": "html_document",
+          "line_range": {
+            "start_line": 1,
+            "end_line": 197
+          },
+          "exported": true
+        },
+        {
+          "name": "viewport",
+          "kind": "html_meta",
+          "line_range": {
+            "start_line": 5,
+            "end_line": 5
+          },
+          "content_preview": "width=device-width, initial-scale=1.0",
+          "exported": true
+        },
+        {
+          "name": "Channel Consistency Check Tests",
+          "kind": "html_title",
+          "line_range": {
+            "start_line": 6,
+            "end_line": 6
+          },
+          "exported": true
+        },
+        {
+          "name": "Channel Consistency Check Test Runner",
+          "kind": "html_heading_h1",
+          "line_range": {
+            "start_line": 59,
+            "end_line": 59
+          },
+          "exported": true
+        }
+      ],
+      "imports": [],
+      "imported_by": [],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/test-dev2.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\test-dev2.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 16105,
+      "line_count": 421,
+      "role_hints": [],
+      "entities": [
+        {
+          "name": "runTestCase",
+          "kind": "function",
+          "line_range": {
+            "start_line": 16,
+            "end_line": 26
+          },
+          "exported": false
+        },
+        {
+          "name": "mockTransport",
+          "kind": "function",
+          "line_range": {
+            "start_line": 263,
+            "end_line": 263
+          },
+          "exported": false
+        },
+        {
+          "name": "mockTransport",
+          "kind": "function",
+          "line_range": {
+            "start_line": 288,
+            "end_line": 288
+          },
+          "exported": false
+        },
+        {
+          "name": "walkObject",
+          "kind": "function",
+          "line_range": {
+            "start_line": 388,
+            "end_line": 415
+          },
+          "exported": false
+        }
+      ],
+      "imports": [
+        {
+          "raw": "assert",
+          "module": "assert",
+          "symbols": [
+            "assert"
+          ],
+          "import_style": "import_statement",
+          "line": 1,
+          "resolved_file": null,
+          "internal": false,
+          "resolution_strategy": null,
+          "resolution_confidence": "none",
+          "resolved_path": null,
+          "resolved_paths": [],
+          "symbol_resolutions": [
+            {
+              "symbol": "assert",
+              "resolved_path": null,
+              "confidence": "none",
+              "strategy": null,
+              "reason": "symbol_not_found",
+              "candidates": []
+            }
+          ],
+          "is_unresolved": true,
+          "reason": "unknown_symbol_or_external_module",
+          "resolution_status": "unresolved",
+          "lrm_resolution_strategy": null,
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./pii-patterns.js",
+          "module": "./pii-patterns.js",
+          "symbols": [
+            "detectPII"
+          ],
+          "import_style": "import_statement",
+          "line": 2,
+          "resolved_file": "dev 2/pii-patterns.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/pii-patterns.js",
+          "resolved_paths": [
+            "dev 2/pii-patterns.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "detectPII",
+              "resolved_path": "dev 2/pii-patterns.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./dom-heuristics.js",
+          "module": "./dom-heuristics.js",
+          "symbols": [
+            "classifyElement"
+          ],
+          "import_style": "import_statement",
+          "line": 3,
+          "resolved_file": "dev 2/dom-heuristics.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/dom-heuristics.js",
+          "resolved_paths": [
+            "dev 2/dom-heuristics.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "classifyElement",
+              "resolved_path": "dev 2/dom-heuristics.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./sensitivity-tiers.js",
+          "module": "./sensitivity-tiers.js",
+          "symbols": [
+            "classifySensitivity",
+            "classifyActionRisk"
+          ],
+          "import_style": "import_statement",
+          "line": 4,
+          "resolved_file": "dev 2/sensitivity-tiers.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/sensitivity-tiers.js",
+          "resolved_paths": [
+            "dev 2/sensitivity-tiers.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "classifySensitivity",
+              "resolved_path": "dev 2/sensitivity-tiers.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            },
+            {
+              "symbol": "classifyActionRisk",
+              "resolved_path": "dev 2/sensitivity-tiers.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./token-vault.js",
+          "module": "./token-vault.js",
+          "symbols": [
+            "createTokenVault"
+          ],
+          "import_style": "import_statement",
+          "line": 5,
+          "resolved_file": "dev 2/token-vault.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/token-vault.js",
+          "resolved_paths": [
+            "dev 2/token-vault.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "createTokenVault",
+              "resolved_path": "dev 2/token-vault.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./session-vault-manager.js",
+          "module": "./session-vault-manager.js",
+          "symbols": [
+            "getVaultForSession",
+            "endSession",
+            "getActiveSessionCount",
+            "cleanExpiredSessions"
+          ],
+          "import_style": "import_statement",
+          "line": 6,
+          "resolved_file": "dev 2/session-vault-manager.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/session-vault-manager.js",
+          "resolved_paths": [
+            "dev 2/session-vault-manager.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "getVaultForSession",
+              "resolved_path": "dev 2/session-vault-manager.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            },
+            {
+              "symbol": "endSession",
+              "resolved_path": "dev 2/session-vault-manager.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            },
+            {
+              "symbol": "getActiveSessionCount",
+              "resolved_path": "dev 2/session-vault-manager.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            },
+            {
+              "symbol": "cleanExpiredSessions",
+              "resolved_path": "dev 2/session-vault-manager.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./leakage-auditor.js",
+          "module": "./leakage-auditor.js",
+          "symbols": [
+            "auditPayload",
+            "assertSafeToSend",
+            "createSecureTransport"
+          ],
+          "import_style": "import_statement",
+          "line": 7,
+          "resolved_file": "dev 2/leakage-auditor.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/leakage-auditor.js",
+          "resolved_paths": [
+            "dev 2/leakage-auditor.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "auditPayload",
+              "resolved_path": "dev 2/leakage-auditor.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            },
+            {
+              "symbol": "assertSafeToSend",
+              "resolved_path": "dev 2/leakage-auditor.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            },
+            {
+              "symbol": "createSecureTransport",
+              "resolved_path": "dev 2/leakage-auditor.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./redaction-engine.js",
+          "module": "./redaction-engine.js",
+          "symbols": [
+            "processPageForRedaction"
+          ],
+          "import_style": "import_statement",
+          "line": 8,
+          "resolved_file": "dev 2/redaction-engine.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/redaction-engine.js",
+          "resolved_paths": [
+            "dev 2/redaction-engine.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "processPageForRedaction",
+              "resolved_path": "dev 2/redaction-engine.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        },
+        {
+          "raw": "./channel-consistency-check.js",
+          "module": "./channel-consistency-check.js",
+          "symbols": [
+            "checkChannelConsistency",
+            "assertChannelsConsistent"
+          ],
+          "import_style": "import_statement",
+          "line": 9,
+          "resolved_file": "dev 2/channel-consistency-check.js",
+          "internal": true,
+          "resolution_strategy": "node_ts_module_resolution",
+          "resolution_confidence": "high",
+          "resolved_path": "dev 2/channel-consistency-check.js",
+          "resolved_paths": [
+            "dev 2/channel-consistency-check.js"
+          ],
+          "symbol_resolutions": [
+            {
+              "symbol": "checkChannelConsistency",
+              "resolved_path": "dev 2/channel-consistency-check.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            },
+            {
+              "symbol": "assertChannelsConsistent",
+              "resolved_path": "dev 2/channel-consistency-check.js",
+              "confidence": "high",
+              "strategy": "existing_file_plus_exact_symbol",
+              "reason": null,
+              "candidates": []
+            }
+          ],
+          "is_unresolved": false,
+          "reason": null,
+          "resolution_status": "resolved",
+          "lrm_resolution_strategy": "existing_file_plus_exact_symbol",
+          "is_uncertain": false,
+          "uncertainty_reasons": []
+        }
+      ],
+      "imported_by": [],
+      "parse_errors": [],
+      "unresolved_import_count": 1
+    },
+    {
+      "file": "dev 2/test-token-vault.html",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\test-token-vault.html",
+      "language": "html",
+      "extension": ".html",
+      "parser_used": "python_htmlparser",
+      "parser_confidence": "high",
+      "size_bytes": 6807,
+      "line_count": 204,
+      "role_hints": [
+        "html_page"
+      ],
+      "entities": [
+        {
+          "name": "test-token-vault.html",
+          "kind": "html_document",
+          "line_range": {
+            "start_line": 1,
+            "end_line": 204
+          },
+          "exported": true
+        },
+        {
+          "name": "viewport",
+          "kind": "html_meta",
+          "line_range": {
+            "start_line": 5,
+            "end_line": 5
+          },
+          "content_preview": "width=device-width, initial-scale=1.0",
+          "exported": true
+        },
+        {
+          "name": "Token Vault Tests",
+          "kind": "html_title",
+          "line_range": {
+            "start_line": 6,
+            "end_line": 6
+          },
+          "exported": true
+        },
+        {
+          "name": "Token Vault Test Runner",
+          "kind": "html_heading_h1",
+          "line_range": {
+            "start_line": 59,
+            "end_line": 59
+          },
+          "exported": true
+        }
+      ],
+      "imports": [],
+      "imported_by": [],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    },
+    {
+      "file": "dev 2/token-vault.js",
+      "absolute_path": "C:\\Users\\Sreesatvik\\Documents\\sih\\dev 2\\token-vault.js",
+      "language": "javascript",
+      "extension": ".js",
+      "parser_used": "tree_sitter:javascript",
+      "parser_confidence": "high",
+      "size_bytes": 2629,
+      "line_count": 97,
+      "role_hints": [],
+      "entities": [
+        {
+          "name": "createTokenVault",
+          "kind": "function",
+          "line_range": {
+            "start_line": 11,
+            "end_line": 96
+          },
+          "exported": true
+        },
+        {
+          "name": "getOrCreateToken",
+          "kind": "method",
+          "line_range": {
+            "start_line": 23,
+            "end_line": 42
+          },
+          "exported": false
+        },
+        {
+          "name": "resolveToken",
+          "kind": "method",
+          "line_range": {
+            "start_line": 49,
+            "end_line": 54
+          },
+          "exported": false
+        },
+        {
+          "name": "hasToken",
+          "kind": "method",
+          "line_range": {
+            "start_line": 61,
+            "end_line": 66
+          },
+          "exported": false
+        },
+        {
+          "name": "clear",
+          "kind": "method",
+          "line_range": {
+            "start_line": 71,
+            "end_line": 75
+          },
+          "exported": false
+        },
+        {
+          "name": "getStats",
+          "kind": "method",
+          "line_range": {
+            "start_line": 81,
+            "end_line": 94
+          },
+          "exported": false
+        }
+      ],
+      "imports": [],
+      "imported_by": [
+        "dev 2/session-vault-manager.js",
+        "dev 2/test-dev2.js"
+      ],
+      "parse_errors": [],
+      "unresolved_import_count": 0
+    }
+  ],
+  "edges": [
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/dom-heuristics.js",
+      "type": "imports",
+      "raw": "./dom-heuristics.js",
+      "import_style": "import_statement",
+      "line": 1,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/pii-patterns.js",
+      "type": "imports",
+      "raw": "./pii-patterns.js",
+      "import_style": "import_statement",
+      "line": 2,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/sensitivity-tiers.js",
+      "type": "imports",
+      "raw": "./sensitivity-tiers.js",
+      "import_style": "import_statement",
+      "line": 3,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/redaction-renderer.js",
+      "type": "imports",
+      "raw": "./redaction-renderer.js",
+      "import_style": "import_statement",
+      "line": 4,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/sensitivity-tiers.js",
+      "target": "dev 2/dom-heuristics.js",
+      "type": "imports",
+      "raw": "./dom-heuristics.js",
+      "import_style": "import_statement",
+      "line": 1,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/sensitivity-tiers.js",
+      "target": "dev 2/pii-patterns.js",
+      "type": "imports",
+      "raw": "./pii-patterns.js",
+      "import_style": "import_statement",
+      "line": 2,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/session-vault-manager.js",
+      "target": "dev 2/token-vault.js",
+      "type": "imports",
+      "raw": "./token-vault.js",
+      "import_style": "import_statement",
+      "line": 1,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/pii-patterns.js",
+      "type": "imports",
+      "raw": "./pii-patterns.js",
+      "import_style": "import_statement",
+      "line": 2,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/dom-heuristics.js",
+      "type": "imports",
+      "raw": "./dom-heuristics.js",
+      "import_style": "import_statement",
+      "line": 3,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/sensitivity-tiers.js",
+      "type": "imports",
+      "raw": "./sensitivity-tiers.js",
+      "import_style": "import_statement",
+      "line": 4,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/token-vault.js",
+      "type": "imports",
+      "raw": "./token-vault.js",
+      "import_style": "import_statement",
+      "line": 5,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/session-vault-manager.js",
+      "type": "imports",
+      "raw": "./session-vault-manager.js",
+      "import_style": "import_statement",
+      "line": 6,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/leakage-auditor.js",
+      "type": "imports",
+      "raw": "./leakage-auditor.js",
+      "import_style": "import_statement",
+      "line": 7,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/redaction-engine.js",
+      "type": "imports",
+      "raw": "./redaction-engine.js",
+      "import_style": "import_statement",
+      "line": 8,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/channel-consistency-check.js",
+      "type": "imports",
+      "raw": "./channel-consistency-check.js",
+      "import_style": "import_statement",
+      "line": 9,
+      "confidence": "high",
+      "resolution_strategy": "node_ts_module_resolution"
+    }
+  ],
+  "unresolved_imports": [
+    {
+      "source": "dev 2/test-dev2.js",
+      "language": "javascript",
+      "raw": "assert",
+      "module": "assert",
+      "import_style": "import_statement",
+      "line": 1,
+      "reason": "external_or_unresolved"
+    }
+  ],
+  "warnings": [],
+  "linker_resolution": {
+    "generated_at": "2026-09-08T17:32:13+00:00",
+    "source_graphs": [
+      {
+        "source": "in_memory_stage_1",
+        "sha256": null,
+        "integrity": "same_process_memory_handoff"
+      }
+    ],
+    "policy": {
+      "mode": "safe_exact_symbol_resolution",
+      "hard_path_prefixes": [
+        "@/",
+        "~/"
+      ],
+      "deep_relative_parent_hops": 3,
+      "strict_hard_path": false,
+      "allow_global_symbol_fallback": false,
+      "existing_valid_resolved_file_precedence": true,
+      "ambiguous_symbol_policy": "skip_and_log",
+      "python_index_policy": "module_scope_importable_classes_functions_and_safe_constants_only"
+    },
+    "summary": {
+      "source_graph_files": 1,
+      "files_indexed": 13,
+      "symbol_definitions": 48,
+      "unique_symbol_names": 43,
+      "ambiguous_symbol_names": 2,
+      "imports_total": 16,
+      "imports_resolved": 15,
+      "imports_partial": 0,
+      "imports_unresolved": 1,
+      "imports_hard_path_skipped": 0,
+      "imports_uncertain": 0,
+      "imports_with_uncertainty": 0,
+      "symbols_total": 25,
+      "symbols_resolved": 24,
+      "symbols_unresolved": 1,
+      "symbol_edges_added": 24,
+      "python_files_enriched": 0,
+      "python_files_skipped": 0,
+      "python_safe_constants_added": 0,
+      "python_dynamic_imports_added": 0
+    },
+    "graph_artifacts": {
+      "status": "not_emitted_json_only_pipeline"
+    }
+  },
+  "global_symbol_index": {
+    "Channel Consistency Check Test Runner": [
+      {
+        "source_file": "dev 2/test-consistency-check.html",
+        "kind": "html_heading_h1",
+        "line_range": {
+          "start_line": 59,
+          "end_line": 59
+        },
+        "exported": true,
+        "qualified_name": "Channel Consistency Check Test Runner",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "Channel Consistency Check Tests": [
+      {
+        "source_file": "dev 2/test-consistency-check.html",
+        "kind": "html_title",
+        "line_range": {
+          "start_line": 6,
+          "end_line": 6
+        },
+        "exported": true,
+        "qualified_name": "Channel Consistency Check Tests",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "Dev 2 Privacy & Redaction Pipeline — End-to-End Demo": [
+      {
+        "source_file": "dev 2/e2e-test.html",
+        "kind": "html_heading_h1",
+        "line_range": {
+          "start_line": 197,
+          "end_line": 197
+        },
+        "exported": true,
+        "qualified_name": "Dev 2 Privacy & Redaction Pipeline — End-to-End Demo",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "Dev 2 Redaction Pipeline E2E Demo": [
+      {
+        "source_file": "dev 2/e2e-test.html",
+        "kind": "html_title",
+        "line_range": {
+          "start_line": 6,
+          "end_line": 6
+        },
+        "exported": true,
+        "qualified_name": "Dev 2 Redaction Pipeline E2E Demo",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "Token Vault Test Runner": [
+      {
+        "source_file": "dev 2/test-token-vault.html",
+        "kind": "html_heading_h1",
+        "line_range": {
+          "start_line": 59,
+          "end_line": 59
+        },
+        "exported": true,
+        "qualified_name": "Token Vault Test Runner",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "Token Vault Tests": [
+      {
+        "source_file": "dev 2/test-token-vault.html",
+        "kind": "html_title",
+        "line_range": {
+          "start_line": 6,
+          "end_line": 6
+        },
+        "exported": true,
+        "qualified_name": "Token Vault Tests",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "assertChannelsConsistent": [
+      {
+        "source_file": "dev 2/channel-consistency-check.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 77,
+          "end_line": 89
+        },
+        "exported": true,
+        "qualified_name": "assertChannelsConsistent",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "assertSafeToSend": [
+      {
+        "source_file": "dev 2/leakage-auditor.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 112,
+          "end_line": 127
+        },
+        "exported": true,
+        "qualified_name": "assertSafeToSend",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "auditPayload": [
+      {
+        "source_file": "dev 2/leakage-auditor.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 45,
+          "end_line": 103
+        },
+        "exported": true,
+        "qualified_name": "auditPayload",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "canvasToBase64": [
+      {
+        "source_file": "dev 2/redaction-renderer.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 94,
+          "end_line": 100
+        },
+        "exported": true,
+        "qualified_name": "canvasToBase64",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "checkChannelConsistency": [
+      {
+        "source_file": "dev 2/channel-consistency-check.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 15,
+          "end_line": 68
+        },
+        "exported": true,
+        "qualified_name": "checkChannelConsistency",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "classifyActionRisk": [
+      {
+        "source_file": "dev 2/sensitivity-tiers.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 247,
+          "end_line": 276
+        },
+        "exported": true,
+        "qualified_name": "classifyActionRisk",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "classifyElement": [
+      {
+        "source_file": "dev 2/dom-heuristics.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 69,
+          "end_line": 182
+        },
+        "exported": true,
+        "qualified_name": "classifyElement",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "classifySensitivity": [
+      {
+        "source_file": "dev 2/sensitivity-tiers.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 87,
+          "end_line": 164
+        },
+        "exported": true,
+        "qualified_name": "classifySensitivity",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "classifySensitivityWithConfidence": [
+      {
+        "source_file": "dev 2/sensitivity-tiers.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 176,
+          "end_line": 228
+        },
+        "exported": true,
+        "qualified_name": "classifySensitivityWithConfidence",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "cleanExpiredSessions": [
+      {
+        "source_file": "dev 2/session-vault-manager.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 68,
+          "end_line": 80
+        },
+        "exported": true,
+        "qualified_name": "cleanExpiredSessions",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "clear": [
+      {
+        "source_file": "dev 2/token-vault.js",
+        "kind": "method",
+        "line_range": {
+          "start_line": 71,
+          "end_line": 75
+        },
+        "exported": false,
+        "qualified_name": "clear",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "createSecureTransport": [
+      {
+        "source_file": "dev 2/leakage-auditor.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 138,
+          "end_line": 148
+        },
+        "exported": true,
+        "qualified_name": "createSecureTransport",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "createTokenVault": [
+      {
+        "source_file": "dev 2/token-vault.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 11,
+          "end_line": 96
+        },
+        "exported": true,
+        "qualified_name": "createTokenVault",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "detectPII": [
+      {
+        "source_file": "dev 2/pii-patterns.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 6,
+          "end_line": 57
+        },
+        "exported": true,
+        "qualified_name": "detectPII",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "e2e-test.html": [
+      {
+        "source_file": "dev 2/e2e-test.html",
+        "kind": "html_document",
+        "line_range": {
+          "start_line": 1,
+          "end_line": 468
+        },
+        "exported": true,
+        "qualified_name": "e2e-test.html",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "endSession": [
+      {
+        "source_file": "dev 2/session-vault-manager.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 51,
+          "end_line": 61
+        },
+        "exported": true,
+        "qualified_name": "endSession",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "formatAmountRange": [
+      {
+        "source_file": "dev 2/sensitivity-tiers.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 25,
+          "end_line": 33
+        },
+        "exported": false,
+        "qualified_name": "formatAmountRange",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "getActiveSessionCount": [
+      {
+        "source_file": "dev 2/session-vault-manager.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 86,
+          "end_line": 88
+        },
+        "exported": true,
+        "qualified_name": "getActiveSessionCount",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "getAmountToken": [
+      {
+        "source_file": "dev 2/sensitivity-tiers.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 41,
+          "end_line": 76
+        },
+        "exported": false,
+        "qualified_name": "getAmountToken",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "getConfidenceBadgeColor": [
+      {
+        "source_file": "dev 2/sensitivity-tiers.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 235,
+          "end_line": 239
+        },
+        "exported": true,
+        "qualified_name": "getConfidenceBadgeColor",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "getElementId": [
+      {
+        "source_file": "dev 2/dom-heuristics.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 191,
+          "end_line": 209
+        },
+        "exported": true,
+        "qualified_name": "getElementId",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "getNearbyLabelText": [
+      {
+        "source_file": "dev 2/dom-heuristics.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 8,
+          "end_line": 61
+        },
+        "exported": false,
+        "qualified_name": "getNearbyLabelText",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "getOrCreateToken": [
+      {
+        "source_file": "dev 2/token-vault.js",
+        "kind": "method",
+        "line_range": {
+          "start_line": 23,
+          "end_line": 42
+        },
+        "exported": false,
+        "qualified_name": "getOrCreateToken",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "getStats": [
+      {
+        "source_file": "dev 2/token-vault.js",
+        "kind": "method",
+        "line_range": {
+          "start_line": 81,
+          "end_line": 94
+        },
+        "exported": false,
+        "qualified_name": "getStats",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "getTierNumber": [
+      {
+        "source_file": "dev 2/sensitivity-tiers.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 13,
+          "end_line": 18
+        },
+        "exported": false,
+        "qualified_name": "getTierNumber",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "getVaultForSession": [
+      {
+        "source_file": "dev 2/session-vault-manager.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 14,
+          "end_line": 45
+        },
+        "exported": true,
+        "qualified_name": "getVaultForSession",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "hasToken": [
+      {
+        "source_file": "dev 2/token-vault.js",
+        "kind": "method",
+        "line_range": {
+          "start_line": 61,
+          "end_line": 66
+        },
+        "exported": false,
+        "qualified_name": "hasToken",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "mockTransport": [
+      {
+        "source_file": "dev 2/test-dev2.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 263,
+          "end_line": 263
+        },
+        "exported": false,
+        "qualified_name": "mockTransport",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      },
+      {
+        "source_file": "dev 2/test-dev2.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 288,
+          "end_line": 288
+        },
+        "exported": false,
+        "qualified_name": "mockTransport",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "processPageForRedaction": [
+      {
+        "source_file": "dev 2/redaction-engine.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 32,
+          "end_line": 186
+        },
+        "exported": true,
+        "qualified_name": "processPageForRedaction",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "redactImage": [
+      {
+        "source_file": "dev 2/redaction-renderer.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 18,
+          "end_line": 87
+        },
+        "exported": true,
+        "qualified_name": "redactImage",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "resolveToken": [
+      {
+        "source_file": "dev 2/token-vault.js",
+        "kind": "method",
+        "line_range": {
+          "start_line": 49,
+          "end_line": 54
+        },
+        "exported": false,
+        "qualified_name": "resolveToken",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "runTestCase": [
+      {
+        "source_file": "dev 2/test-dev2.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 16,
+          "end_line": 26
+        },
+        "exported": false,
+        "qualified_name": "runTestCase",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "setRedactTier2": [
+      {
+        "source_file": "dev 2/redaction-renderer.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 8,
+          "end_line": 10
+        },
+        "exported": true,
+        "qualified_name": "setRedactTier2",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "test-consistency-check.html": [
+      {
+        "source_file": "dev 2/test-consistency-check.html",
+        "kind": "html_document",
+        "line_range": {
+          "start_line": 1,
+          "end_line": 197
+        },
+        "exported": true,
+        "qualified_name": "test-consistency-check.html",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "test-token-vault.html": [
+      {
+        "source_file": "dev 2/test-token-vault.html",
+        "kind": "html_document",
+        "line_range": {
+          "start_line": 1,
+          "end_line": 204
+        },
+        "exported": true,
+        "qualified_name": "test-token-vault.html",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "viewport": [
+      {
+        "source_file": "dev 2/e2e-test.html",
+        "kind": "html_meta",
+        "line_range": {
+          "start_line": 5,
+          "end_line": 5
+        },
+        "exported": true,
+        "qualified_name": "viewport",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      },
+      {
+        "source_file": "dev 2/test-consistency-check.html",
+        "kind": "html_meta",
+        "line_range": {
+          "start_line": 5,
+          "end_line": 5
+        },
+        "exported": true,
+        "qualified_name": "viewport",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      },
+      {
+        "source_file": "dev 2/test-token-vault.html",
+        "kind": "html_meta",
+        "line_range": {
+          "start_line": 5,
+          "end_line": 5
+        },
+        "exported": true,
+        "qualified_name": "viewport",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "walkAndAssert": [
+      {
+        "source_file": "dev 2/redaction-engine.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 154,
+          "end_line": 181
+        },
+        "exported": true,
+        "qualified_name": "walkAndAssert",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "walkObject": [
+      {
+        "source_file": "dev 2/test-dev2.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 388,
+          "end_line": 415
+        },
+        "exported": false,
+        "qualified_name": "walkObject",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ],
+    "walkStrings": [
+      {
+        "source_file": "dev 2/leakage-auditor.js",
+        "kind": "function",
+        "line_range": {
+          "start_line": 11,
+          "end_line": 37
+        },
+        "exported": false,
+        "qualified_name": "walkStrings",
+        "owner": null,
+        "scope": null,
+        "importable": null
+      }
+    ]
+  },
+  "symbol_edges": [
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/dom-heuristics.js",
+      "type": "imports_symbol",
+      "symbol": "classifyElement",
+      "raw": "./dom-heuristics.js",
+      "line": 1,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/dom-heuristics.js",
+      "type": "imports_symbol",
+      "symbol": "getElementId",
+      "raw": "./dom-heuristics.js",
+      "line": 1,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/pii-patterns.js",
+      "type": "imports_symbol",
+      "symbol": "detectPII",
+      "raw": "./pii-patterns.js",
+      "line": 2,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/sensitivity-tiers.js",
+      "type": "imports_symbol",
+      "symbol": "classifySensitivity",
+      "raw": "./sensitivity-tiers.js",
+      "line": 3,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/redaction-renderer.js",
+      "type": "imports_symbol",
+      "symbol": "redactImage",
+      "raw": "./redaction-renderer.js",
+      "line": 4,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/redaction-engine.js",
+      "target": "dev 2/redaction-renderer.js",
+      "type": "imports_symbol",
+      "symbol": "canvasToBase64",
+      "raw": "./redaction-renderer.js",
+      "line": 4,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/sensitivity-tiers.js",
+      "target": "dev 2/dom-heuristics.js",
+      "type": "imports_symbol",
+      "symbol": "classifyElement",
+      "raw": "./dom-heuristics.js",
+      "line": 1,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/sensitivity-tiers.js",
+      "target": "dev 2/pii-patterns.js",
+      "type": "imports_symbol",
+      "symbol": "detectPII",
+      "raw": "./pii-patterns.js",
+      "line": 2,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/session-vault-manager.js",
+      "target": "dev 2/token-vault.js",
+      "type": "imports_symbol",
+      "symbol": "createTokenVault",
+      "raw": "./token-vault.js",
+      "line": 1,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/pii-patterns.js",
+      "type": "imports_symbol",
+      "symbol": "detectPII",
+      "raw": "./pii-patterns.js",
+      "line": 2,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/dom-heuristics.js",
+      "type": "imports_symbol",
+      "symbol": "classifyElement",
+      "raw": "./dom-heuristics.js",
+      "line": 3,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/sensitivity-tiers.js",
+      "type": "imports_symbol",
+      "symbol": "classifySensitivity",
+      "raw": "./sensitivity-tiers.js",
+      "line": 4,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/sensitivity-tiers.js",
+      "type": "imports_symbol",
+      "symbol": "classifyActionRisk",
+      "raw": "./sensitivity-tiers.js",
+      "line": 4,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/token-vault.js",
+      "type": "imports_symbol",
+      "symbol": "createTokenVault",
+      "raw": "./token-vault.js",
+      "line": 5,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/session-vault-manager.js",
+      "type": "imports_symbol",
+      "symbol": "getVaultForSession",
+      "raw": "./session-vault-manager.js",
+      "line": 6,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/session-vault-manager.js",
+      "type": "imports_symbol",
+      "symbol": "endSession",
+      "raw": "./session-vault-manager.js",
+      "line": 6,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/session-vault-manager.js",
+      "type": "imports_symbol",
+      "symbol": "getActiveSessionCount",
+      "raw": "./session-vault-manager.js",
+      "line": 6,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/session-vault-manager.js",
+      "type": "imports_symbol",
+      "symbol": "cleanExpiredSessions",
+      "raw": "./session-vault-manager.js",
+      "line": 6,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/leakage-auditor.js",
+      "type": "imports_symbol",
+      "symbol": "auditPayload",
+      "raw": "./leakage-auditor.js",
+      "line": 7,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/leakage-auditor.js",
+      "type": "imports_symbol",
+      "symbol": "assertSafeToSend",
+      "raw": "./leakage-auditor.js",
+      "line": 7,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/leakage-auditor.js",
+      "type": "imports_symbol",
+      "symbol": "createSecureTransport",
+      "raw": "./leakage-auditor.js",
+      "line": 7,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/redaction-engine.js",
+      "type": "imports_symbol",
+      "symbol": "processPageForRedaction",
+      "raw": "./redaction-engine.js",
+      "line": 8,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/channel-consistency-check.js",
+      "type": "imports_symbol",
+      "symbol": "checkChannelConsistency",
+      "raw": "./channel-consistency-check.js",
+      "line": 9,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    },
+    {
+      "source": "dev 2/test-dev2.js",
+      "target": "dev 2/channel-consistency-check.js",
+      "type": "imports_symbol",
+      "symbol": "assertChannelsConsistent",
+      "raw": "./channel-consistency-check.js",
+      "line": 9,
+      "confidence": "high",
+      "resolution_strategy": "existing_file_plus_exact_symbol"
+    }
+  ],
+  "unresolved_linker_imports": [
+    {
+      "source_file": "dev 2/test-dev2.js",
+      "raw": "assert",
+      "module": "assert",
+      "symbols": [
+        "assert"
+      ],
+      "line": 1,
+      "resolution_status": "unresolved",
+      "reason": "unknown_symbol_or_external_module",
+      "detail": "unknown_symbol_or_external_module",
+      "symbol_resolutions": [
+        {
+          "symbol": "assert",
+          "resolved_path": null,
+          "confidence": "none",
+          "strategy": null,
+          "reason": "symbol_not_found",
+          "candidates": []
+        }
+      ]
+    }
+  ]
+}

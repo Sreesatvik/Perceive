@@ -1,0 +1,3912 @@
+You are the ShipReadyV2 Pass 1 semantic mapping agent.
+
+OBJECTIVE
+Read one graph-connected repository fragment and translate implementation details into evidence-backed business context. Reconstruct material entrypoint-to-effect path fragments and classify their runtime shape, workload shape, actor, state, intent, resource scope, path type, effects, observed guards, rules, invariants, and requirement alignment.
+
+PASS 1 BOUNDARY
+- This request is semantic discovery, not defect detection or test execution.
+- Do not select risk triggers. Deterministic routing occurs only after fragments from all requests are merged.
+- Do not declare a control missing, a test failed, or a business flaw confirmed.
+- Do not infer absence from this fragment: connected code may appear in another request.
+- Ignore examples, fixtures, generated files, and tests as production paths unless they establish a requirement, oracle, or counter-evidence for production code.
+
+CLASSIFICATION RULES
+- Preserve every repo-native name and add a normalized taxonomy ID only when supported.
+- OBSERVED means explicit code, test, schema, documentation, guard, state, effect, or contract evidence.
+- INFERRED means multiple connected signals strongly support the interpretation; state the reasoning.
+- UNKNOWN means the supplied evidence cannot establish the answer. Never guess a business policy.
+- OTHER means the concept is clearly present but no supplied taxonomy value fits. Preserve the repo-native label and explain why OTHER is appropriate.
+- Do not force payment, entitlement, approval, ownership, tenant, or deletion semantics from names or dependencies alone.
+
+CONFIDENCE
+- HIGH: direct or connected evidence establishes the material path and effect; the classified field is explicit or strongly corroborated.
+- MEDIUM: the material path/effect is supported, but one or more important actor, state, scope, intent, or rule fields require a bounded inference.
+- LOW: the path is incomplete or materially depends on weak evidence, but it is important enough for later expansion.
+- UNSUPPORTED: no material path/effect exists or the signal is name/dependency-only. Put it in unsupported_or_nonmaterial_signals, not in business_path_fragments.
+
+EVIDENCE
+- Every non-UNKNOWN normalized classification must cite evidence.
+- Cite exact chunk_id, file_path, start_line, end_line, and symbol_or_node_id.
+- Use only evidence present in this request, including supplied bridge excerpts.
+- A bridge excerpt is supporting context, not proof that the full remote path was inspected.
+
+OUTPUT
+- Return exactly one JSON object and no Markdown.
+- Follow the output contract below.
+- Use empty arrays and UNKNOWN values where appropriate; do not omit required top-level fields.
+
+===== COMPACT ARCHETYPE TAXONOMY =====
+schema_version: shipreadyv2.pass1_taxonomy.compact.v1
+taxonomy_name: ShipReady Archetype Taxonomy
+taxonomy_version: 0.4.0
+source:
+  file: archetype_taxonomy(3).yaml
+  sha256: 55e98bdace2af1a1dbe6a73315e651383f9f2ca265a3ad5ca262dbd8acbf1f5f
+classification_context:
+  purpose: Sent with every Pass 1 map batch to classify evidence-backed business paths.
+  layers:
+    layer_1_runtime_shapes:
+      name: 'Layer 1: Runtime Shapes'
+      description: Defines how code is entered, how long the process lives, and resource lifecycles.
+      categories:
+        A_NETWORK_DRIVEN_EPHEMERAL:
+        - REST_API_ENDPOINT_HANDLER
+        - GRAPHQL_RESOLVER_SERVICE
+        - GRPC_UNARY_SERVICE
+        - WEBHOOK_RECEIVER
+        - SERVERLESS_FUNCTION_FAAS
+        - EDGE_FUNCTION_MIDDLEWARE
+        - OAUTH_IDENTITY_PROVIDER
+        - SERVER_SIDE_RENDERED_SSR_ENGINE
+        - REVERSE_PROXY_INGRESS_CONTROLLER
+        - BFF_BACKEND_FOR_FRONTEND
+        - SAML_FEDERATION_GATEWAY
+        - DNS_NAMESERVER_DAEMON
+        B_NETWORK_DRIVEN_CONTINUOUS:
+        - WEBSOCKET_SERVER
+        - GRPC_STREAMING_SERVER
+        - WEBRTC_MEDIA_SERVER
+        - MQTT_BROKER
+        - TCP_UDP_SOCKET_SERVER
+        - SFTP_FTP_SERVER
+        - MESSAGE_BROKER_NODE
+        - DATABASE_ENGINE_SERVER
+        - CACHING_LAYER_DAEMON
+        - PUSH_NOTIFICATION_GATEWAY
+        - DISTRIBUTED_FILE_SYSTEM_NODE
+        - PROXY_VPN_CONCENTRATOR
+        C_EVENT_DRIVEN_REACTIVE:
+        - QUEUE_CONSUMER_WORKER
+        - STREAM_PROCESSOR_EVENT_SOURCING
+        - CHANGE_DATA_CAPTURE_CDC_DAEMON
+        - DEAD_LETTER_QUEUE_DLQ_TRIAGE_WORKER
+        - PUB_SUB_SUBSCRIBER
+        - SAGA_WORKFLOW_ORCHESTRATOR
+        - FILE_SYSTEM_EVENT_MONITOR
+        - ACTOR_MODEL_RUNTIME
+        - IOT_TELEMETRY_INGEST_WORKER
+        - AUDIT_LOG_INDEXER
+        - WEBHOOK_BROADCASTER_FAN_OUT_OUTBOX
+        - DISTRIBUTED_LOCK_MANAGER
+        D_TIME_DRIVEN_SCHEDULED:
+        - CRON_JOB_SCRIPT
+        - DYNAMIC_TASK_DELAY_RUNNER
+        - SRE_AVAILABILITY_PROBER
+        - HEARTBEAT_KEEP_ALIVE_DAEMON
+        - CACHE_EVICTION_TTL_SWEEPER
+        - DATABASE_INDEX_OPTIMIZER
+        - SSL_CERTIFICATE_RENEWER
+        - BILLING_METERING_AGGREGATOR
+        - LEADER_ELECTION_TIMER
+        - TELEMETRY_SCRAPING_AGENT
+        E_DATA_DRIVEN_HEAVY_COMPUTE:
+        - ETL_PIPELINE
+        - MAPREDUCE_DISTRIBUTED_BATCH_JOB
+        - ML_MODEL_TRAINING_PIPELINE
+        - ML_BATCH_INFERENCE_JOB
+        - DB_MIGRATION_SCRIPT
+        - LOG_ROTATOR_COMPRESSOR
+        - VIDEO_TRANSCODING_ENGINE
+        - CRYPTO_HASHING_WORKER
+        - REPORTING_PDF_COMPILATION_ENGINE
+        - DATA_ANONYMIZATION_SANDBOX_TOOL
+        - GRAPH_NETWORK_ANALYZER
+        - BACKUP_SNAPSHOT_VAULT_CREATOR
+        F_HUMAN_INTERACTIVE_CLIENT:
+        - SINGLE_PAGE_APPLICATION_SPA
+        - COMMAND_LINE_INTERFACE_CLI_TOOL
+        - DESKTOP_GUI_APP
+        - MOBILE_APP_CLIENT
+        - INTERACTIVE_NOTEBOOK_SCRIPT
+        - BUSINESS_ANALYTICS_DRIVEN_DASHBOARD
+        - REPL_READ_EVAL_PRINT_LOOP
+        - INTERACTIVE_CONVERSATIONAL_BOT_CLIENT
+        - EMBEDDED_WEB_COMPONENT_WIDGET
+        - IMMERSIVE_XR_VR_APP_CLIENT
+        - HARDWARE_CONSOLE_GUI_APPLICATION
+        - LOCAL_CONFIGURATOR_INSTALLER_WIZARD
+        G_EMBEDDED_KERNEL_EXTENSIONS:
+        - DATABASE_STORED_PROCEDURE
+        - DATABASE_TRIGGER
+        - WEBASSEMBLY_WASM_PLUGIN
+        - KERNEL_MODULE_DRIVER
+        - BROWSER_EXTENSION_BACKGROUND_WORKER
+        - GIT_HOOK_SCRIPT
+        - API_MIDDLEWARE_INTERCEPTOR
+        - EBPF_PROGRAM
+        - CICD_PIPELINE_RUNNER_AGENT
+        - KUBERNETES_MUTATING_VALIDATING_WEBHOOK
+        - SERVICE_MESH_SIDECAR_PROXY
+        - COMPILER_LINTER_PLUGIN
+        H_PASSIVE_IMPORTABLE:
+        - SHARED_DYNAMIC_LIBRARY
+        - STATIC_LIBRARY_PACKAGE
+        - SOFTWARE_DEVELOPMENT_KIT_SDK
+        - OBJECT_UTILITY_MODULE_PACKAGE
+        - DATABASE_SCHEMA_DEFINITION
+        - INFRASTRUCTURE_AS_CODE_IAC_TEMPLATE
+        - API_SPECIFICATION_DECLARATION
+        - POLYFILL_COMPATIBILITY_PACKAGE
+        - DATA_SERIALIZATION_DESERIALIZATION_STUB
+        - MOCK_TESTING_STUB_LIBRARY
+        I_CONTINUOUS_MONITORING_LOOP:
+        - KUBERNETES_CUSTOM_CONTROLLER_OPERATOR
+        - GITOPS_STATE_RECONCILIATION_ENGINE
+        - LOG_SCRAPING_AGGREGATION_DAEMON
+        - DISTRIBUTED_SERVICE_DISCOVERY_REGISTRY
+        - HOST_SECURITY_INTRUSION_DETECTION_AGENT
+        - FEATURE_FLAG_REAL_TIME_SYNC_WORKER
+        - HARDWARE_UPS_POWER_MONITORING_DAEMON
+        - CLUSTER_AUTO_SCALER_COORDINATOR
+    layer_2_workload_domain_shapes:
+      name: 'Layer 2: Workload / Domain Shapes'
+      description: Defines what work the system performs and its internal data transformations.
+      categories:
+        C1_GENERATIVE_CONTENT_KNOWLEDGE:
+        - CONTENT_GENERATION
+        - SYNTHETIC_ASSESSMENT_QUIZ_QUESTION_GEN
+        - STRUCTURED_LESSON_ORCHESTRATION
+        - CONTEXT_CONSTRAINED_SYNTHESIS_SUMMARIZATION
+        - CROSS_LINGUAL_MAPPING_TRANSLATION
+        - STYLISTIC_TEXT_REWRITING
+        - SEMANTIC_DOCUMENT_HYDRO_FILLING
+        - CONVERSATIONAL_TURN_ASSEMBLY_CHATBOT
+        - RAG_CONTEXT_SYNTHESIS
+        - TAXONOMIC_LABELING_TEXT_CLASSIFICATION
+        - SAFETY_FILTER_EXECUTION_CONTENT_MODERATION
+        - ALGORITHMIC_GRADING_AND_FEEDBACK
+        C2_MACHINE_LEARNING_STATS:
+        - TIME_SERIES_HORIZON_FORECASTING
+        - MULTIVARIATE_REGRESSION_SCORING
+        - ANOMALY_OUTLIER_DETECTION
+        - CLUSTERING_BEHAVIORAL_SEGMENTATION
+        - COMPUTER_VISION_CLASSIFICATION
+        - ACOUSTIC_SPEECH_TO_TEXT_PARSING
+        - PREDICTIVE_RECOMMENDATION_INFERENCE
+        - SENTIMENT_VECTOR_VALENCE_ANALYSIS
+        - GRAPH_STRUCTURAL_ANALYSIS
+        C3_DISCOVERY_RETRIEVAL_SEARCH:
+        - FULL_TEXT_INVERTED_INDEXING
+        - DENSE_VECTOR_EMBEDDING_GENERATION
+        - K_NEAREST_NEIGHBORS_KNN_SEARCH
+        - LEXICAL_SEMANTIC_HYBRID_RANKING
+        - AUTOMATED_SEARCH_QUERY_EXPANSION
+        - FACETED_FILTERING_AGGREGATION
+        C4_TRANSACTIONAL_LEDGER_COMMERCE:
+        - CART_QUOTE_PRICING_CALCULATION
+        - INVENTORY_LEDGER_ALLOCATION
+        - DOUBLE_ENTRY_FINANCIAL_LEDGERING
+        - PAYMENT_GATEWAY_INTERLOCKING
+        - SUBSCRIPTION_TIER_ENTITLEMENT_CHECKING
+        - MULTI_PARTY_PAYOUT_SPLIT_ORCHESTRATION
+        - ORDER_STATUS_LIFECYCLE_MACHINE
+        C5_RISK_COMPLIANCE_VERIFICATION:
+        - KYC_IDENTITY_DOCUMENT_OCR_VERIFICATION
+        - ANTI_MONEY_LAUNDERING_AML_VELOCITY_CHECK
+        - ACCESS_CONTROL_RBAC_ABAC_EVALUATION
+        - IMMUTABLE_AUDIT_TRAIL_CONSTRUCTION
+        - SANCTION_LIST_CROSS_MATCHING
+        - POLICY_AS_CODE_COMPLIANCE_VERIFICATION
+        C6_MUTATION_WAREHOUSE_DATA_PIPELINES:
+        - SCHEMA_STRUCTURAL_TRANSFORMATION
+        - DATA_DEDUPLICATION_RECORD_LINKAGE
+        - DATA_DENORMALIZATION_FLAT_SERIALIZATION
+        - STREAMING_ROLLUP_AGGREGATION
+        - MULTI_SOURCE_DATA_INGESTION_HYDRATION
+        - COLD_ARCHIVE_STORAGE_COMPACTION
+        C7_STATEFUL_MACHINES_APPROVALS:
+        - HUMAN_IN_THE_LOOP_APPROVAL_GATING
+        - DYNAMIC_ESCALATION_ROUTING
+        - FORM_LIFECYCLE_VALIDATION_ENGINE
+        - TENANT_CONFIGURATION_INITIALIZATION
+        - SAAS_SEAT_MANAGEMENT_PROVISIONING
+        C8_INTER_SYSTEM_COMMUNICATION:
+        - TRANSACTIONAL_EMAIL_LAYOUT_COMPOSING
+        - SMS_ALERT_SHORT_CODE_THROTTLING
+        - PUSH_NOTIFICATION_TOKEN_MAPPING
+        - SLACK_WEBHOOK_ALERT_STRUCTURING
+        - IN_APP_NOTIFICATION_FEED_INSERTION
+        C9_REALTIME_COORDINATES_IOT:
+        - GEOFENCE_PROXIMITY_INTERSECTION
+        - SPATIAL_ROUTING_PATH_OPTIMIZATION
+        - IOT_STATE_SHADOW_SYNCHRONIZATION
+        - HIGH_FREQUENCY_TELEMETRY_DEADBANDING
+        - LIVE_ROOM_CHANNEL_PRES_TRACKING
+        C10_SPECIALIZED_UTILITIES:
+        - AB_TEST_VARIANT_ALLOCATION
+        - RATE_LIMITING_TOKEN_BUCKET_DRAW
+        - DISTRIBUTED_CACHE_WARMUP
+        - IDEMPOTENCY_KEY_VERIFICATION
+        - VULNERABILITY_SIGNATURE_SCANNING
+        - FEATURE_FLAG_EVALUATION_ENGINE
+        - DIGITAL_SIGNATURE_CRYPTOGRAPHIC_SIGNING
+        - SEARCH_KEYWORD_TOKENIZATION_PARSING
+        - TAX_TARIFF_JURISDICTION_MATCHING
+        - BULK_INVOICE_CONCATENATION
+        - DATABASE_SEED_PROVISIONING
+        - SESSION_STATE_DESERIALIZATION
+        - MEDIA_TRANSCODING_QUALITY_DOWNSAMPLING
+        - E_COMMERCE_SHIPPING_BOX_VOLUME_FITTING
+        - DYNAMIC_SURVEY_TREE_GENERATION
+        - API_RESPONSE_PAYLOAD_REDACTION
+        - SYSTEM_HEALTH_METRIC_DOWNSAMPLING
+        - TOKEN_REFRESH_ROTATION_VERIFICATION
+        - MULTI_FILE_ZIP_ARCHIVE_ASSEMBLY
+    layer_3_state_types:
+      name: 'Layer 3: State Types'
+      description: Defines important state values whose correctness affects workflow, data, model, transaction, or system
+        behavior.
+      categories:
+        S1_ENTITY_LIFECYCLE_STATE:
+        - ENTITY_STATUS
+        - USER_STATUS
+        - ACCOUNT_STATUS
+        - ORDER_STATUS
+        - TASK_STATUS
+        - CASE_STATUS
+        - DOCUMENT_STATUS
+        - JOB_STATUS
+        - SESSION_STATUS
+        - SUBSCRIPTION_STATUS
+        - DEVICE_STATUS
+        S2_TRANSACTIONAL_FINANCIAL_STATE:
+        - PAYMENT_STATUS
+        - REFUND_STATUS
+        - LEDGER_BALANCE
+        - INVOICE_STATUS
+        - SUBSCRIPTION_TIER
+        - ENTITLEMENT_STATE
+        - PAYOUT_STATUS
+        - SETTLEMENT_STATUS
+        - CART_TOTAL
+        - QUOTE_PRICE
+        - TAX_AMOUNT
+        - DISCOUNT_APPLIED
+        - INVENTORY_RESERVED
+        S3_DATA_QUALITY_AND_SCHEMA_STATE:
+        - INPUT_SCHEMA
+        - OUTPUT_SCHEMA
+        - SCHEMA_VERSION
+        - ROW_COUNT
+        - NULL_COUNT
+        - DUPLICATE_COUNT
+        - MISSING_VALUE_STATUS
+        - DATA_VALIDATION_STATUS
+        - BATCH_ID
+        - PROCESSING_STATUS
+        - LAST_PROCESSED_OFFSET
+        - CHECKPOINT_CURSOR
+        - DATASET_VERSION
+        S4_MODEL_AND_INFERENCE_STATE:
+        - MODEL_VERSION
+        - MODEL_ARTIFACT_PATH
+        - FEATURE_SCHEMA
+        - FEATURE_WINDOW
+        - TRAINING_WINDOW
+        - PREDICTION_WINDOW
+        - PREDICTION_SCORE
+        - PREDICTION_CONFIDENCE
+        - THRESHOLD_VALUE
+        - LABEL_VERSION
+        - BACKTEST_PERIOD
+        - EVALUATION_METRIC
+        - CALIBRATION_STATUS
+        - DRIFT_STATUS
+        S5_CONTENT_GENERATION_STATE:
+        - PROMPT_TEMPLATE_VERSION
+        - INPUT_TOPIC
+        - DIFFICULTY_LEVEL
+        - QUESTION_COUNT
+        - GENERATED_OUTPUT
+        - OUTPUT_SCHEMA_VALIDITY
+        - ANSWER_KEY_VALIDITY
+        - SOURCE_CONTEXT
+        - RETRIEVED_CONTEXT
+        - HALLUCINATION_CHECK_STATUS
+        - MODERATION_STATUS
+        - GENERATION_ATTEMPT_COUNT
+        S6_SEARCH_INDEX_AND_RANKING_STATE:
+        - QUERY_TEXT
+        - SEARCH_INDEX_VERSION
+        - EMBEDDING_MODEL_VERSION
+        - EMBEDDING_VECTOR
+        - CANDIDATE_SET
+        - RANKING_SCORE
+        - FILTER_STATE
+        - RESULT_COUNT
+        - RELEVANCE_SCORE
+        - USER_FEEDBACK_STATE
+        - CLICK_SIGNAL
+        S7_WORKFLOW_APPROVAL_STATE:
+        - APPROVAL_STATUS
+        - REVIEW_STATUS
+        - ESCALATION_LEVEL
+        - ASSIGNED_OWNER
+        - SLA_DEADLINE
+        - SUBMITTED_AT
+        - APPROVED_AT
+        - REJECTED_REASON
+        - FORM_VALIDATION_STATUS
+        - TENANT_CONFIG_STATUS
+        S8_COMMUNICATION_DELIVERY_STATE:
+        - MESSAGE_STATUS
+        - DELIVERY_STATUS
+        - RECIPIENT_ADDRESS
+        - TEMPLATE_ID
+        - RETRY_COUNT
+        - SCHEDULED_SEND_TIME
+        - WEBHOOK_DELIVERY_STATUS
+        - NOTIFICATION_PREFERENCE
+        - TOKEN_MAPPING_STATUS
+        S9_RUNTIME_RESOURCE_STATE:
+        - PROCESS_STATUS
+        - WORKER_STATUS
+        - LOCK_STATUS
+        - HEARTBEAT_STATUS
+        - CACHE_STATE
+        - CONNECTION_STATE
+        - MEMORY_USAGE
+        - DISK_USAGE
+        - QUEUE_DEPTH
+        - STREAM_OFFSET
+        S10_TIME_WINDOW_AND_FRESHNESS_STATE:
+        - EVENT_TIMESTAMP
+        - DATA_TIMESTAMP
+        - LAST_UPDATED_AT
+        - TTL_EXPIRY
+        - FRESHNESS_STATUS
+        - PROCESSING_WINDOW
+        - LOOKBACK_WINDOW
+        - FORECAST_HORIZON
+        - WATERMARK
+        - SCHEDULED_RUN_TIME
+        S11_EXTERNAL_SYSTEM_STATE:
+        - EXTERNAL_API_RESPONSE_STATUS
+        - EXTERNAL_RATE_LIMIT_STATE
+        - WEBHOOK_SIGNATURE_STATUS
+        - OAUTH_CALLBACK_STATE
+        - PAYMENT_GATEWAY_STATE
+        - THIRD_PARTY_SYNC_STATUS
+        - REMOTE_FILE_AVAILABILITY
+        - UPSTREAM_SERVICE_HEALTH
+        S12_CONFIGURATION_POLICY_STATE:
+        - FEATURE_FLAG_STATE
+        - CONFIG_VERSION
+        - POLICY_VERSION
+        - TENANT_CONFIG
+        - ENVIRONMENT_NAME
+        - RATE_LIMIT_CONFIG
+        - AB_TEST_VARIANT
+        - TOKEN_EXPIRY_POLICY
+        - ACCESS_POLICY
+        S13_CONCURRENCY_IDEMPOTENCY_STATE:
+        - IDEMPOTENCY_KEY
+        - REQUEST_ID
+        - CORRELATION_ID
+        - LOCK_TOKEN
+        - RETRY_COUNT
+        - DEDUPLICATION_KEY
+        - SEEN_EVENT_ID
+        - TRANSACTION_BOUNDARY
+        - VERSION_COUNTER
+        S14_AUDIT_OBSERVABILITY_STATE:
+        - AUDIT_EVENT_ID
+        - TRACE_ID
+        - CORRELATION_ID
+        - LOG_EVENT_STATUS
+        - METRIC_NAME
+        - ALERT_STATUS
+        - ERROR_CODE
+        - FAILURE_REASON
+        - RUN_ID
+    layer_4_path_types:
+      name: 'Layer 4: Path Types'
+      description: Defines execution paths from entrypoint to state/effect.
+      categories:
+        P1_REQUEST_RESPONSE_PATHS:
+        - REQUEST_TO_RESPONSE_READ_ONLY
+        - REQUEST_TO_VALIDATION_TO_RESPONSE
+        - REQUEST_TO_EXTERNAL_API_TO_RESPONSE
+        - REQUEST_TO_CACHE_LOOKUP_TO_RESPONSE
+        - REQUEST_TO_DB_READ_TO_RESPONSE
+        - REQUEST_TO_AGGREGATION_TO_RESPONSE
+        P2_MUTATION_TRANSACTION_PATHS:
+        - REQUEST_TO_DB_CREATE
+        - REQUEST_TO_DB_UPDATE
+        - REQUEST_TO_DB_DELETE
+        - REQUEST_TO_TRANSACTION_COMMIT
+        - REQUEST_TO_LEDGER_POSTING
+        - REQUEST_TO_PAYMENT_CAPTURE
+        - REQUEST_TO_REFUND_ISSUE
+        - REQUEST_TO_INVENTORY_RESERVATION
+        P3_EVENT_REACTIVE_PATHS:
+        - QUEUE_MESSAGE_TO_STATE_UPDATE
+        - PUBSUB_EVENT_TO_HANDLER_EFFECT
+        - WEBHOOK_EVENT_TO_ENTITY_UPDATE
+        - CDC_EVENT_TO_PROJECTION_UPDATE
+        - DLQ_MESSAGE_TO_TRIAGE_ACTION
+        - OUTBOX_EVENT_TO_FANOUT_DELIVERY
+        P4_SCHEDULED_BATCH_PATHS:
+        - CRON_TO_BATCH_PROCESSING
+        - CRON_TO_EXTERNAL_DATA_SYNC
+        - CRON_TO_REPORT_GENERATION
+        - CRON_TO_CACHE_REFRESH
+        - CRON_TO_CLEANUP_SWEEP
+        - CRON_TO_HEALTH_PROBE
+        P5_DATA_PIPELINE_PATHS:
+        - FILE_INPUT_TO_TRANSFORMED_OUTPUT
+        - API_INPUT_TO_WAREHOUSE_TABLE
+        - RAW_DATA_TO_CLEANED_DATASET
+        - MULTI_SOURCE_JOIN_TO_ANALYTICS_TABLE
+        - STREAM_EVENTS_TO_ROLLUP_AGGREGATE
+        - SCHEMA_MIGRATION_TO_OUTPUT_TABLE
+        P6_MODEL_INFERENCE_PATHS:
+        - REQUEST_TO_MODEL_SCORE_RESPONSE
+        - BATCH_DATA_TO_MODEL_PREDICTION_FILE
+        - FEATURE_BUILD_TO_MODEL_INFERENCE
+        - MODEL_SCORE_TO_THRESHOLD_DECISION
+        - BACKTEST_DATA_TO_EVALUATION_METRIC
+        P7_GENERATIVE_AI_PATHS:
+        - USER_INPUT_TO_PROMPT_TO_GENERATED_OUTPUT
+        - DOCUMENT_CONTEXT_TO_RAG_ANSWER
+        - TOPIC_TO_QUIZ_GENERATION
+        - LLM_OUTPUT_TO_SCHEMA_VALIDATED_OBJECT
+        - LLM_OUTPUT_TO_HUMAN_REVIEW_QUEUE
+        P8_SEARCH_RETRIEVAL_PATHS:
+        - QUERY_TO_INDEX_LOOKUP_TO_RESULTS
+        - QUERY_TO_EMBEDDING_TO_VECTOR_SEARCH
+        - QUERY_TO_HYBRID_RANKING_TO_RESULTS
+        - DOCUMENT_TO_EMBEDDING_TO_INDEX_UPDATE
+        - USER_FEEDBACK_TO_RANKING_UPDATE
+        P9_WORKFLOW_STATE_MACHINE_PATHS:
+        - SUBMISSION_TO_APPROVAL_STATE_CHANGE
+        - APPROVAL_TO_ESCALATION
+        - STATUS_TRANSITION_TO_NOTIFICATION
+        - FORM_VALIDATION_TO_STATE_CHANGE
+        - TENANT_SETUP_TO_PROVISIONING
+        P10_NOTIFICATION_DELIVERY_PATHS:
+        - EVENT_TO_EMAIL_NOTIFICATION
+        - EVENT_TO_SMS_NOTIFICATION
+        - EVENT_TO_PUSH_NOTIFICATION
+        - EVENT_TO_WEBHOOK_DELIVERY
+        - MESSAGE_TEMPLATE_TO_DELIVERY_ATTEMPT
+        - FAILED_DELIVERY_TO_RETRY
+        P11_EXTERNAL_INTEGRATION_PATHS:
+        - REQUEST_TO_THIRD_PARTY_API_CALL
+        - OAUTH_CALLBACK_TO_TOKEN_EXCHANGE
+        - WEBHOOK_TO_SIGNATURE_VERIFICATION_TO_EFFECT
+        - REMOTE_FILE_DOWNLOAD_TO_PROCESSING
+        - EXTERNAL_SYNC_TO_LOCAL_STATE_UPDATE
+        P12_INFRA_RESOURCE_CONTROL_PATHS:
+        - CONTROLLER_RECONCILE_TO_RESOURCE_UPDATE
+        - HEALTH_PROBE_TO_ALERT
+        - LOG_STREAM_TO_ALERT
+        - CACHE_TTL_TO_EVICTION
+        - LOCK_ACQUIRE_TO_CRITICAL_SECTION
+        - BACKUP_JOB_TO_SNAPSHOT_ARTIFACT
+    layer_5_actor_archetypes:
+      name: 'Layer 5: Actor Archetypes'
+      description: 'Defines the security, operational, or systemic identity executing a path or consuming an effect. Pass
+        1 must preserve the repo-native actor name and may map it to one of these normalized archetypes. UNKNOWN_ACTOR is
+        valid when identity evidence is incomplete.
+
+        '
+      categories:
+        A1_INTERNAL_ADMINISTRATION_OPERATIONS:
+        - GLOBAL_SYSTEM_ADMINISTRATOR
+        - TENANT_ORGANIZATION_ADMINISTRATOR
+        - CUSTOMER_SUPPORT_AGENT
+        - BILLING_FINANCE_OPERATOR
+        - COMPLIANCE_AUDIT_REVIEWER
+        - DATA_PROTECTION_OFFICER_DPO
+        - CONTENT_MODERATOR
+        - DEVOPS_SRE_ENGINEER
+        A2_B2C_END_USER_LIFECYCLE:
+        - ANONYMOUS_UNAUTHENTICATED_VISITOR
+        - REGISTERED_FREE_USER
+        - PAID_SUBSCRIBER_TIER_1
+        - PAID_SUBSCRIBER_TIER_2
+        - TRIAL_PERIOD_USER
+        - CHURNED_INACTIVE_USER
+        - BANNED_SUSPENDED_USER
+        - INVITED_PENDING_USER
+        A3_B2B_ORGANIZATIONAL_ROLES:
+        - ORGANIZATION_OWNER_LEGAL_SIGNATORY
+        - DEPARTMENT_TEAM_MANAGER
+        - COLLABORATIVE_CONTRIBUTOR_EDITOR
+        - READ_ONLY_STAKEHOLDER_VIEWER
+        - EXTERNAL_GUEST_COLLABORATOR
+        - PROCUREMENT_OFFICER
+        A4_TWO_SIDED_MARKETPLACE_PERSONAS:
+        - MARKETPLACE_BUYER_CONSUMER
+        - MARKETPLACE_SELLER_MERCHANT
+        - INDEPENDENT_DELIVERY_LOGISTICS_CONTRACTOR
+        - AFFILIATE_MARKETER_REFERRER
+        A5_SOCIAL_INFLUENCE_NETWORKS:
+        - CONTENT_CREATOR_PUBLISHER
+        - STANDARD_FOLLOWER_SUBSCRIBER
+        - COMMUNITY_MODERATOR_DELEGATE
+        A6_AUTOMATED_AGENTS_SYSTEMS:
+        - FIRST_PARTY_AI_AGENT_ORCHESTRATOR
+        - THIRD_PARTY_INTEGRATION_BOT
+        - CRON_SYSTEM_SCHEDULER_DAEMON
+        - GITOPS_RECONCILIATION_RUNNER
+        - MONITORING_TELEMETRY_SCRAPER
+        - SECURITY_SIGNATURE_VULNERABILITY_SCANNER
+        - WEB_CRAWLER_INDEXING_BOT
+        A7_FINANCIAL_QUANTITATIVE_TRADING:
+        - HIGH_FREQUENCY_TRADING_ALGORITHM
+        - RETAIL_INVESTOR_TRADER
+        - LIQUIDITY_PROVIDER_MARKET_MAKER
+        - RISK_MANAGEMENT_CONTROLLER_BOT
+        A8_DECENTRALIZED_BLOCKCHAIN_NETWORKS:
+        - BLOCKCHAIN_VALIDATOR_NODE_OPERATOR
+        - DECENTRALIZED_APP_DAPP_END_USER
+        - SMART_CONTRACT_ROUTER_AUTOMATION
+        A9_HARDWARE_IOT_PERIPHERALS:
+        - IOT_TELEMETRY_SENSOR_NODE
+        - EDGE_COMPUTE_GATEWAY_CONTROLLER
+        - HARDWARE_CONSOLE_LOCAL_OPERATOR
+        A10_FALLBACK_IDENTITY:
+        - OTHER_REPO_SPECIFIC_ACTOR
+        - UNKNOWN_ACTOR
+      category_descriptions:
+        A1_INTERNAL_ADMINISTRATION_OPERATIONS: Identities with structural, infrastructure, or global cross-tenant operational
+          privileges.
+        A2_B2C_END_USER_LIFECYCLE: Standard retail or consumer-facing application personas.
+        A3_B2B_ORGANIZATIONAL_ROLES: Institutional, multi-seat, tenant, and collaborative identities.
+        A4_TWO_SIDED_MARKETPLACE_PERSONAS: Supply-side and demand-side transaction identities.
+        A5_SOCIAL_INFLUENCE_NETWORKS: Identities participating in publishing, moderation, and content consumption networks.
+        A6_AUTOMATED_AGENTS_SYSTEMS: Non-human programmatic identities executing runtime paths.
+        A7_FINANCIAL_QUANTITATIVE_TRADING: Human and automated market execution or risk-control actors.
+        A8_DECENTRALIZED_BLOCKCHAIN_NETWORKS: Identities operating in distributed-ledger and smart-contract systems.
+        A9_HARDWARE_IOT_PERIPHERALS: Physical or hardware-level actors participating in the system.
+        A10_FALLBACK_IDENTITY: Fallback labels used only when repo-native evidence does not support a more specific archetype.
+  supporting_taxonomies:
+    effect_types:
+      description: Defines observable consequences or side effects produced by an execution path.
+      families:
+        E1_RESPONSE_OUTPUT_EFFECTS:
+          description: Path returns a response, page, payload, file, stream, or error to a caller/client.
+          effects:
+          - API_RESPONSE_RETURNED
+          - HTML_PAGE_RENDERED
+          - JSON_PAYLOAD_RETURNED
+          - STRUCTURED_OBJECT_RETURNED
+          - FILE_DOWNLOAD_RETURNED
+          - ERROR_RESPONSE_RETURNED
+          - REDIRECT_RESPONSE_RETURNED
+          - STREAM_RESPONSE_EMITTED
+        E2_STATE_MUTATION_EFFECTS:
+          description: Path changes application/entity/config/session state.
+          effects:
+          - STATUS_FIELD_UPDATED
+          - DATABASE_RECORD_CREATED
+          - DATABASE_RECORD_UPDATED
+          - DATABASE_RECORD_DELETED
+          - ENTITY_STATE_TRANSITIONED
+          - CONFIGURATION_UPDATED
+          - SESSION_STATE_UPDATED
+          - ENTITLEMENT_UPDATED
+        E3_TRANSACTION_FINANCIAL_EFFECTS:
+          description: Path creates or changes money, billing, ledger, commerce, inventory, order, or settlement effects.
+          effects:
+          - PAYMENT_CAPTURED
+          - PAYMENT_AUTHORIZED
+          - REFUND_ISSUED
+          - LEDGER_ENTRY_POSTED
+          - INVOICE_GENERATED
+          - PAYOUT_CREATED
+          - ORDER_CREATED
+          - ORDER_STATUS_UPDATED
+          - INVENTORY_RESERVED
+          - CART_TOTAL_RECALCULATED
+        E4_DATA_STORAGE_FILE_EFFECTS:
+          description: Path reads/writes files, reports, archives, datasets, database tables, or exported artifacts.
+          effects:
+          - FILE_READ
+          - FILE_WRITTEN
+          - CSV_EXPORTED
+          - PARQUET_EXPORTED
+          - EXCEL_REPORT_WRITTEN
+          - PDF_GENERATED
+          - REPORT_EXPORTED
+          - DATABASE_TABLE_WRITTEN
+          - DATASET_VERSION_CREATED
+          - ARCHIVE_CREATED
+        E5_EXTERNAL_SYSTEM_EFFECTS:
+          description: Path calls, reads from, writes to, receives from, or syncs with an external system.
+          effects:
+          - EXTERNAL_API_CALLED
+          - EXTERNAL_API_READ
+          - EXTERNAL_API_WRITE
+          - WEBHOOK_RECEIVED
+          - WEBHOOK_SENT
+          - OAUTH_TOKEN_EXCHANGED
+          - REMOTE_FILE_DOWNLOADED
+          - THIRD_PARTY_SYNC_PERFORMED
+          - PAYMENT_GATEWAY_CALLED
+        E6_MODEL_LLM_EFFECTS:
+          description: Path performs ML/LLM/RAG/recommendation/classification/scoring output.
+          effects:
+          - MODEL_INFERENCE_PERFORMED
+          - MODEL_TRAINING_PERFORMED
+          - MODEL_ARTIFACT_WRITTEN
+          - PREDICTION_SCORE_PRODUCED
+          - THRESHOLD_DECISION_PRODUCED
+          - LLM_OUTPUT_GENERATED
+          - RAG_ANSWER_GENERATED
+          - EMBEDDING_VECTOR_CREATED
+          - RECOMMENDATION_LIST_RETURNED
+          - CLASSIFICATION_LABEL_ASSIGNED
+        E7_SEARCH_INDEX_RANKING_EFFECTS:
+          description: Path updates indexes or returns search/retrieval/ranking outputs.
+          effects:
+          - SEARCH_INDEX_UPDATED
+          - SEARCH_RESULTS_RETURNED
+          - VECTOR_INDEX_UPDATED
+          - CANDIDATE_SET_GENERATED
+          - RANKING_SCORE_ASSIGNED
+          - FILTERED_RESULTS_RETURNED
+          - AUTOCOMPLETE_SUGGESTIONS_RETURNED
+        E8_NOTIFICATION_DELIVERY_EFFECTS:
+          description: Path sends, retries, records, or inserts communication/notification delivery.
+          effects:
+          - EMAIL_SENT
+          - SMS_SENT
+          - PUSH_NOTIFICATION_SENT
+          - SLACK_MESSAGE_SENT
+          - IN_APP_NOTIFICATION_INSERTED
+          - WEBHOOK_DELIVERY_ATTEMPTED
+          - DELIVERY_STATUS_RECORDED
+          - NOTIFICATION_RETRIED
+        E9_RUNTIME_INFRA_EFFECTS:
+          description: Path starts/completes/fails jobs or changes runtime resource/cache/lock/backup/controller state.
+          effects:
+          - JOB_STARTED
+          - JOB_COMPLETED
+          - JOB_FAILED
+          - CACHE_ENTRY_WRITTEN
+          - CACHE_ENTRY_EVICTED
+          - LOCK_ACQUIRED
+          - LOCK_RELEASED
+          - RESOURCE_RECONCILED
+          - BACKUP_SNAPSHOT_CREATED
+          - HEALTH_CHECK_RECORDED
+        E10_AUDIT_OBSERVABILITY_EFFECTS:
+          description: Path writes audit/log/metric/trace/alert/error/run-history/compliance evidence.
+          effects:
+          - AUDIT_EVENT_WRITTEN
+          - LOG_EVENT_WRITTEN
+          - METRIC_EMITTED
+          - TRACE_SPAN_CREATED
+          - ALERT_TRIGGERED
+          - ERROR_RECORDED
+          - RUN_HISTORY_RECORDED
+          - COMPLIANCE_RECORD_CREATED
+    business_intent_types:
+      description: 'Controlled normalization vocabulary for Pass 1. Intent is not a rigid domain taxonomy: the LLM must first
+        state the repo-specific business intent in plain language, then map it to one family. OTHER and UNKNOWN are valid
+        and must be preferred over a forced incorrect match.
+
+        '
+      required_output_fields:
+      - repo_specific_intent
+      - intent_family
+      - intent_object
+      - desired_outcome
+      - evidence
+      - confidence
+      families:
+        I1_IDENTITY_ACCESS:
+        - AUTHENTICATE_OR_ESTABLISH_IDENTITY
+        - AUTHORIZE_OR_GRANT_ACCESS
+        - REVOKE_OR_TERMINATE_ACCESS
+        I2_RESOURCE_LIFECYCLE:
+        - CREATE_OR_REGISTER_RESOURCE
+        - VIEW_OR_RETRIEVE_RESOURCE
+        - CONSUME_OR_ACCESS_RESOURCE
+        - MODIFY_OR_CONFIGURE_RESOURCE
+        - DELETE_ARCHIVE_OR_DEACTIVATE_RESOURCE
+        I3_WORKFLOW_DECISION:
+        - SUBMIT_OR_REQUEST_REVIEW
+        - APPROVE_REJECT_OR_OVERRIDE
+        - ASSIGN_ESCALATE_OR_TRANSFER
+        - COMPLETE_CANCEL_OR_REOPEN_WORKFLOW
+        I4_COMMERCE_FINANCE_ENTITLEMENT:
+        - QUOTE_PRICE_OR_CALCULATE_CHARGE
+        - PURCHASE_PAY_AUTHORIZE_OR_CAPTURE
+        - REFUND_CANCEL_REVERSE_OR_DISPUTE
+        - PROVISION_OR_GRANT_ENTITLEMENT
+        - ALLOCATE_RESERVE_OR_FULFILL
+        - SETTLE_RECONCILE_OR_PAYOUT
+        I5_DISCOVERY_CONTENT_MODEL:
+        - SEARCH_FILTER_OR_DISCOVER
+        - GENERATE_OR_TRANSFORM_CONTENT
+        - PREDICT_SCORE_CLASSIFY_OR_RECOMMEND
+        - MODERATE_VALIDATE_OR_REVIEW_CONTENT
+        I6_DATA_COMMUNICATION_OPERATION:
+        - IMPORT_EXPORT_OR_SYNC_DATA
+        - SEND_OR_DELIVER_NOTIFICATION
+        - EXECUTE_OR_SCHEDULE_JOB
+        - MONITOR_RECONCILE_OR_RECOVER
+        - CONFIGURE_RELEASE_OR_ROLLBACK_FEATURE
+        I7_FALLBACK:
+        - OTHER_REPO_SPECIFIC_INTENT
+        - UNKNOWN_INTENT
+      classification_rules:
+      - Preserve the verb and object used by the repository or its documentation.
+      - Classify the desired business outcome, not the implementation helper name.
+      - Do not infer payment, approval, entitlement, or deletion intent from a dependency name alone.
+      - Return alternative candidate families only when evidence genuinely supports more than one interpretation.
+    resource_scope_types:
+      description: 'Describes the business object affected by an intent and the scope within which an actor may operate. Pass
+        1 must preserve the repo-native resource name.
+
+        '
+      required_output_fields:
+      - repo_resource_type
+      - scope_type
+      - ownership_key_or_tenant_key
+      - evidence
+      - confidence
+      scope_types:
+      - ACTOR_OWNED_RESOURCE
+      - TENANT_SCOPED_RESOURCE
+      - TEAM_OR_GROUP_SCOPED_RESOURCE
+      - SHARED_CROSS_ACTOR_RESOURCE
+      - PUBLIC_RESOURCE
+      - GLOBAL_SYSTEM_RESOURCE
+      - EXTERNAL_SYSTEM_RESOURCE
+      - SYSTEM_INTERNAL_RESOURCE
+      - OTHER_REPO_SPECIFIC_SCOPE
+      - UNKNOWN_SCOPE
+      boundary_questions:
+      - Which identifier binds the resource to an actor, account, tenant, team, organization, or external system?
+      - Can an authenticated actor supply or alter that identifier?
+      - Is resource scope enforced in the query, service, policy, middleware, or downstream system?
+    observed_business_rule_types:
+      description: 'Vocabulary for four or five evidence-backed rules extracted for each material path. These are observations
+        or hypotheses from code, not automatically the intended product specification.
+
+        '
+      types:
+      - AUTHENTICATION_PRECONDITION
+      - ACTOR_PERMISSION_RULE
+      - OWNERSHIP_OR_TENANT_BOUNDARY
+      - STATE_PRECONDITION
+      - ALLOWED_STATE_TRANSITION
+      - FORBIDDEN_STATE_TRANSITION
+      - ENTITLEMENT_OR_QUOTA_RULE
+      - CALCULATION_OR_THRESHOLD_RULE
+      - ORDERING_OR_SEQUENCE_RULE
+      - IDEMPOTENCY_OR_DEDUPLICATION_RULE
+      - FAILURE_RECOVERY_OR_COMPENSATION_RULE
+      - PRIVACY_REDACTION_RULE
+      - OUTPUT_CONTRACT_RULE
+      - BUSINESS_INVARIANT
+      - OTHER_REPO_SPECIFIC_RULE
+      evidence_statuses:
+        OBSERVED: Explicitly implemented or asserted in connected code, tests, or requirements evidence.
+        INFERRED: Strongly implied by multiple connected signals but not explicitly declared.
+        UNKNOWN: Important rule cannot be confirmed from available evidence.
+      rule_output_fields:
+      - rule_statement
+      - rule_type
+      - evidence_status
+      - evidence
+      - confidence
+    evidence_confidence_types:
+      evidence_levels:
+        E1_DIRECT_CODE: Direct entrypoint, guard, state, effect, query, test, or requirement evidence with file and line references.
+        E2_CONNECTED_CODE: Evidence from graph-linked caller, callee, middleware, model, repository, policy, or test.
+        E3_MULTI_SIGNAL_INFERENCE: Consistent inference from multiple code or documentation signals.
+        E4_NAME_OR_DEPENDENCY_ONLY: Weak signal from names, imports, dependencies, or isolated comments.
+        E5_NO_EVIDENCE: No supporting evidence available.
+      confidence_levels:
+        HIGH:
+          minimum: Entrypoint/path and material effect are supported by direct or connected evidence.
+          routing: STANDARD_EVIDENCE_BUNDLE
+        MEDIUM:
+          minimum: Material path is supported but actor, resource, state, guard, or intent contains a meaningful inference.
+          routing: STANDARD_PLUS_RELEVANT_SUPPORTING_CHUNKS
+        LOW:
+          minimum: Path is incomplete or a material classification relies substantially on weak evidence.
+          routing: EXPANDED_EVIDENCE_BUNDLE_IF_MATERIAL
+        UNSUPPORTED:
+          minimum: No material path/effect evidence or only unrelated name/dependency evidence.
+          routing: REMOVE_BEFORE_PASS_2
+      mandatory_evidence_fields:
+      - file_path
+      - start_line
+      - end_line
+      - symbol_or_node_id
+      - evidence_level
+      - evidence_summary
+    requirement_oracle_types:
+      sources:
+      - EXPLICIT_REQUIREMENT_OR_ACCEPTANCE_CRITERION
+      - API_SCHEMA_OR_CONTRACT
+      - AUTHORITATIVE_EXISTING_TEST
+      - USER_DOCUMENTATION_OR_README
+      - OBSERVED_CONNECTED_CODE_RULE
+      - PERMISSIBILITY_TABLE
+      - DOMAIN_INVARIANT_FROM_RISK_TAXONOMY
+      - LLM_INFERENCE_ONLY
+      - NO_ORACLE_AVAILABLE
+      rules:
+      - Explicit requirements and contracts outrank inferred behaviour.
+      - Existing code is evidence of current behaviour, not proof of intended behaviour.
+      - LLM inference alone may create a scenario candidate but cannot confirm a defect.
+      - Conflicting oracle sources must be recorded as an evidence gap.
+  map_output_contract:
+    purpose: Batch-local semantic discovery only. Risk applicability is assigned after cross-batch path merging.
+    repository_summary_fragment_fields:
+    - apparent_system_purpose
+    - primary_capabilities
+    - primary_repo_native_actors
+    - important_business_objects
+    - material_effects
+    - explicit_requirements_found
+    - summary_evidence
+    - summary_confidence
+    business_path_fragment_fields:
+    - path_id
+    - path_summary
+    - entrypoints
+    - connected_node_ids
+    - runtime_shapes
+    - workload_shapes
+    - repo_specific_intent
+    - intent_family
+    - intent_object
+    - desired_outcome
+    - actors
+    - resources_and_scopes
+    - state_types
+    - observed_state_values
+    - path_types
+    - effect_types
+    - material_effects
+    - guards_observed
+    - observed_business_rules
+    - business_invariants
+    - requirement_alignment
+    - evidence
+    - evidence_gaps
+    - confidence
+    actor_fields:
+    - repo_native_actor
+    - actor_archetype
+    - authentication_context
+    - lifecycle_status_if_observed
+    - evidence
+    - confidence
+    actor_fallbacks:
+    - OTHER_REPO_SPECIFIC_ACTOR
+    - UNKNOWN_ACTOR
+    state_fields:
+    - repo_native_state_name
+    - state_type
+    - observed_values
+    - source_symbol_or_field
+    - evidence
+    - confidence
+    requirement_alignment_fields:
+    - oracle_sources_found
+    - requirement_statements
+    - aligned_code_evidence
+    - conflicts_or_gaps
+    - confidence
+    global_rules:
+    - Preserve repo-native names alongside every normalized taxonomy label.
+    - Use UNKNOWN rather than guessing when evidence is incomplete.
+    - Every non-UNKNOWN classification requires evidence and confidence.
+    - Low-confidence high-materiality candidates are routed to expanded Pass 2 evidence, not automatically discarded.
+    - Unsupported name-only candidates are removed before Pass 2.
+    - Pass 1 must not declare CONTROL_MISSING, a failed test, or a confirmed business flaw.
+    prohibited_outputs:
+    - risk_trigger_selection
+    - confirmed_defect_verdict
+    - CONTROL_MISSING
+    - executed_test_claim
+
+===== REQUIRED JSON OUTPUT CONTRACT =====
+{
+  "schema_version": "shipreadyv2.pass1_map_output.v1",
+  "request_id": "copy from request",
+  "semantic_pack_id": "copy from request",
+  "semantic_part": {
+    "sequence": 1,
+    "total": 1
+  },
+  "repository_summary_fragment": {
+    "apparent_system_purpose": "string or UNKNOWN",
+    "primary_capabilities": [
+      "repo-specific capability"
+    ],
+    "primary_repo_native_actors": [
+      "repo-native actor"
+    ],
+    "important_business_objects": [
+      "repo-native object"
+    ],
+    "material_effects": [
+      "repo-specific effect"
+    ],
+    "explicit_requirements_found": [
+      "requirement or contract"
+    ],
+    "summary_evidence": [
+      "evidence object"
+    ],
+    "summary_confidence": "HIGH | MEDIUM | LOW | UNSUPPORTED"
+  },
+  "business_path_fragments": [
+    {
+      "path_id": "request-local stable ID",
+      "path_summary": "actor/entrypoint to material effect",
+      "entrypoints": [
+        "repo-native entrypoint"
+      ],
+      "connected_node_ids": [
+        "chunk_id"
+      ],
+      "runtime_shapes": [
+        "taxonomy ID | OTHER | UNKNOWN"
+      ],
+      "workload_shapes": [
+        "taxonomy ID | OTHER | UNKNOWN"
+      ],
+      "repo_specific_intent": "plain-language verb and object",
+      "intent_family": "taxonomy ID | OTHER_REPO_SPECIFIC_INTENT | UNKNOWN_INTENT",
+      "intent_object": "repo-native object or UNKNOWN",
+      "desired_outcome": "repo-specific outcome or UNKNOWN",
+      "actors": [
+        {
+          "repo_native_actor": "string or UNKNOWN",
+          "actor_archetype": "taxonomy ID | OTHER_REPO_SPECIFIC_ACTOR | UNKNOWN_ACTOR",
+          "authentication_context": "string or UNKNOWN",
+          "lifecycle_status_if_observed": "string or UNKNOWN",
+          "evidence": [
+            "evidence object"
+          ],
+          "confidence": "HIGH | MEDIUM | LOW | UNSUPPORTED"
+        }
+      ],
+      "resources_and_scopes": [
+        {
+          "repo_resource_type": "string or UNKNOWN",
+          "scope_type": "taxonomy ID | OTHER_REPO_SPECIFIC_SCOPE | UNKNOWN_SCOPE",
+          "ownership_key_or_tenant_key": "string or UNKNOWN",
+          "evidence": [
+            "evidence object"
+          ],
+          "confidence": "HIGH | MEDIUM | LOW | UNSUPPORTED"
+        }
+      ],
+      "states": [
+        {
+          "repo_native_state_name": "string or UNKNOWN",
+          "state_type": "taxonomy ID | OTHER | UNKNOWN",
+          "observed_values": [
+            "exact code value"
+          ],
+          "source_symbol_or_field": "string or UNKNOWN",
+          "evidence": [
+            "evidence object"
+          ],
+          "confidence": "HIGH | MEDIUM | LOW | UNSUPPORTED"
+        }
+      ],
+      "path_types": [
+        "taxonomy ID | OTHER | UNKNOWN"
+      ],
+      "effect_types": [
+        "taxonomy ID | OTHER | UNKNOWN"
+      ],
+      "material_effects": [
+        "repo-specific effect"
+      ],
+      "guards_observed": [
+        "observed guard"
+      ],
+      "observed_business_rules": [
+        {
+          "rule_statement": "string",
+          "rule_type": "taxonomy ID | OTHER_REPO_SPECIFIC_RULE",
+          "evidence_status": "OBSERVED | INFERRED | UNKNOWN",
+          "evidence": [
+            "evidence object"
+          ],
+          "confidence": "HIGH | MEDIUM | LOW | UNSUPPORTED"
+        }
+      ],
+      "business_invariants": [
+        "observed or clearly labelled inferred invariant"
+      ],
+      "requirement_alignment": {
+        "oracle_sources_found": [
+          "taxonomy oracle ID"
+        ],
+        "requirement_statements": [
+          "string"
+        ],
+        "aligned_code_evidence": [
+          "evidence object"
+        ],
+        "conflicts_or_gaps": [
+          "string"
+        ],
+        "confidence": "HIGH | MEDIUM | LOW | UNSUPPORTED"
+      },
+      "evidence": [
+        "evidence object"
+      ],
+      "evidence_gaps": [
+        "specific missing connection or policy"
+      ],
+      "confidence": "HIGH | MEDIUM | LOW | UNSUPPORTED"
+    }
+  ],
+  "cross_pack_followups": [
+    {
+      "reason": "specific missing connected evidence",
+      "related_semantic_pack_id": "ID from bridge context",
+      "related_source_batch_id": "ID from bridge context",
+      "related_chunk_id": "ID from bridge context"
+    }
+  ],
+  "unsupported_or_nonmaterial_signals": [
+    {
+      "signal": "string",
+      "reason": "string",
+      "evidence": [
+        "evidence object"
+      ]
+    }
+  ],
+  "evidence_object_contract": {
+    "chunk_id": "chunk ID from request",
+    "file_path": "repository-relative path",
+    "start_line": 1,
+    "end_line": 1,
+    "symbol_or_node_id": "symbol, qualified name, or chunk ID",
+    "evidence_level": "E1_DIRECT_CODE | E2_CONNECTED_CODE | E3_MULTI_SIGNAL_INFERENCE | E4_NAME_OR_DEPENDENCY_ONLY | E5_NO_EVIDENCE",
+    "evidence_summary": "what this span establishes"
+  }
+}
+
+===== APPROVED PASS 1 SEMANTIC ADDENDUM =====
+For every material path, also provide:
+1. Repo-specific capability, actor goal, business object, affected actor or counterparty, and business value/consequence. These are semantic names selected from the code; preserve repo-native wording and do not force a generic taxonomy label.
+2. Starting and resulting state when visible; otherwise use UNKNOWN.
+3. Structured activation facts for later deterministic routing. Mark each fact TRUE, FALSE, or UNKNOWN and OBSERVED, INFERRED, or UNKNOWN. Every TRUE fact requires E1-E3 evidence. FALSE means code establishes absence/inapplicability; when evidence merely does not show the fact, use UNKNOWN instead.
+4. Actor context on every material path. UNKNOWN_ACTOR is valid and preferable to guessing.
+
+Do not output risk-trigger IDs, trigger families, trigger candidates, scores, findings, missing-control claims, tests, or final selections. A later deterministic program applies risk-trigger `applies_to` rules, activation requirements, false-positive guards, deduplication, scoring, and coverage selection.
+
+Keep the result concise: at most 3 material paths, 3 actors/resources/states per path, 4 business rules per path, 8 materially relevant activation facts per path, and 5 evidence references per path. Do not enumerate every activation-fact name when it is irrelevant; retain the strongest facts needed for later deterministic routing. Prefer material production paths over helpers, tests, examples, and name-only signals.
+
+===== SEMANTIC CODE INPUT =====
+
+===== REQUEST IDENTITY =====
+{
+  "request_id": "semantic_pack_001_part_01",
+  "semantic_pack_id": "semantic_pack_001",
+  "semantic_part": {
+    "sequence": 1,
+    "total": 1
+  },
+  "parent_source_batch_ids": [
+    "batch_001",
+    "batch_002",
+    "batch_003",
+    "batch_004"
+  ]
+}
+
+===== REQUEST CONTEXT =====
+{
+  "request_scope": "partial repository semantic mapping",
+  "repository": {
+    "repo_name": "sih",
+    "source_files": 13,
+    "languages": {
+      "html": 3,
+      "javascript": 10
+    },
+    "role_hints": [
+      "html_page",
+      "auth_related_file"
+    ],
+    "top_connected_files": [
+      "dev 2/test-dev2.js",
+      "dev 2/redaction-engine.js",
+      "dev 2/sensitivity-tiers.js",
+      "dev 2/session-vault-manager.js",
+      "dev 2/dom-heuristics.js",
+      "dev 2/pii-patterns.js",
+      "dev 2/leakage-auditor.js",
+      "dev 2/redaction-renderer.js",
+      "dev 2/token-vault.js",
+      "dev 2/channel-consistency-check.js"
+    ],
+    "external_dependencies": [],
+    "resolved_symbol_edges": 24,
+    "atomic_chunks": 22,
+    "chunk_relationships": 48,
+    "source_12k_batches": 4,
+    "semantic_packs": 1
+  },
+  "semantic_pack_id": "semantic_pack_001",
+  "semantic_part": {
+    "sequence": 1,
+    "total": 1
+  },
+  "parent_source_batch_ids": [
+    "batch_001",
+    "batch_002",
+    "batch_003",
+    "batch_004"
+  ],
+  "chunk_ids": [
+    "chunk_8b94513436b4d877",
+    "chunk_d8e2621583ecfe86",
+    "chunk_acae45ec085ae4dd",
+    "chunk_8db9c3d07fa96cc9",
+    "chunk_278ebdb2b721c12a",
+    "chunk_04240ed2b40a31ea",
+    "chunk_32bff1c580ffdd53",
+    "chunk_629652fe2a334c23",
+    "chunk_221be66be448f92f",
+    "chunk_fb04c958c99d0987",
+    "chunk_0067432d917d6e5b",
+    "chunk_d19f44a50e8667be",
+    "chunk_67857afde26cec8c",
+    "chunk_ed85ddf1f1052e8c",
+    "chunk_5e64905f238cb9cb",
+    "chunk_a1dae6e60a1ad585",
+    "chunk_1a84ab213763f74d",
+    "chunk_656767c73b3b87fb",
+    "chunk_f37a29daf654de81",
+    "chunk_4b07b91e50a4e294",
+    "chunk_0f2e83f21379a98b",
+    "chunk_673f99a40f4762f8"
+  ],
+  "important_instruction": "Classify only supplied evidence. Use cross_pack_followups for required remote evidence; do not infer that an unseen control is missing."
+}
+
+===== FILE PRELUDES =====
+{
+  "dev 2/redaction-engine.js": "import { classifyElement, getElementId } from './dom-heuristics.js';\nimport { detectPII } from './pii-patterns.js';\nimport { classifySensitivity } from './sensitivity-tiers.js';\nimport { redactImage, canvasToBase64 } from './redaction-renderer.js';",
+  "dev 2/sensitivity-tiers.js": "import { classifyElement } from './dom-heuristics.js';\nimport { detectPII } from './pii-patterns.js';",
+  "dev 2/session-vault-manager.js": "import { createTokenVault } from './token-vault.js';",
+  "dev 2/test-dev2.js": "import assert from 'assert';\nimport { detectPII } from './pii-patterns.js';\nimport { classifyElement } from './dom-heuristics.js';\nimport { classifySensitivity, classifyActionRisk } from './sensitivity-tiers.js';\nimport { createTokenVault } from './token-vault.js';\nimport { getVaultForSession, endSession, getActiveSessionCount, cleanExpiredSessions } from './session-vault-manager.js';\nimport { auditPayload, assertSafeToSend, createSecureTransport } from './leakage-auditor.js';\nimport { processPageForRedaction } from './redaction-engine.js';\nimport { checkChannelConsistency, assertChannelsConsistent } from './channel-consistency-check.js';"
+}
+
+===== PARENT ENTITY CONTEXT =====
+[
+  {
+    "parent_entity_id": "entity_0b9193444a525896",
+    "file": "dev 2/e2e-test.html",
+    "entity": "e2e-test.html",
+    "qualified_name": "e2e-test.html",
+    "total_segments": 3,
+    "segments_in_pack": [
+      1,
+      2,
+      3
+    ],
+    "line_range_in_pack": {
+      "start_line": 1,
+      "end_line": 467
+    },
+    "related_semantic_pack_ids": [
+      "semantic_pack_001"
+    ],
+    "header_excerpt": "     1 | <!DOCTYPE html>\n     2 | <html lang=\"en\">\n     3 | <head>\n     4 |   <meta charset=\"UTF-8\">\n     5 |   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n     6 |   <title>Dev 2 Redaction Pipeline E2E Demo</title>\n     7 |   <style>\n     8 |     * {\n     9 |       box-sizing: border-box;\n    10 |     }\n    11 |     body {\n    12 |       background-color: #0f172a;\n    13 |       color: #f8fafc;\n    14 |       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n    15 |       margin: 0;\n    16 |       padding: 20px;\n    17 |     }\n    18 |     header {\n    19 |       margin-bottom: 20px;\n    20 |     }\n    21 |     h1 {\n    22 |       font-size: 1.",
+    "estimated_tokens": 250
+  }
+]
+
+===== CODE CHUNKS =====
+<<<CHUNK {"chunk_id":"chunk_8b94513436b4d877","file":"dev 2/channel-consistency-check.js","start_line":1,"end_line":89,"language":"javascript","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+     1 | /**
+     2 |  * Channel Consistency Check Module
+     3 |  * 
+     4 |  * Independent verification layer comparing STRUCTURAL redaction (dom_summary.elements)
+     5 |  * with VISUAL redaction (redactedRegions) before network dispatch.
+     6 |  */
+     7 | 
+     8 | /**
+     9 |  * Checks whether structural redaction requirements match actual visual redaction regions.
+    10 |  *
+    11 |  * @param {object} payload - Payload containing dom_summary.elements
+    12 |  * @param {Array<{element_id: string, bounding_box: object}>} redactedRegions - Regions visually redacted
+    13 |  * @returns {{ consistent: boolean, mismatches: Array<{element_id: string, issue: string}> }}
+    14 |  */
+    15 | export function checkChannelConsistency(payload, redactedRegions) {
+    16 |   const mismatches = [];
+    17 | 
+    18 |   const elements = (payload && payload.dom_summary && Array.isArray(payload.dom_summary.elements))
+    19 |     ? payload.dom_summary.elements
+    20 |     : [];
+    21 | 
+    22 |   const regions = Array.isArray(redactedRegions) ? redactedRegions : [];
+    23 | 
+    24 |   // 1. Set of element_ids that SHOULD be redacted
+    25 |   const shouldBeRedacted = new Set();
+    26 |   for (const el of elements) {
+    27 |     if (el && el.is_sensitive === true && el.semantic_token !== null) {
+    28 |       if (el.element_id) {
+    29 |         shouldBeRedacted.add(el.element_id);
+    30 |       }
+    31 |     }
+    32 |   }
+    33 | 
+    34 |   // 2. Set of element_ids that WERE ACTUALLY visually redacted
+    35 |   const actuallyRedacted = new Set();
+    36 |   for (const region of regions) {
+    37 |     if (region && region.element_id) {
+    38 |       actuallyRedacted.add(region.element_id);
+    39 |     }
+    40 |   }
+    41 | 
+    42 |   // 3. Compare sets
+    43 |   // Structural claimed but visual missing
+    44 |   for (const id of shouldBeRedacted) {
+    45 |     if (!actuallyRedacted.has(id)) {
+    46 |       mismatches.push({
+    47 |         element_id: id,
+    48 |         issue: 'structural redaction claimed but visual redaction missing'
+    49 |       });
+    50 |     }
+    51 |   }
+    52 | 
+    53 |   // Visual present but structural missing/not sensitive
+    54 |   for (const id of actuallyRedacted) {
+    55 |     if (!shouldBeRedacted.has(id)) {
+    56 |       mismatches.push({
+    57 |         element_id: id,
+    58 |         issue: 'visual redaction present but structural summary shows no sensitivity — possible over-redaction or stale data'
+    59 |       });
+    60 |     }
+    61 |   }
+    62 | 
+    63 |   // 4. Consistent if no mismatches
+    64 |   return {
+    65 |     consistent: mismatches.length === 0,
+    66 |     mismatches
+    67 |   };
+    68 | }
+    69 | 
+    70 | /**
+    71 |  * Hard gate that throws a descriptive Error if visual and structural redactions do not agree.
+    72 |  *
+    73 |  * @param {object} payload - Payload containing dom_summary.elements
+    74 |  * @param {Array<{element_id: string, bounding_box: object}>} redactedRegions - Regions visually redacted
+    75 |  * @throws {Error} If channel consistency check fails
+    76 |  */
+    77 | export function assertChannelsConsistent(payload, redactedRegions) {
+    78 |   const result = checkChannelConsistency(payload, redactedRegions);
+    79 | 
+    80 |   if (!result.consistent) {
+    81 |     const details = result.mismatches
+    82 |       .map(m => `  - [${m.element_id}]: ${m.issue}`)
+    83 |       .join('\n');
+    84 | 
+    85 |     throw new Error(
+    86 |       `Channel consistency check failed with ${result.mismatches.length} mismatch(es):\n${details}`
+    87 |     );
+    88 |   }
+    89 | }
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_d8e2621583ecfe86","file":"dev 2/dom-heuristics.js","start_line":1,"end_line":209,"language":"javascript","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+     1 | /**
+     2 |  * Helper to resolve nearby label text for a given DOM element.
+     3 |  * Checks in order: associated <label for=id> or parent <label>, aria-label, placeholder,
+     4 |  * and closest preceding sibling text node within the same parent.
+     5 |  * @param {HTMLElement} el
+     6 |  * @returns {string|null}
+     7 |  */
+     8 | function getNearbyLabelText(el) {
+     9 |   if (!el || typeof el.getAttribute !== 'function') {
+    10 |     return null;
+    11 |   }
+    12 | 
+    13 |   if (el.labels && el.labels.length > 0) {
+    14 |     for (let i = 0; i < el.labels.length; i++) {
+    15 |       const text = (el.labels[i].textContent || '').trim();
+    16 |       if (text) return text;
+    17 |     }
+    18 |   }
+    19 | 
+    20 |   if (el.id && el.ownerDocument && typeof el.ownerDocument.querySelector === 'function') {
+    21 |     try {
+    22 |       const escapeId = typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(el.id) : el.id;
+    23 |       const labelEl = el.ownerDocument.querySelector(`label[for="${escapeId}"]`);
+    24 |       if (labelEl) {
+    25 |         const text = (labelEl.textContent || '').trim();
+    26 |         if (text) return text;
+    27 |       }
+    28 |     } catch (e) {
+    29 |       // Fallback if querySelector fails
+    30 |     }
+    31 |   }
+    32 | 
+    33 |   if (typeof el.closest === 'function') {
+    34 |     const parentLabel = el.closest('label');
+    35 |     if (parentLabel) {
+    36 |       const text = (parentLabel.textContent || '').trim();
+    37 |       if (text) return text;
+    38 |     }
+    39 |   }
+    40 | 
+    41 |   const ariaLabel = el.getAttribute('aria-label');
+    42 |   if (ariaLabel && ariaLabel.trim()) {
+    43 |     return ariaLabel.trim();
+    44 |   }
+    45 | 
+    46 |   const placeholder = el.getAttribute('placeholder');
+    47 |   if (placeholder && placeholder.trim()) {
+    48 |     return placeholder.trim();
+    49 |   }
+    50 | 
+    51 |   let curr = el.previousSibling;
+    52 |   while (curr) {
+    53 |     const text = (curr.textContent || '').trim();
+    54 |     if (text) {
+    55 |       return text;
+    56 |     }
+    57 |     curr = curr.previousSibling;
+    58 |   }
+    59 | 
+    60 |   return null;
+    61 | }
+    62 | 
+    63 | /**
+    64 |  * Classifies a DOM element based on form heuristics and sensitivity rules.
+    65 |  * Order of evaluation: PASSWORD -> CARD_NUMBER -> EMAIL -> AMOUNT -> PHONE -> NAME -> UNKNOWN
+    66 |  * @param {HTMLElement} el
+    67 |  * @returns {{ tag: string, role: string|null, label_text: string|null, is_sensitive: boolean, sensitivity_type: "PASSWORD"|"CARD_NUMBER"|"EMAIL"|"PHONE"|"NAME"|"AMOUNT"|"UNKNOWN"|null }}
+    68 |  */
+    69 | export function classifyElement(el) {
+    70 |   if (!el || typeof el.getAttribute !== 'function') {
+    71 |     return {
+    72 |       tag: '',
+    73 |       role: null,
+    74 |       label_text: null,
+    75 |       is_sensitive: false,
+    76 |       sensitivity_type: 'UNKNOWN'
+    77 |     };
+    78 |   }
+    79 | 
+    80 |   const tag = el.tagName ? el.tagName.toLowerCase() : '';
+    81 |   const role = el.getAttribute('role') || null;
+    82 |   const typeAttr = (el.getAttribute('type') || '').toLowerCase();
+    83 |   const autocompleteAttr = (el.getAttribute('autocomplete') || '').toLowerCase();
+    84 |   const placeholderAttr = (el.getAttribute('placeholder') || '').toLowerCase();
+    85 | 
+    86 |   // Hard exclusion for buttons
+    87 |   if (tag === 'button' || typeAttr === 'submit' || typeAttr === 'button' || role === 'button') {
+    88 |     return {
+    89 |       tag: 'button',
+    90 |       role: 'button',
+    91 |       label_text: el.innerText || el.textContent || null,
+    92 |       is_sensitive: false,
+    93 |       sensitivity_type: null
+    94 |     };
+    95 |   }
+    96 | 
+    97 |   const label_text = getNearbyLabelText(el);
+    98 |   const elText = (el.innerText || el.textContent || '').trim();
+    99 | 
+   100 |   // 1. Password
+   101 |   if (typeAttr === 'password') {
+   102 |     return {
+   103 |       tag,
+   104 |       role,
+   105 |       label_text,
+   106 |       is_sensitive: true,
+   107 |       sensitivity_type: 'PASSWORD'
+   108 |     };
+   109 |   }
+   110 | 
+   111 |   // 2. Card Number
+   112 |   if (autocompleteAttr.includes('cc-number')) {
+   113 |     return {
+   114 |       tag,
+   115 |       role,
+   116 |       label_text,
+   117 |       is_sensitive: true,
+   118 |       sensitivity_type: 'CARD_NUMBER'
+   119 |     };
+   120 |   }
+   121 | 
+   122 |   // 3. Email
+   123 |   if (autocompleteAttr.includes('email') || typeAttr === 'email') {
+   124 |     return {
+   125 |       tag,
+   126 |       role,
+   127 |       label_text,
+   128 |       is_sensitive: true,
+   129 |       sensitivity_type: 'EMAIL'
+   130 |     };
+   131 |   }
+   132 | 
+   133 |   // 4. Amount (Checked BEFORE Phone to prioritize price/total displays over ambiguous nearby sibling text)
+   134 |   if (
+   135 |     (label_text && /amount|price|total/i.test(label_text)) ||
+   136 |     (placeholderAttr && /amount|price|total/i.test(placeholderAttr)) ||
+   137 |     (elText && /amount|price|total|\$\d/i.test(elText))
+   138 |   ) {
+   139 |     return {
+   140 |       tag,
+   141 |       role,
+   142 |       label_text: label_text || (elText || null),
+   143 |       is_sensitive: true,
+   144 |       sensitivity_type: 'AMOUNT'
+   145 |     };
+   146 |   }
+   147 | 
+   148 |   // 5. Phone
+   149 |   if (
+   150 |     autocompleteAttr.includes('tel') ||
+   151 |     typeAttr === 'tel' ||
+   152 |     (label_text && /phone|mobile|contact number/i.test(label_text)) ||
+   153 |     (placeholderAttr && /phone|mobile|contact number/i.test(placeholderAttr))
+   154 |   ) {
+   155 |     return {
+   156 |       tag,
+   157 |       role,
+   158 |       label_text,
+   159 |       is_sensitive: true,
+   160 |       sensitivity_type: 'PHONE'
+   161 |     };
+   162 |   }
+   163 | 
+   164 |   // 6. Name
+   165 |   if (autocompleteAttr.includes('name') || (label_text && /name/i.test(label_text))) {
+   166 |     return {
+   167 |       tag,
+   168 |       role,
+   169 |       label_text,
+   170 |       is_sensitive: true,
+   171 |       sensitivity_type: 'NAME'
+   172 |     };
+   173 |   }
+   174 | 
+   175 |   return {
+   176 |     tag,
+   177 |     role,
+   178 |     label_text,
+   179 |     is_sensitive: false,
+   180 |     sensitivity_type: 'UNKNOWN'
+   181 |   };
+   182 | }
+   183 | 
+   184 | let elementIdCounter = 0;
+   185 | 
+   186 | /**
+   187 |  * Generates a stable selector-like ID for an element.
+   188 |  * @param {HTMLElement} el
+   189 |  * @returns {string}
+   190 |  */
+   191 | export function getElementId(el) {
+   192 |   if (!el || typeof el.getAttribute !== 'function') {
+   193 |     return '';
+   194 |   }
+   195 | 
+   196 |   if (el.id && el.id.trim() !== '') {
+   197 |     return el.id;
+   198 |   }
+   199 | 
+   200 |   if (typeof el.hasAttribute === 'function' && el.hasAttribute('data-ext-id')) {
+   201 |     return el.getAttribute('data-ext-id');
+   202 |   }
+   203 | 
+   204 |   const generatedId = `ext-el-${Date.now()}-${++elementIdCounter}`;
+   205 |   if (typeof el.setAttribute === 'function') {
+   206 |     el.setAttribute('data-ext-id', generatedId);
+   207 |   }
+   208 |   return generatedId;
+   209 | }
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_acae45ec085ae4dd","file":"dev 2/e2e-test.html","start_line":1,"end_line":235,"language":"html","kind":"html_document_segment","entity":"e2e-test.html","qualified_name":"e2e-test.html","parent_entity_id":"entity_0b9193444a525896","role_hints":["html_page"]}>>>
+     1 | <!DOCTYPE html>
+     2 | <html lang="en">
+     3 | <head>
+     4 |   <meta charset="UTF-8">
+     5 |   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6 |   <title>Dev 2 Redaction Pipeline E2E Demo</title>
+     7 |   <style>
+     8 |     * {
+     9 |       box-sizing: border-box;
+    10 |     }
+    11 |     body {
+    12 |       background-color: #0f172a;
+    13 |       color: #f8fafc;
+    14 |       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    15 |       margin: 0;
+    16 |       padding: 20px;
+    17 |     }
+    18 |     header {
+    19 |       margin-bottom: 20px;
+    20 |     }
+    21 |     h1 {
+    22 |       font-size: 1.6rem;
+    23 |       margin: 0 0 16px 0;
+    24 |       color: #38bdf8;
+    25 |     }
+    26 |     .stats-bar {
+    27 |       display: flex;
+    28 |       gap: 16px;
+    29 |       margin-bottom: 20px;
+    30 |     }
+    31 |     .stat-card {
+    32 |       background-color: #1e293b;
+    33 |       border: 1px solid #334155;
+    34 |       border-radius: 8px;
+    35 |       padding: 12px 20px;
+    36 |       flex: 1;
+    37 |       display: flex;
+    38 |       flex-direction: column;
+    39 |       align-items: flex-start;
+    40 |     }
+    41 |     .stat-label {
+    42 |       font-size: 0.85rem;
+    43 |       color: #94a3b8;
+    44 |       text-transform: uppercase;
+    45 |       letter-spacing: 0.05em;
+    46 |     }
+    47 |     .stat-value {
+    48 |       font-size: 1.8rem;
+    49 |       font-weight: 700;
+    50 |       color: #38bdf8;
+    51 |       margin-top: 4px;
+    52 |     }
+    53 |     .main-container {
+    54 |       display: flex;
+    55 |       gap: 20px;
+    56 |       align-items: stretch;
+    57 |       min-height: 520px;
+    58 |     }
+    59 |     .column {
+    60 |       flex: 1;
+    61 |       background-color: #1e293b;
+    62 |       border: 1px solid #334155;
+    63 |       border-radius: 8px;
+    64 |       padding: 16px;
+    65 |       display: flex;
+    66 |       flex-direction: column;
+    67 |     }
+    68 |     .column-title {
+    69 |       font-size: 1.1rem;
+    70 |       font-weight: 600;
+    71 |       color: #f1f5f9;
+    72 |       margin-bottom: 14px;
+    73 |       padding-bottom: 8px;
+    74 |       border-bottom: 1px solid #334155;
+    75 |       display: flex;
+    76 |       align-items: center;
+    77 |       justify-content: space-between;
+    78 |     }
+    79 |     /* Section 1: Form styling */
+    80 |     .fake-form {
+    81 |       display: flex;
+    82 |       flex-direction: column;
+    83 |       gap: 12px;
+    84 |       position: relative;
+    85 |       background-color: #0f172a;
+    86 |       padding: 16px;
+    87 |       border-radius: 6px;
+    88 |       border: 1px solid #334155;
+    89 |     }
+    90 |     .form-group {
+    91 |       display: flex;
+    92 |       flex-direction: column;
+    93 |       gap: 4px;
+    94 |     }
+    95 |     .form-group label {
+    96 |       font-size: 0.8rem;
+    97 |       color: #94a3b8;
+    98 |     }
+    99 |     .fake-form input {
+   100 |       background-color: #1e293b;
+   101 |       border: 1px solid #475569;
+   102 |       color: #f8fafc;
+   103 |       padding: 8px 12px;
+   104 |       border-radius: 4px;
+   105 |       font-size: 0.9rem;
+   106 |     }
+   107 |     .total-display {
+   108 |       background-color: #334155;
+   109 |       padding: 10px 12px;
+   110 |       border-radius: 4px;
+   111 |       font-weight: bold;
+   112 |       color: #38bdf8;
+   113 |       font-size: 1rem;
+   114 |       text-align: right;
+   115 |     }
+   116 |     .btn-submit {
+   117 |       background-color: #0284c7;
+   118 |       color: white;
+   119 |       border: none;
+   120 |       padding: 10px;
+   121 |       border-radius: 4px;
+   122 |       font-weight: 600;
+   123 |       cursor: pointer;
+   124 |     }
+   125 |     /* Section 2: Canvas */
+   126 |     .canvas-container {
+   127 |       flex: 1;
+   128 |       display: flex;
+   129 |       justify-content: center;
+   130 |       align-items: center;
+   131 |       background-color: #0f172a;
+   132 |       border-radius: 6px;
+   133 |       padding: 10px;
+   134 |       overflow: hidden;
+   135 |     }
+   136 |     #sanitized-canvas {
+   137 |       max-width: 100%;
+   138 |       border: 1px solid #334155;
+   139 |       border-radius: 4px;
+   140 |       background-color: #ffffff;
+   141 |     }
+   142 |     /* Section 3: Audit Log */
+   143 |     #audit-log {
+   144 |       flex: 1;
+   145 |       background-color: #090d16;
+   146 |       border: 1px solid #1e293b;
+   147 |       border-radius: 6px;
+   148 |       padding: 12px;
+   149 |       font-family: 'Courier New', Courier, monospace;
+   150 |       font-size: 13px;
+   151 |       line-height: 1.45;
+   152 |       overflow-y: auto;
+   153 |       max-height: 480px;
+   154 |       white-space: pre-wrap;
+   155 |     }
+   156 |     .log-info { color: #64b5f6; }
+   157 |     .log-pass { color: #81c784; font-weight: bold; }
+   158 |     .log-warn { color: #ffd54f; }
+   159 |     .log-fail { color: #e57373; font-weight: bold; }
+   160 |     .log-header { color: #ba68c8; font-weight: bold; }
+   161 | 
+   162 |     /* Button Controls */
+   163 |     .actions-bar {
+   164 |       margin-top: 20px;
+   165 |       display: flex;
+   166 |       gap: 16px;
+   167 |     }
+   168 |     .action-btn {
+   169 |       padding: 12px 24px;
+   170 |       font-size: 0.95rem;
+   171 |       font-weight: 600;
+   172 |       border-radius: 6px;
+   173 |       border: none;
+   174 |       cursor: pointer;
+   175 |       transition: background-color 0.2s ease;
+   176 |     }
+   177 |     .btn-run {
+   178 |       background-color: #10b981;
+   179 |       color: #042f2e;
+   180 |     }
+   181 |     .btn-run:hover {
+   182 |       background-color: #059669;
+   183 |       color: #ffffff;
+   184 |     }
+   185 |     .btn-leak {
+   186 |       background-color: #ef4444;
+   187 |       color: #450a0a;
+   188 |     }
+   189 |     .btn-leak:hover {
+   190 |       background-color: #dc2626;
+   191 |       color: #ffffff;
+   192 |     }
+   193 |   </style>
+   194 | </head>
+   195 | <body>
+   196 |   <header>
+   197 |     <h1>Dev 2 Privacy & Redaction Pipeline — End-to-End Demo</h1>
+   198 |     <div class="stats-bar">
+   199 |       <div class="stat-card">
+   200 |         <span class="stat-label">Fields Scanned</span>
+   201 |         <span class="stat-value" id="stat-scanned">0</span>
+   202 |       </div>
+   203 |       <div class="stat-card">
+   204 |         <span class="stat-label">Sensitive Fields Redacted</span>
+   205 |         <span class="stat-value" id="stat-redacted">0</span>
+   206 |       </div>
+   207 |       <div class="stat-card">
+   208 |         <span class="stat-label">Leakage Violations</span>
+   209 |         <span class="stat-value" id="stat-violations">0</span>
+   210 |       </div>
+   211 |     </div>
+   212 |   </header>
+   213 | 
+   214 |   <main class="main-container">
+   215 |     <!-- SECTION 1: Real Page -->
+   216 |     <section class="column">
+   217 |       <div class="column-title">Section 1: Real Page (DOM)</div>
+   218 |       <div class="fake-form" id="checkout-form">
+   219 |         <div class="form-group">
+   220 |           <label for="fullname-input">Full Name</label>
+   221 |           <input type="text" id="fullname-input" value="Jane Doe">
+   222 |         </div>
+   223 |         <div class="form-group">
+   224 |           <label for="email-input">Email Address</label>
+   225 |           <input type="email" id="email-input" autocomplete="email" value="jane.doe@example.com">
+   226 |         </div>
+   227 |         <div class="form-group">
+   228 |           <label for="pwd-input">Password</label>
+   229 |           <input type="password" id="pwd-input" value="SuperSecret123!">
+   230 |         </div>
+   231 |         <div class="form-group">
+   232 |           <label for="card-number-input">Card Number</label>
+   233 |           <input type="text" id="card-number-input" autocomplete="cc-number" value="4111 1111 1111 1111">
+   234 |         </div>
+   235 |         <div class="form-group">
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_8db9c3d07fa96cc9","file":"dev 2/e2e-test.html","start_line":225,"end_line":403,"language":"html","kind":"html_document_segment","entity":"e2e-test.html","qualified_name":"e2e-test.html","parent_entity_id":"entity_0b9193444a525896","role_hints":["html_page"]}>>>
+   225 |           <input type="email" id="email-input" autocomplete="email" value="jane.doe@example.com">
+   226 |         </div>
+   227 |         <div class="form-group">
+   228 |           <label for="pwd-input">Password</label>
+   229 |           <input type="password" id="pwd-input" value="SuperSecret123!">
+   230 |         </div>
+   231 |         <div class="form-group">
+   232 |           <label for="card-number-input">Card Number</label>
+   233 |           <input type="text" id="card-number-input" autocomplete="cc-number" value="4111 1111 1111 1111">
+   234 |         </div>
+   235 |         <div class="form-group">
+   236 |           <label for="phone-input">Phone:</label>
+   237 |           <input type="tel" id="phone-input" value="+1 (555) 019-2834">
+   238 |         </div>
+   239 |         <div class="total-display" id="total-amount-display">Total: $45.99</div>
+   240 |         <button type="submit" class="btn-submit" id="checkout-submit-btn">Checkout</button>
+   241 |       </div>
+   242 |     </section>
+   243 | 
+   244 |     <!-- SECTION 2: Sanitized View -->
+   245 |     <section class="column">
+   246 |       <div class="column-title">Section 2: Sanitized View (Canvas)</div>
+   247 |       <div class="canvas-container">
+   248 |         <canvas id="sanitized-canvas" width="360" height="420"></canvas>
+   249 |       </div>
+   250 |     </section>
+   251 | 
+   252 |     <!-- SECTION 3: Live Audit Log -->
+   253 |     <section class="column">
+   254 |       <div class="column-title">Section 3: Live Audit Log</div>
+   255 |       <div id="audit-log">Click "Run Full Pipeline" to start inspection...</div>
+   256 |     </section>
+   257 |   </main>
+   258 | 
+   259 |   <div class="actions-bar">
+   260 |     <button class="action-btn btn-run" id="btn-run-pipeline">Run Full Pipeline</button>
+   261 |     <button class="action-btn btn-leak" id="btn-simulate-leak">Simulate Leak (Break It On Purpose)</button>
+   262 |   </div>
+   263 | 
+   264 |   <script type="module">
+   265 |     import { detectPII } from './pii-patterns.js';
+   266 |     import { classifyElement, getElementId } from './dom-heuristics.js';
+   267 |     import { classifySensitivity, classifySensitivityWithConfidence, getConfidenceBadgeColor } from './sensitivity-tiers.js';
+   268 |     import { redactImage, canvasToBase64 } from './redaction-renderer.js';
+   269 |     import { processPageForRedaction } from './redaction-engine.js';
+   270 |     import { auditPayload, assertSafeToSend } from './leakage-auditor.js';
+   271 |     import { checkChannelConsistency, assertChannelsConsistent } from './channel-consistency-check.js';
+   272 |     import { createTokenVault } from './token-vault.js';
+   273 | 
+   274 |     const auditLogEl = document.getElementById('audit-log');
+   275 |     const sanitizedCanvasEl = document.getElementById('sanitized-canvas');
+   276 |     const statScannedEl = document.getElementById('stat-scanned');
+   277 |     const statRedactedEl = document.getElementById('stat-redacted');
+   278 |     const statViolationsEl = document.getElementById('stat-violations');
+   279 | 
+   280 |     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+   281 | 
+   282 |     function clearLog() {
+   283 |       auditLogEl.innerHTML = '';
+   284 |     }
+   285 | 
+   286 |     function appendLog(text, type = 'info') {
+   287 |       const line = document.createElement('div');
+   288 |       line.className = `log-${type}`;
+   289 |       line.textContent = text;
+   290 |       auditLogEl.appendChild(line);
+   291 |       auditLogEl.scrollTop = auditLogEl.scrollHeight;
+   292 |     }
+   293 | 
+   294 |     // Helper to draw a mock "before" canvas matching form field bounds
+   295 |     function createMockBeforeCanvas(elements, width = 360, height = 420) {
+   296 |       const canvas = document.createElement('canvas');
+   297 |       canvas.width = width;
+   298 |       canvas.height = height;
+   299 |       const ctx = canvas.getContext('2d');
+   300 | 
+   301 |       // Background
+   302 |       ctx.fillStyle = '#ffffff';
+   303 |       ctx.fillRect(0, 0, width, height);
+   304 | 
+   305 |       const formContainer = document.getElementById('checkout-form');
+   306 |       const formRect = formContainer.getBoundingClientRect();
+   307 | 
+   308 |       for (const el of elements) {
+   309 |         if (!el) continue;
+   310 |         const rect = el.getBoundingClientRect();
+   311 |         
+   312 |         // Relative coordinates inside mock canvas
+   313 |         const rx = Math.round(rect.left - formRect.left);
+   314 |         const ry = Math.round(rect.top - formRect.top);
+   315 |         const rw = Math.round(rect.width);
+   316 |         const rh = Math.round(rect.height);
+   317 | 
+   318 |         // Draw field container rectangle
+   319 |         ctx.fillStyle = el.tagName === 'BUTTON' ? '#0284c7' : (el.id === 'total-amount-display' ? '#e2e8f0' : '#f8fafc');
+   320 |         ctx.fillRect(rx, ry, rw, rh);
+   321 | 
+   322 |         ctx.strokeStyle = '#cbd5e1';
+   323 |         ctx.lineWidth = 1;
+   324 |         ctx.strokeRect(rx, ry, rw, rh);
+   325 | 
+   326 |         // Draw field label / text
+   327 |         ctx.fillStyle = el.tagName === 'BUTTON' ? '#ffffff' : '#0f172a';
+   328 |         ctx.font = '12px system-ui, sans-serif';
+   329 | 
+   330 |         let displayText = el.value || el.innerText || el.textContent || '';
+   331 |         if (el.type === 'password') {
+   332 |           displayText = '••••••••••••';
+   333 |         }
+   334 |         ctx.fillText(displayText.substring(0, 28), rx + 8, ry + rh / 2 + 4);
+   335 |       }
+   336 | 
+   337 |       return canvas;
+   338 |     }
+   339 | 
+   340 |     // Render resulting canvas to sanitized canvas element
+   341 |     function renderSanitizedCanvas(sourceCanvas) {
+   342 |       const ctx = sanitizedCanvasEl.getContext('2d');
+   343 |       ctx.clearRect(0, 0, sanitizedCanvasEl.width, sanitizedCanvasEl.height);
+   344 |       ctx.drawImage(sourceCanvas, 0, 0, sanitizedCanvasEl.width, sanitizedCanvasEl.height);
+   345 |     }
+   346 | 
+   347 |     async function executePipeline(simulateLeak = false) {
+   348 |       clearLog();
+   349 |       appendLog('=== INITIALIZING PRIVACY & REDACTION PIPELINE ===', 'header');
+   350 | 
+   351 |       const tokenVault = createTokenVault();
+   352 |       const elements = Array.from(document.querySelectorAll('input, button, div#total-amount-display'));
+   353 | 
+   354 |       statScannedEl.textContent = elements.length;
+   355 |       let violationsCount = 0;
+   356 | 
+   357 |       // 1. Create mock before canvas matching current DOM bounds
+   358 |       const mockCanvas = createMockBeforeCanvas(elements, sanitizedCanvasEl.width, sanitizedCanvasEl.height);
+   359 | 
+   360 |       // Log DOM Detection
+   361 |       appendLog('\n--- STEP 1: DOM Inspection & Classification ---', 'header');
+   362 |       for (const el of elements) {
+   363 |         const id = getElementId(el);
+   364 |         const classification = classifyElement(el);
+   365 |         const textToScan = el.value || el.innerText || el.textContent || '';
+   366 |         const pii = detectPII(textToScan);
+   367 |         const sens = classifySensitivity(classification, pii, textToScan, null);
+   368 |         
+   369 |         appendLog(`[DOM] Detected: ${id} -> type=${sens.sensitivity_type}, tier=${sens.sensitivity_tier}`, 'info');
+   370 |       }
+   371 | 
+   372 |       await sleep(300);
+   373 | 
+   374 |       // Log Sensitivity & Confidence
+   375 |       appendLog('\n--- STEP 2: Sensitivity Tiering & Confidence Scoring ---', 'header');
+   376 |       for (const el of elements) {
+   377 |         const id = getElementId(el);
+   378 |         const classification = classifyElement(el);
+   379 |         const textToScan = el.value || el.innerText || el.textContent || '';
+   380 |         const pii = detectPII(textToScan);
+   381 |         const confResult = classifySensitivityWithConfidence(classification, pii, 0.92, textToScan, tokenVault);
+   382 |         const badgeColor = getConfidenceBadgeColor(confResult.confidence);
+   383 | 
+   384 |         if (confResult.sensitivity_tier === 1 || confResult.sensitivity_tier === 2) {
+   385 |           appendLog(
+   386 |             `[TIER] ${id} -> ${confResult.action}, confidence=${confResult.confidence} (${badgeColor})`,
+   387 |             badgeColor === 'green' ? 'pass' : (badgeColor === 'yellow' ? 'warn' : 'fail')
+   388 |           );
+   389 |         }
+   390 |       }
+   391 | 
+   392 |       await sleep(300);
+   393 | 
+   394 |       // Execute Orchestrator Engine
+   395 |       const payload = processPageForRedaction(elements, mockCanvas, tokenVault);
+   396 | 
+   397 |       // Log Visual Redactions
+   398 |       appendLog('\n--- STEP 3: Visual Canvas Redaction ---', 'header');
+   399 |       for (const region of payload.redacted_regions) {
+   400 |         appendLog(`[REDACT] Drew solid box over ${region.element_id}`, 'warn');
+   401 |       }
+   402 |       statRedactedEl.textContent = payload.redacted_regions.length;
+   403 | 
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_278ebdb2b721c12a","file":"dev 2/e2e-test.html","start_line":387,"end_line":467,"language":"html","kind":"html_document_segment","entity":"e2e-test.html","qualified_name":"e2e-test.html","parent_entity_id":"entity_0b9193444a525896","role_hints":["html_page"]}>>>
+   387 |             badgeColor === 'green' ? 'pass' : (badgeColor === 'yellow' ? 'warn' : 'fail')
+   388 |           );
+   389 |         }
+   390 |       }
+   391 | 
+   392 |       await sleep(300);
+   393 | 
+   394 |       // Execute Orchestrator Engine
+   395 |       const payload = processPageForRedaction(elements, mockCanvas, tokenVault);
+   396 | 
+   397 |       // Log Visual Redactions
+   398 |       appendLog('\n--- STEP 3: Visual Canvas Redaction ---', 'header');
+   399 |       for (const region of payload.redacted_regions) {
+   400 |         appendLog(`[REDACT] Drew solid box over ${region.element_id}`, 'warn');
+   401 |       }
+   402 |       statRedactedEl.textContent = payload.redacted_regions.length;
+   403 | 
+   404 |       // Render sanitized result onto visible canvas
+   405 |       // Since processPageForRedaction used mockCanvas and returned base64, render onto canvas
+   406 |       const img = new Image();
+   407 |       img.onload = () => {
+   408 |         const ctx = sanitizedCanvasEl.getContext('2d');
+   409 |         ctx.clearRect(0, 0, sanitizedCanvasEl.width, sanitizedCanvasEl.height);
+   410 |         ctx.drawImage(img, 0, 0);
+   411 |       };
+   412 |       img.src = payload.redacted_image_base64;
+   413 | 
+   414 |       await sleep(300);
+   415 | 
+   416 |       // Log Vault Stats
+   417 |       appendLog('\n--- STEP 4: Token Vault Statistics ---', 'header');
+   418 |       appendLog(`[VAULT] Stats: ${JSON.stringify(tokenVault.getStats())}`, 'info');
+   419 | 
+   420 |       await sleep(300);
+   421 | 
+   422 |       // Audit Check (Leak Gate 1)
+   423 |       appendLog('\n--- STEP 5: Payload Leakage Audit (assertSafeToSend) ---', 'header');
+   424 |       appendLog('[AUDIT] Running assertSafeToSend()...', 'info');
+   425 | 
+   426 |       let targetPayload = payload;
+   427 | 
+   428 |       if (simulateLeak) {
+   429 |         // Deep clone & mutate payload to inject raw card number leak
+   430 |         targetPayload = JSON.parse(JSON.stringify(payload));
+   431 |         if (targetPayload.dom_summary && targetPayload.dom_summary.elements && targetPayload.dom_summary.elements.length > 0) {
+   432 |           targetPayload.dom_summary.elements[0].label_text = '4111 1111 1111 1111';
+   433 |         }
+   434 |       }
+   435 | 
+   436 |       try {
+   437 |         assertSafeToSend(targetPayload, detectPII);
+   438 |         appendLog('[AUDIT] PASSED - 0 violations', 'pass');
+   439 |       } catch (err) {
+   440 |         violationsCount++;
+   441 |         appendLog(`[AUDIT] FAILED: ${err.message}`, 'fail');
+   442 |         appendLog('[RECOVERY] Leak blocked before transport', 'pass');
+   443 |       }
+   444 | 
+   445 |       statViolationsEl.textContent = violationsCount;
+   446 | 
+   447 |       await sleep(300);
+   448 | 
+   449 |       // Consistency Check (Gate 2) — run on ORIGINAL payload and redacted_regions
+   450 |       appendLog('\n--- STEP 6: Channel Consistency Verification (assertChannelsConsistent) ---', 'header');
+   451 |       appendLog('[CONSISTENCY] Running assertChannelsConsistent()...', 'info');
+   452 | 
+   453 |       try {
+   454 |         assertChannelsConsistent(payload, payload.redacted_regions);
+   455 |         appendLog('[CONSISTENCY] PASSED - channels agree', 'pass');
+   456 |       } catch (err) {
+   457 |         appendLog(`[CONSISTENCY] FAILED: ${err.message}`, 'fail');
+   458 |       }
+   459 | 
+   460 |       appendLog('\n=== PIPELINE EXECUTION COMPLETE ===', 'header');
+   461 |     }
+   462 | 
+   463 |     document.getElementById('btn-run-pipeline').addEventListener('click', () => executePipeline(false));
+   464 |     document.getElementById('btn-simulate-leak').addEventListener('click', () => executePipeline(true));
+   465 |   </script>
+   466 | </body>
+   467 | </html>
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_04240ed2b40a31ea","file":"dev 2/leakage-auditor.js","start_line":1,"end_line":148,"language":"javascript","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+     1 | const SEMANTIC_TOKEN_PATTERN = /^\[[A-Z0-9_]+(?:\?|: [^\]]+)?\]$/;
+     2 | const SENSITIVE_KEY_PATTERN = /password|pwd|secret|credit_card|cvv|ssn|aadhaar|otp/i;
+     3 | 
+     4 | /**
+     5 |  * Recursively walks an object tree and invokes a callback for every string value found.
+     6 |  * @param {*} node - Current node in the object tree.
+     7 |  * @param {string} path - Dot-notation path to the current node.
+     8 |  * @param {function} callback - Called with (stringValue, path) for each string leaf.
+     9 |  * @param {Set} seen - Tracks visited references to avoid circular loops.
+    10 |  */
+    11 | function walkStrings(node, path, callback, seen) {
+    12 |   if (node === null || node === undefined) return;
+    13 | 
+    14 |   if (seen.has(node)) return;
+    15 | 
+    16 |   if (typeof node === 'string') {
+    17 |     callback(node, path);
+    18 |     return;
+    19 |   }
+    20 | 
+    21 |   if (typeof node !== 'object') return;
+    22 | 
+    23 |   seen.add(node);
+    24 | 
+    25 |   if (Array.isArray(node)) {
+    26 |     for (let i = 0; i < node.length; i++) {
+    27 |       walkStrings(node[i], path + '[' + i + ']', callback, seen);
+    28 |     }
+    29 |     return;
+    30 |   }
+    31 | 
+    32 |   const keys = Object.keys(node);
+    33 |   for (const key of keys) {
+    34 |     const childPath = path ? path + '.' + key : key;
+    35 |     walkStrings(node[key], childPath, callback, seen);
+    36 |   }
+    37 | }
+    38 | 
+    39 | /**
+    40 |  * Scans an outgoing payload for any raw PII values or sensitive text that leaked through redaction.
+    41 |  * @param {object} payload - The full payload object to audit.
+    42 |  * @param {function} piiDetectFn - PII detection function with signature (text: string) => Array<{type: string, match: string}>
+    43 |  * @returns {{ passed: boolean, violations: Array<{path: string, reason: string, matched_type: string}> }}
+    44 |  */
+    45 | export function auditPayload(payload, piiDetectFn) {
+    46 |   const violations = [];
+    47 | 
+    48 |   if (!payload || typeof payload !== 'object') {
+    49 |     return { passed: true, violations };
+    50 |   }
+    51 | 
+    52 |   if (typeof piiDetectFn !== 'function') {
+    53 |     return { passed: true, violations };
+    54 |   }
+    55 | 
+    56 |   const seen = new Set();
+    57 | 
+    58 |   walkStrings(payload, '', function onString(value, path) {
+    59 |     // Skip redacted_image_base64 — it's expected binary/opaque data.
+    60 |     // But flag a warning if it looks suspiciously short or malformed.
+    61 |     if (path === 'redacted_image_base64') {
+    62 |       if (typeof value === 'string' && value.length < 100) {
+    63 |         violations.push({
+    64 |           path,
+    65 |           reason: 'redacted_image_base64 is suspiciously short or malformed',
+    66 |           matched_type: 'IMAGE_DATA_WARNING'
+    67 |         });
+    68 |       }
+    69 |       return;
+    70 |     }
+    71 | 
+    72 |     // Skip values that are semantic token placeholders
+    73 |     if (SEMANTIC_TOKEN_PATTERN.test(value)) {
+    74 |       return;
+    75 |     }
+    76 | 
+    77 |     // 1. Check PII detection regex matches
+    78 |     const matches = piiDetectFn(value);
+    79 |     if (Array.isArray(matches) && matches.length > 0) {
+    80 |       for (const match of matches) {
+    81 |         violations.push({
+    82 |           path,
+    83 |           reason: 'raw PII value found outside semantic token',
+    84 |           matched_type: match.type || 'UNKNOWN'
+    85 |         });
+    86 |       }
+    87 |     }
+    88 | 
+    89 |     // 2. Check for unredacted passwords or secrets in sensitive fields/keys
+    90 |     if (SENSITIVE_KEY_PATTERN.test(path) && value && !SEMANTIC_TOKEN_PATTERN.test(value)) {
+    91 |       violations.push({
+    92 |         path,
+    93 |         reason: 'unredacted password or secret string found in sensitive field',
+    94 |         matched_type: 'PASSWORD'
+    95 |       });
+    96 |     }
+    97 |   }, seen);
+    98 | 
+    99 |   return {
+   100 |     passed: violations.length === 0,
+   101 |     violations
+   102 |   };
+   103 | }
+   104 | 
+   105 | /**
+   106 |  * Hard gate that throws a descriptive Error if the payload contains leaked PII.
+   107 |  * Intended to be called immediately before any fetch() call in the transport module.
+   108 |  * @param {object} payload - The full payload object to audit.
+   109 |  * @param {function} piiDetectFn - PII detection function.
+   110 |  * @throws {Error} If any PII violations are detected.
+   111 |  */
+   112 | export function assertSafeToSend(payload, piiDetectFn) {
+   113 |   const result = auditPayload(payload, piiDetectFn);
+   114 | 
+   115 |   if (!result.passed) {
+   116 |     const details = result.violations
+   117 |       .map(function (v) {
+   118 |         return '  - [' + v.matched_type + '] at "' + v.path + '": ' + v.reason;
+   119 |       })
+   120 |       .join('\n');
+   121 | 
+   122 |     throw new Error(
+   123 |       'Payload safety audit failed with ' + result.violations.length +
+   124 |       ' violation(s). Blocking network request.\n' + details
+   125 |     );
+   126 |   }
+   127 | }
+   128 | 
+   129 | /**
+   130 |  * Higher-order transport wrapper enforcing fail-closed security.
+   131 |  * Guarantees assertSafeToSend runs on the final payload immediately before transportFn is called.
+   132 |  * If audit fails, transportFn is ZERO-invoked and an Error is thrown.
+   133 |  *
+   134 |  * @param {function} transportFn - Network send function with signature (payload) => Promise<any> | any
+   135 |  * @param {function} piiDetectFn - PII detection function
+   136 |  * @returns {function(object): Promise<any> | any} Wrapped transport function
+   137 |  */
+   138 | export function createSecureTransport(transportFn, piiDetectFn) {
+   139 |   if (typeof transportFn !== 'function') {
+   140 |     throw new Error('createSecureTransport requires a valid transport function.');
+   141 |   }
+   142 | 
+   143 |   return function sendSecurePayload(payload) {
+   144 |     // Hard gate assertion on the FINAL assembled payload immediately before transport
+   145 |     assertSafeToSend(payload, piiDetectFn);
+   146 |     return transportFn(payload);
+   147 |   };
+   148 | }
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_32bff1c580ffdd53","file":"dev 2/pii-patterns.js","start_line":1,"end_line":57,"language":"javascript","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+     1 | /**
+     2 |  * Detects Personally Identifiable Information (PII) in a given text.
+     3 |  * @param {string} text - The input string to analyze.
+     4 |  * @returns {Array<{type: string, match: string, startIndex: number, endIndex: number}>}
+     5 |  */
+     6 | export function detectPII(text) {
+     7 |   if (typeof text !== 'string' || !text) {
+     8 |     return [];
+     9 |   }
+    10 | 
+    11 |   const results = [];
+    12 | 
+    13 |   const patterns = [
+    14 |     { type: 'EMAIL', regex: /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g },
+    15 |     { type: 'PHONE', regex: /(?<!\d)[6-9]\d{9}(?!\d)/g },
+    16 |     { type: 'CARD_NUMBER', regex: /(?<!\d[ -]?)(?:\d[ -]?){15}\d(?![ -]?\d)/g },
+    17 |     { type: 'AADHAAR', regex: /(?<!\d[ -]?)(?:\d[ -]?){11}\d(?![ -]?\d)/g },
+    18 |     { type: 'IFSC', regex: /\b[A-Za-z]{4}0[A-Za-z0-9]{6}\b/g }
+    19 |   ];
+    20 | 
+    21 |   for (const { type, regex } of patterns) {
+    22 |     let match;
+    23 |     regex.lastIndex = 0;
+    24 |     while ((match = regex.exec(text)) !== null) {
+    25 |       results.push({
+    26 |         type,
+    27 |         match: match[0],
+    28 |         startIndex: match.index,
+    29 |         endIndex: match.index + match[0].length
+    30 |       });
+    31 |     }
+    32 |   }
+    33 | 
+    34 |   const otpRegex = /(?<!\d[ -]?)\d{4,6}(?![ -]?\d)/g;
+    35 |   const otpContextRegex = /\b(otp|code|verification)\b/i;
+    36 |   let match;
+    37 | 
+    38 |   while ((match = otpRegex.exec(text)) !== null) {
+    39 |     const startIndex = match.index;
+    40 |     const endIndex = startIndex + match[0].length;
+    41 | 
+    42 |     const contextStart = Math.max(0, startIndex - 30);
+    43 |     const contextEnd = Math.min(text.length, endIndex + 30);
+    44 |     const context = text.substring(contextStart, contextEnd);
+    45 | 
+    46 |     if (otpContextRegex.test(context)) {
+    47 |       results.push({
+    48 |         type: 'OTP',
+    49 |         match: match[0],
+    50 |         startIndex,
+    51 |         endIndex
+    52 |       });
+    53 |     }
+    54 |   }
+    55 | 
+    56 |   return results;
+    57 | }
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_629652fe2a334c23","file":"dev 2/redaction-engine.js","start_line":1,"end_line":186,"language":"javascript","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+     1 | import { classifyElement, getElementId } from './dom-heuristics.js';
+     2 | import { detectPII } from './pii-patterns.js';
+     3 | import { classifySensitivity } from './sensitivity-tiers.js';
+     4 | import { redactImage, canvasToBase64 } from './redaction-renderer.js';
+     5 | 
+     6 | /**
+     7 |  * Top-level orchestrator function to process page elements and source canvas/image for redaction.
+     8 |  * @param {HTMLElement[]} elements - List of DOM elements to classify and inspect.
+     9 |  * @param {HTMLCanvasElement | HTMLImageElement} sourceCanvasOrImage - Canvas or image element to redact.
+    10 |  * @param {object} tokenVault - Session-scoped Token Vault instance (REQUIRED).
+    11 |  * @returns {{
+    12 |  *   dom_summary: {
+    13 |  *     url: string,
+    14 |  *     elements: Array<{
+    15 |  *       element_id: string,
+    16 |  *       tag: string,
+    17 |  *       role: string | null,
+    18 |  *       label_text: string | null,
+    19 |  *       is_sensitive: boolean,
+    20 |  *       sensitivity_tier: 1 | 2 | 3,
+    21 |  *       sensitivity_type: string,
+    22 |  *       semantic_token: string | null,
+    23 |  *       has_stable_token: boolean,
+    24 |  *       bounding_box: {x: number, y: number, w: number, h: number}
+    25 |  *     }>
+    26 |  *   },
+    27 |  *   redacted_image_base64: string,
+    28 |  *   detection_confidence_notes: Array<{element_id: string, confidence: number, method: 'dom_heuristic' | 'vision_model' | 'ocr_regex'}>,
+    29 |  *   redacted_regions: Array<{element_id: string, bounding_box: {x: number, y: number, w: number, h: number}, sensitivity_tier: 1 | 2 | 3, semantic_token: string | null}>
+    30 |  * }}
+    31 |  */
+    32 | export function processPageForRedaction(elements = [], sourceCanvasOrImage, tokenVault) {
+    33 |   const currentUrl = typeof window !== 'undefined' && window.location ? window.location.href : '';
+    34 | 
+    35 |   const summaryElements = [];
+    36 |   const confidenceNotes = [];
+    37 |   const sensitiveRegions = [];
+    38 |   const sensitiveRawValues = [];
+    39 |   const redactedRegionsList = [];
+    40 | 
+    41 |   if (Array.isArray(elements)) {
+    42 |     for (const el of elements) {
+    43 |       if (!el) continue;
+    44 | 
+    45 |       const element_id = getElementId(el);
+    46 |       const elementClassification = classifyElement(el);
+    47 | 
+    48 |       const rect = typeof el.getBoundingClientRect === 'function'
+    49 |         ? el.getBoundingClientRect()
+    50 |         : { x: 0, y: 0, left: 0, top: 0, width: 0, height: 0 };
+    51 | 
+    52 |       const bounding_box = {
+    53 |         x: Math.round(rect.x || rect.left || 0),
+    54 |         y: Math.round(rect.y || rect.top || 0),
+    55 |         w: Math.round(rect.width || 0),
+    56 |         h: Math.round(rect.height || 0)
+    57 |       };
+    58 | 
+    59 |       // 1. Extract rawValue by priority order
+    60 |       let rawValue = null;
+    61 |       if (el.value !== undefined && el.value !== null && String(el.value).trim() !== '') {
+    62 |         rawValue = el.value;
+    63 |       } else if (el.innerText && el.innerText.trim() !== '') {
+    64 |         rawValue = el.innerText.trim();
+    65 |       } else {
+    66 |         rawValue = null;
+    67 |       }
+    68 | 
+    69 |       const textToScan = rawValue || el.textContent || '';
+    70 |       const piiMatches = detectPII(textToScan);
+    71 | 
+    72 |       // 2. Classify sensitivity passing rawValue and tokenVault
+    73 |       const sensitivity = classifySensitivity(elementClassification, piiMatches, rawValue, tokenVault);
+    74 |       const { sensitivity_tier, sensitivity_type, semantic_token } = sensitivity;
+    75 |       const is_sensitive = sensitivity_tier !== 3;
+    76 | 
+    77 |       // 3. Verify token presence in vault
+    78 |       const has_stable_token = Boolean(
+    79 |         semantic_token &&
+    80 |         tokenVault &&
+    81 |         typeof tokenVault.hasToken === 'function' &&
+    82 |         tokenVault.hasToken(semantic_token)
+    83 |       );
+    84 | 
+    85 |       summaryElements.push({
+    86 |         element_id,
+    87 |         tag: elementClassification.tag,
+    88 |         role: elementClassification.role,
+    89 |         label_text: elementClassification.label_text,
+    90 |         is_sensitive,
+    91 |         sensitivity_tier,
+    92 |         sensitivity_type,
+    93 |         semantic_token,
+    94 |         has_stable_token,
+    95 |         bounding_box
+    96 |       });
+    97 | 
+    98 |       let confidence = 0.92;
+    99 |       let method = 'dom_heuristic';
+   100 | 
+   101 |       if (elementClassification && elementClassification.sensitivity_type !== 'UNKNOWN') {
+   102 |         confidence = 0.92;
+   103 |         method = 'dom_heuristic';
+   104 |       } else if (piiMatches && piiMatches.length > 0) {
+   105 |         confidence = 0.6;
+   106 |         method = 'ocr_regex';
+   107 |       }
+   108 | 
+   109 |       confidenceNotes.push({
+   110 |         element_id,
+   111 |         confidence,
+   112 |         method
+   113 |       });
+   114 | 
+   115 |       if (sensitivity_tier === 1 || sensitivity_tier === 2) {
+   116 |         sensitiveRegions.push({
+   117 |           bounding_box,
+   118 |           sensitivity_tier
+   119 |         });
+   120 | 
+   121 |         redactedRegionsList.push({
+   122 |           element_id,
+   123 |           bounding_box,
+   124 |           sensitivity_tier,
+   125 |           semantic_token
+   126 |         });
+   127 | 
+   128 |         if (rawValue && String(rawValue).trim()) {
+   129 |           sensitiveRawValues.push(String(rawValue).trim());
+   130 |         }
+   131 |         for (const m of piiMatches) {
+   132 |           if (m && m.match && m.match.trim()) {
+   133 |             sensitiveRawValues.push(m.match.trim());
+   134 |           }
+   135 |         }
+   136 |       }
+   137 |     }
+   138 |   }
+   139 | 
+   140 |   const redactedCanvas = redactImage(sourceCanvasOrImage, sensitiveRegions);
+   141 |   const redacted_image_base64 = canvasToBase64(redactedCanvas);
+   142 | 
+   143 |   const output = {
+   144 |     dom_summary: {
+   145 |       url: currentUrl,
+   146 |       elements: summaryElements
+   147 |     },
+   148 |     redacted_image_base64,
+   149 |     detection_confidence_notes: confidenceNotes,
+   150 |     redacted_regions: redactedRegionsList
+   151 |   };
+   152 | 
+   153 |   // Top-level Recursive Guard Assertion: confirm no sensitive raw values leak into output object tree
+   154 |   function walkAndAssert(node, path) {
+   155 |     if (node === null || node === undefined) return;
+   156 |     if (path === 'redacted_image_base64') return;
+   157 | 
+   158 |     if (typeof node === 'string') {
+   159 |       for (const rawVal of sensitiveRawValues) {
+   160 |         if (!rawVal || rawVal.length < 3) continue;
+   161 |         if (node.includes(rawVal) && !node.startsWith('[')) {
+   162 |           throw new Error(`Privacy Assertion Violated: Raw sensitive value "${rawVal}" found in output object at "${path}"`);
+   163 |         }
+   164 |       }
+   165 |       return;
+   166 |     }
+   167 | 
+   168 |     if (typeof node !== 'object') return;
+   169 | 
+   170 |     if (Array.isArray(node)) {
+   171 |       for (let i = 0; i < node.length; i++) {
+   172 |         walkAndAssert(node[i], `${path}[${i}]`);
+   173 |       }
+   174 |       return;
+   175 |     }
+   176 | 
+   177 |     for (const key of Object.keys(node)) {
+   178 |       const childPath = path ? `${path}.${key}` : key;
+   179 |       walkAndAssert(node[key], childPath);
+   180 |     }
+   181 |   }
+   182 | 
+   183 |   walkAndAssert(output, '');
+   184 | 
+   185 |   return output;
+   186 | }
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_221be66be448f92f","file":"dev 2/redaction-renderer.js","start_line":1,"end_line":100,"language":"javascript","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+     1 | /** Module-level flag controlling Tier 2 redaction (default: true) */
+     2 | export let REDACT_TIER_2 = true;
+     3 | 
+     4 | /**
+     5 |  * Sets the module-level flag for Tier 2 redaction.
+     6 |  * @param {boolean} flag
+     7 |  */
+     8 | export function setRedactTier2(flag) {
+     9 |   REDACT_TIER_2 = Boolean(flag);
+    10 | }
+    11 | 
+    12 | /**
+    13 |  * Redacts sensitive regions on an image or canvas by drawing solid black standardized boxes.
+    14 |  * @param {HTMLCanvasElement | HTMLImageElement} sourceCanvasOrImage
+    15 |  * @param {Array<{bounding_box: {x: number, y: number, w: number, h: number}, sensitivity_tier: 1|2|3}>} sensitiveRegions
+    16 |  * @returns {HTMLCanvasElement} A new canvas containing the redacted image.
+    17 |  */
+    18 | export function redactImage(sourceCanvasOrImage, sensitiveRegions = []) {
+    19 |   if (!sourceCanvasOrImage) {
+    20 |     throw new Error('Source canvas or image is required.');
+    21 |   }
+    22 | 
+    23 |   const width = sourceCanvasOrImage.width || sourceCanvasOrImage.naturalWidth || 0;
+    24 |   const height = sourceCanvasOrImage.height || sourceCanvasOrImage.naturalHeight || 0;
+    25 | 
+    26 |   let outputCanvas;
+    27 |   if (typeof document !== 'undefined' && typeof document.createElement === 'function') {
+    28 |     outputCanvas = document.createElement('canvas');
+    29 |     outputCanvas.width = width;
+    30 |     outputCanvas.height = height;
+    31 |   } else {
+    32 |     // Environment fallback (e.g. Node test runner without DOM)
+    33 |     outputCanvas = {
+    34 |       width,
+    35 |       height,
+    36 |       getContext: () => ({
+    37 |         drawImage: () => {},
+    38 |         fillRect: () => {},
+    39 |         clearRect: () => {},
+    40 |         getImageData: () => ({ data: new Uint8ClampedArray(4) })
+    41 |       }),
+    42 |       toDataURL: () => (typeof sourceCanvasOrImage.toDataURL === 'function' ? sourceCanvasOrImage.toDataURL('image/png') : '')
+    43 |     };
+    44 |   }
+    45 | 
+    46 |   const ctx = outputCanvas.getContext('2d');
+    47 |   if (ctx && typeof ctx.drawImage === 'function') {
+    48 |     ctx.drawImage(sourceCanvasOrImage, 0, 0, width, height);
+    49 |   }
+    50 | 
+    51 |   if (Array.isArray(sensitiveRegions)) {
+    52 |     for (const region of sensitiveRegions) {
+    53 |       if (!region || !region.bounding_box) continue;
+    54 | 
+    55 |       const tier = region.sensitivity_tier;
+    56 |       if (tier === 1 || (tier === 2 && REDACT_TIER_2)) {
+    57 |         const { x, y, w, h } = region.bounding_box;
+    58 | 
+    59 |         let catW = 260;
+    60 |         let catH = 24;
+    61 | 
+    62 |         if (w <= 80 && h <= 24) {
+    63 |           catW = 80;
+    64 |           catH = 24;
+    65 |         } else if (w <= 160 && h <= 24) {
+    66 |           catW = 160;
+    67 |           catH = 24;
+    68 |         } else {
+    69 |           catW = 260;
+    70 |           catH = 24;
+    71 |         }
+    72 | 
+    73 |         const centerX = x + w / 2;
+    74 |         const centerY = y + h / 2;
+    75 |         const drawX = centerX - catW / 2;
+    76 |         const drawY = centerY - catH / 2;
+    77 | 
+    78 |         if (ctx && typeof ctx.fillRect === 'function') {
+    79 |           ctx.fillStyle = '#000000';
+    80 |           ctx.fillRect(drawX, drawY, catW, catH);
+    81 |         }
+    82 |       }
+    83 |     }
+    84 |   }
+    85 | 
+    86 |   return outputCanvas;
+    87 | }
+    88 | 
+    89 | /**
+    90 |  * Converts a canvas element to a PNG base64 string without data URL prefix.
+    91 |  * @param {HTMLCanvasElement} canvas
+    92 |  * @returns {string} Base64 encoded PNG data.
+    93 |  */
+    94 | export function canvasToBase64(canvas) {
+    95 |   if (!canvas || typeof canvas.toDataURL !== 'function') {
+    96 |     return '';
+    97 |   }
+    98 |   const dataUrl = canvas.toDataURL('image/png');
+    99 |   return dataUrl.replace(/^data:image\/png;base64,/, '');
+   100 | }
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_fb04c958c99d0987","file":"dev 2/sensitivity-tiers.js","start_line":1,"end_line":277,"language":"javascript","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+     1 | import { classifyElement } from './dom-heuristics.js';
+     2 | import { detectPII } from './pii-patterns.js';
+     3 | 
+     4 | const TIER_1_TYPES = new Set(['PASSWORD', 'CARD_NUMBER', 'AADHAAR', 'OTP']);
+     5 | const TIER_2_TYPES = new Set(['NAME', 'AMOUNT', 'EMAIL', 'PHONE', 'IFSC']);
+     6 | 
+     7 | /**
+     8 |  * Returns numeric tier rank for a given sensitivity type.
+     9 |  * Lower number = higher sensitivity (Tier 1 > Tier 2 > Tier 3).
+    10 |  * @param {string} type
+    11 |  * @returns {1|2|3}
+    12 |  */
+    13 | function getTierNumber(type) {
+    14 |   if (!type || type === 'UNKNOWN') return 3;
+    15 |   if (TIER_1_TYPES.has(type)) return 1;
+    16 |   if (TIER_2_TYPES.has(type)) return 2;
+    17 |   return 3;
+    18 | }
+    19 | 
+    20 | /**
+    21 |  * Formats a numeric value into a rough dollar amount range token string.
+    22 |  * @param {number} val
+    23 |  * @returns {string}
+    24 |  */
+    25 | function formatAmountRange(val) {
+    26 |   if (isNaN(val) || val === null) return '[AMOUNT]';
+    27 |   if (val < 10) return '[AMOUNT: $<10]';
+    28 |   if (val >= 10 && val <= 50) return '[AMOUNT: $10-50]';
+    29 |   if (val > 50 && val <= 100) return '[AMOUNT: $50-100]';
+    30 |   if (val > 100 && val <= 500) return '[AMOUNT: $100-500]';
+    31 |   if (val > 500 && val <= 1000) return '[AMOUNT: $500-1000]';
+    32 |   return '[AMOUNT: $1000+]';
+    33 | }
+    34 | 
+    35 | /**
+    36 |  * Extracts a numeric amount value and formats it into a semantic token range.
+    37 |  * @param {object} elementClassification
+    38 |  * @param {Array} piiMatches
+    39 |  * @returns {string}
+    40 |  */
+    41 | function getAmountToken(elementClassification, piiMatches) {
+    42 |   let numberStr = null;
+    43 | 
+    44 |   if (Array.isArray(piiMatches)) {
+    45 |     for (const m of piiMatches) {
+    46 |       if (m && m.match) {
+    47 |         const numMatch = m.match.match(/\d+(?:\.\d+)?/);
+    48 |         if (numMatch) {
+    49 |           numberStr = numMatch[0];
+    50 |           break;
+    51 |         }
+    52 |       }
+    53 |     }
+    54 |   }
+    55 | 
+    56 |   if (!numberStr && elementClassification) {
+    57 |     const textToSearch = [
+    58 |       elementClassification.label_text,
+    59 |       elementClassification.value
+    60 |     ].filter(Boolean).join(' ');
+    61 | 
+    62 |     const numMatch = textToSearch.match(/\d+(?:\.\d+)?/);
+    63 |     if (numMatch) {
+    64 |       numberStr = numMatch[0];
+    65 |     }
+    66 |   }
+    67 | 
+    68 |   if (numberStr) {
+    69 |     const val = parseFloat(numberStr);
+    70 |     if (!isNaN(val)) {
+    71 |       return formatAmountRange(val);
+    72 |     }
+    73 |   }
+    74 | 
+    75 |   return '[AMOUNT]';
+    76 | }
+    77 | 
+    78 | /**
+    79 |  * Classifies sensitivity into a 3-tier model combining DOM heuristics and PII pattern matches.
+    80 |  * Optionally integrates with Token Vault to produce session-scoped indexed tokens.
+    81 |  * @param {object} elementClassification - Output from classifyElement()
+    82 |  * @param {Array} piiMatches - Output from detectPII()
+    83 |  * @param {string|null} [rawValue=null] - Raw string value of the element if available
+    84 |  * @param {object|null} [tokenVault=null] - Optional Token Vault instance
+    85 |  * @returns {{ sensitivity_tier: 1|2|3, sensitivity_type: string, semantic_token: string|null }}
+    86 |  */
+    87 | export function classifySensitivity(elementClassification, piiMatches = [], rawValue = null, tokenVault = null) {
+    88 |   const domType = (elementClassification && elementClassification.sensitivity_type && elementClassification.sensitivity_type !== 'UNKNOWN')
+    89 |     ? elementClassification.sensitivity_type
+    90 |     : null;
+    91 | 
+    92 |   const validPiiMatches = Array.isArray(piiMatches) ? piiMatches.filter(m => m && m.type) : [];
+    93 | 
+    94 |   let chosenType = null;
+    95 | 
+    96 |   if (validPiiMatches.length > 0) {
+    97 |     // Pick highest sensitivity (lowest tier number) among PII matches
+    98 |     let bestPiiType = validPiiMatches[0].type;
+    99 |     let bestPiiTier = getTierNumber(bestPiiType);
+   100 | 
+   101 |     for (let i = 1; i < validPiiMatches.length; i++) {
+   102 |       const t = validPiiMatches[i].type;
+   103 |       const tier = getTierNumber(t);
+   104 |       if (tier < bestPiiTier) {
+   105 |         bestPiiType = t;
+   106 |         bestPiiTier = tier;
+   107 |       }
+   108 |     }
+   109 | 
+   110 |     if (!domType) {
+   111 |       chosenType = bestPiiType;
+   112 |     } else if (domType === bestPiiType) {
+   113 |       chosenType = domType;
+   114 |     } else {
+   115 |       const domTier = getTierNumber(domType);
+   116 | 
+   117 |       if (domTier < bestPiiTier) {
+   118 |         chosenType = domType;
+   119 |       } else if (bestPiiTier < domTier) {
+   120 |         chosenType = bestPiiType;
+   121 |       } else {
+   122 |         chosenType = bestPiiType;
+   123 |       }
+   124 | 
+   125 |       console.warn(
+   126 |         `Sensitivity type mismatch: DOM heuristic detected "${domType}" (Tier ${domTier}) but PII pattern detected "${bestPiiType}" (Tier ${bestPiiTier}). Defaulting to higher sensitivity tier type: "${chosenType}".`
+   127 |       );
+   128 |     }
+   129 |   } else if (domType) {
+   130 |     chosenType = domType;
+   131 |   }
+   132 | 
+   133 |   if (!chosenType || chosenType === 'UNKNOWN') {
+   134 |     return {
+   135 |       sensitivity_tier: 3,
+   136 |       sensitivity_type: 'UNKNOWN',
+   137 |       semantic_token: null
+   138 |     };
+   139 |   }
+   140 | 
+   141 |   const tier = getTierNumber(chosenType);
+   142 | 
+   143 |   let semantic_token = null;
+   144 | 
+   145 |   if (tier === 1 || tier === 2) {
+   146 |     if (tokenVault && typeof tokenVault.getOrCreateToken === 'function' && rawValue !== null && rawValue !== undefined && rawValue !== '') {
+   147 |       semantic_token = tokenVault.getOrCreateToken(rawValue, chosenType);
+   148 |     } else {
+   149 |       if (tier === 1) {
+   150 |         semantic_token = `[${chosenType}]`;
+   151 |       } else {
+   152 |         semantic_token = chosenType === 'AMOUNT'
+   153 |           ? getAmountToken(elementClassification, piiMatches)
+   154 |           : `[${chosenType}]`;
+   155 |       }
+   156 |     }
+   157 |   }
+   158 | 
+   159 |   return {
+   160 |     sensitivity_tier: tier,
+   161 |     sensitivity_type: chosenType,
+   162 |     semantic_token
+   163 |   };
+   164 | }
+   165 | 
+   166 | /**
+   167 |  * Confidence-gated wrapper around classifySensitivity that determines redaction action
+   168 |  * and applies uncertainty markers to semantic tokens for low-confidence detections.
+   169 |  * @param {object} elementClassification - Output from classifyElement()
+   170 |  * @param {Array} piiMatches - Output from detectPII()
+   171 |  * @param {number} confidence - Detection confidence score (0–1)
+   172 |  * @param {string|null} [rawValue=null] - Raw string value of the element if available
+   173 |  * @param {object|null} [tokenVault=null] - Optional Token Vault instance
+   174 |  * @returns {{ sensitivity_tier: 1|2|3, sensitivity_type: string, semantic_token: string|null, confidence: number, action: 'hard_redact'|'soft_redact_flagged'|'no_redact' }}
+   175 |  */
+   176 | export function classifySensitivityWithConfidence(elementClassification, piiMatches, confidence, rawValue = null, tokenVault = null) {
+   177 |   const base = classifySensitivity(elementClassification, piiMatches, rawValue, tokenVault);
+   178 | 
+   179 |   if (base.sensitivity_tier === 1) {
+   180 |     let semantic_token = base.semantic_token;
+   181 | 
+   182 |     if (confidence < 0.75) {
+   183 |       semantic_token = semantic_token
+   184 |         ? semantic_token.replace(/\]$/, '?]')
+   185 |         : null;
+   186 |     }
+   187 | 
+   188 |     return {
+   189 |       sensitivity_tier: base.sensitivity_tier,
+   190 |       sensitivity_type: base.sensitivity_type,
+   191 |       semantic_token,
+   192 |       confidence,
+   193 |       action: 'hard_redact'
+   194 |     };
+   195 |   }
+   196 | 
+   197 |   if (base.sensitivity_tier === 2) {
+   198 |     if (confidence >= 0.6) {
+   199 |       return {
+   200 |         sensitivity_tier: base.sensitivity_tier,
+   201 |         sensitivity_type: base.sensitivity_type,
+   202 |         semantic_token: base.semantic_token,
+   203 |         confidence,
+   204 |         action: 'hard_redact'
+   205 |       };
+   206 |     }
+   207 | 
+   208 |     const semantic_token = base.semantic_token
+   209 |       ? base.semantic_token.replace(/\]$/, ': uncertain]')
+   210 |       : `[${base.sensitivity_type}: uncertain]`;
+   211 | 
+   212 |     return {
+   213 |       sensitivity_tier: base.sensitivity_tier,
+   214 |       sensitivity_type: base.sensitivity_type,
+   215 |       semantic_token,
+   216 |       confidence,
+   217 |       action: 'soft_redact_flagged'
+   218 |     };
+   219 |   }
+   220 | 
+   221 |   return {
+   222 |     sensitivity_tier: base.sensitivity_tier,
+   223 |     sensitivity_type: base.sensitivity_type,
+   224 |     semantic_token: base.semantic_token,
+   225 |     confidence,
+   226 |     action: 'no_redact'
+   227 |   };
+   228 | }
+   229 | 
+   230 | /**
+   231 |  * Returns a badge color string based on confidence score for UI rendering.
+   232 |  * @param {number} confidence - Detection confidence score (0–1)
+   233 |  * @returns {'green'|'yellow'|'red'}
+   234 |  */
+   235 | export function getConfidenceBadgeColor(confidence) {
+   236 |   if (confidence >= 0.85) return 'green';
+   237 |   if (confidence >= 0.6) return 'yellow';
+   238 |   return 'red';
+   239 | }
+   240 | 
+   241 | /**
+   242 |  * Classifies the risk tier of an agent action.
+   243 |  * Action risk tier MUST be string ("safe" | "risky"), NEVER numeric 1, 2, 3.
+   244 |  * @param {object} action - Action payload { type: string, target_element_id?: string, value?: string, risk_tier?: string|number, sensitivity_tier?: number }
+   245 |  * @returns {'safe'|'risky'}
+   246 |  */
+   247 | export function classifyActionRisk(action) {
+   248 |   if (!action || typeof action !== 'object') {
+   249 |     return 'safe';
+   250 |   }
+   251 | 
+   252 |   if (action.risk_tier === 'risky' || action.risk_tier === 'safe') {
+   253 |     return action.risk_tier;
+   254 |   }
+   255 | 
+   256 |   if (typeof action.risk_tier === 'number') {
+   257 |     return (action.risk_tier === 1 || action.risk_tier === 2) ? 'risky' : 'safe';
+   258 |   }
+   259 | 
+   260 |   if (action.sensitivity_tier === 1 || action.sensitivity_tier === 2) {
+   261 |     return 'risky';
+   262 |   }
+   263 | 
+   264 |   const target = String(action.target_element_id || '').toLowerCase();
+   265 |   const val = String(action.value || '');
+   266 | 
+   267 |   if (/card|pwd|password|email|phone|ssn|aadhaar|otp|cvv|credit/i.test(target)) {
+   268 |     return 'risky';
+   269 |   }
+   270 | 
+   271 |   if (/\[(CARD_NUMBER|PASSWORD|AADHAAR|OTP|EMAIL|PHONE|NAME|AMOUNT|IFSC)(?:_\d+)?(?:\?|: [^\]]+)?\]/.test(val)) {
+   272 |     return 'risky';
+   273 |   }
+   274 | 
+   275 |   return 'safe';
+   276 | }
+   277 | 
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_0067432d917d6e5b","file":"dev 2/session-vault-manager.js","start_line":1,"end_line":88,"language":"javascript","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":["auth_related_file"]}>>>
+     1 | import { createTokenVault } from './token-vault.js';
+     2 | 
+     3 | const sessionVaults = new Map(); // session_id -> { vault, createdAt, lastAccessedAt }
+     4 | const MAX_SESSIONS_THRESHOLD = 20;
+     5 | export const DEFAULT_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes default TTL
+     6 | 
+     7 | /**
+     8 |  * Gets an existing token vault instance for a session_id, or creates a new one.
+     9 |  * Automatically checks for expired session vaults and invalidates them if TTL exceeded.
+    10 |  * @param {string} session_id - Unique identifier for the active task session.
+    11 |  * @param {number} [ttlMs=DEFAULT_SESSION_TTL_MS] - Optional custom TTL in milliseconds.
+    12 |  * @returns {object} Token vault instance.
+    13 |  */
+    14 | export function getVaultForSession(session_id, ttlMs = DEFAULT_SESSION_TTL_MS) {
+    15 |   if (!session_id || typeof session_id !== 'string') {
+    16 |     throw new Error('Invalid session_id provided to getVaultForSession');
+    17 |   }
+    18 | 
+    19 |   const now = Date.now();
+    20 | 
+    21 |   if (sessionVaults.has(session_id)) {
+    22 |     const record = sessionVaults.get(session_id);
+    23 |     if (now - record.lastAccessedAt > ttlMs) {
+    24 |       // Session has expired -> clean up
+    25 |       endSession(session_id);
+    26 |     } else {
+    27 |       record.lastAccessedAt = now;
+    28 |       return record.vault;
+    29 |     }
+    30 |   }
+    31 | 
+    32 |   if (sessionVaults.size >= MAX_SESSIONS_THRESHOLD) {
+    33 |     console.warn(
+    34 |       `[Privacy Warning] Active session vault count reached ${sessionVaults.size + 1} (> ${MAX_SESSIONS_THRESHOLD}). Potential session leak: ensure endSession() is called upon task completion/error.`
+    35 |     );
+    36 |   }
+    37 | 
+    38 |   const newVault = createTokenVault();
+    39 |   sessionVaults.set(session_id, {
+    40 |     vault: newVault,
+    41 |     createdAt: now,
+    42 |     lastAccessedAt: now
+    43 |   });
+    44 |   return newVault;
+    45 | }
+    46 | 
+    47 | /**
+    48 |  * Clears and removes the token vault instance for a completed, terminated, or expired session.
+    49 |  * @param {string} session_id - Unique identifier for the task session to end.
+    50 |  */
+    51 | export function endSession(session_id) {
+    52 |   if (!session_id || typeof session_id !== 'string') return;
+    53 | 
+    54 |   const record = sessionVaults.get(session_id);
+    55 |   if (record) {
+    56 |     if (record.vault && typeof record.vault.clear === 'function') {
+    57 |       record.vault.clear();
+    58 |     }
+    59 |     sessionVaults.delete(session_id);
+    60 |   }
+    61 | }
+    62 | 
+    63 | /**
+    64 |  * Sweeps and prunes all expired session vaults exceeding TTL.
+    65 |  * @param {number} [ttlMs=DEFAULT_SESSION_TTL_MS]
+    66 |  * @returns {number} Count of expired sessions cleaned.
+    67 |  */
+    68 | export function cleanExpiredSessions(ttlMs = DEFAULT_SESSION_TTL_MS) {
+    69 |   const now = Date.now();
+    70 |   let cleanedCount = 0;
+    71 | 
+    72 |   for (const [id, record] of sessionVaults.entries()) {
+    73 |     if (now - record.lastAccessedAt > ttlMs) {
+    74 |       endSession(id);
+    75 |       cleanedCount++;
+    76 |     }
+    77 |   }
+    78 | 
+    79 |   return cleanedCount;
+    80 | }
+    81 | 
+    82 | /**
+    83 |  * Returns the current count of active session vaults.
+    84 |  * @returns {number} Count of active task sessions.
+    85 |  */
+    86 | export function getActiveSessionCount() {
+    87 |   return sessionVaults.size;
+    88 | }
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_d19f44a50e8667be","file":"dev 2/test-consistency-check.html","start_line":1,"end_line":196,"language":"html","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":["html_page"]}>>>
+     1 | <!DOCTYPE html>
+     2 | <html lang="en">
+     3 | <head>
+     4 |   <meta charset="UTF-8">
+     5 |   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6 |   <title>Channel Consistency Check Tests</title>
+     7 |   <style>
+     8 |     body {
+     9 |       background-color: #121212;
+    10 |       color: #e0e0e0;
+    11 |       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    12 |       padding: 20px;
+    13 |       margin: 0;
+    14 |     }
+    15 |     h1 {
+    16 |       color: #ffffff;
+    17 |       font-size: 1.5rem;
+    18 |       margin-top: 0;
+    19 |     }
+    20 |     #console {
+    21 |       background-color: #1e1e1e;
+    22 |       border: 1px solid #333333;
+    23 |       border-radius: 6px;
+    24 |       padding: 16px;
+    25 |       font-family: 'Courier New', Courier, monospace;
+    26 |       font-size: 14px;
+    27 |       line-height: 1.5;
+    28 |       white-space: pre-wrap;
+    29 |       overflow-x: auto;
+    30 |     }
+    31 |     .header {
+    32 |       color: #ffd700;
+    33 |       font-weight: bold;
+    34 |     }
+    35 |     .pass {
+    36 |       color: #4caf50;
+    37 |       font-weight: bold;
+    38 |     }
+    39 |     .fail {
+    40 |       color: #f44336;
+    41 |       font-weight: bold;
+    42 |     }
+    43 |     .info {
+    44 |       color: #9e9e9e;
+    45 |     }
+    46 |     .summary-pass {
+    47 |       color: #4caf50;
+    48 |       font-size: 16px;
+    49 |       font-weight: bold;
+    50 |     }
+    51 |     .summary-fail {
+    52 |       color: #f44336;
+    53 |       font-size: 16px;
+    54 |       font-weight: bold;
+    55 |     }
+    56 |   </style>
+    57 | </head>
+    58 | <body>
+    59 |   <h1>Channel Consistency Check Test Runner</h1>
+    60 |   <div id="console"></div>
+    61 | 
+    62 |   <script type="module">
+    63 |     import { checkChannelConsistency, assertChannelsConsistent } from './channel-consistency-check.js';
+    64 | 
+    65 |     const consoleDiv = document.getElementById('console');
+    66 |     let passCount = 0;
+    67 |     const totalTests = 4;
+    68 | 
+    69 |     function log(message, className = '') {
+    70 |       const span = document.createElement('span');
+    71 |       if (className) {
+    72 |         span.className = className;
+    73 |       }
+    74 |       span.textContent = message + '\n';
+    75 |       consoleDiv.appendChild(span);
+    76 |     }
+    77 | 
+    78 |     function logHeader(text) {
+    79 |       log('\n' + text, 'header');
+    80 |     }
+    81 | 
+    82 |     // Base payload used across tests
+    83 |     const basePayload = {
+    84 |       dom_summary: {
+    85 |         elements: [
+    86 |           { element_id: 'card-1', sensitivity_tier: 1, is_sensitive: true, semantic_token: '[CARD_NUMBER_1]' },
+    87 |           { element_id: 'btn-1', sensitivity_tier: 3, is_sensitive: false, semantic_token: null }
+    88 |         ]
+    89 |       }
+    90 |     };
+    91 | 
+    92 |     // TEST CASE 1 — Consistent (should PASS)
+    93 |     logHeader('--- TEST CASE 1: Consistent (should PASS) ---');
+    94 |     try {
+    95 |       const redactedRegions1 = [{ element_id: 'card-1', bounding_box: {} }];
+    96 |       const result1 = checkChannelConsistency(basePayload, redactedRegions1);
+    97 |       log('Result: ' + JSON.stringify(result1, null, 2), 'info');
+    98 | 
+    99 |       if (result1.consistent === true && Array.isArray(result1.mismatches) && result1.mismatches.length === 0) {
+   100 |         log('TEST 1 PASSED', 'pass');
+   101 |         passCount++;
+   102 |       } else {
+   103 |         log('TEST 1 FAILED: Expected consistent === true and mismatches.length === 0', 'fail');
+   104 |       }
+   105 |     } catch (err) {
+   106 |       log('TEST 1 FAILED with unexpected exception: ' + err.message, 'fail');
+   107 |     }
+   108 | 
+   109 |     // TEST CASE 2 — Structural says redact, visual missed it (should FAIL / catch the mismatch)
+   110 |     logHeader('--- TEST CASE 2: Structural says redact, visual missed it (should FAIL / catch the mismatch) ---');
+   111 |     try {
+   112 |       const redactedRegions2 = [];
+   113 |       const result2 = checkChannelConsistency(basePayload, redactedRegions2);
+   114 |       log('Result: ' + JSON.stringify(result2, null, 2), 'info');
+   115 | 
+   116 |       if (
+   117 |         result2.consistent === false &&
+   118 |         Array.isArray(result2.mismatches) &&
+   119 |         result2.mismatches.length === 1 &&
+   120 |         result2.mismatches[0].element_id === 'card-1' &&
+   121 |         result2.mismatches[0].issue.includes('missing')
+   122 |       ) {
+   123 |         log('TEST 2 PASSED (correctly caught the mismatch)', 'pass');
+   124 |         passCount++;
+   125 |       } else {
+   126 |         log('TEST 2 FAILED: Expected consistent === false and mismatch for card-1 with missing issue', 'fail');
+   127 |       }
+   128 |     } catch (err) {
+   129 |       log('TEST 2 FAILED with unexpected exception: ' + err.message, 'fail');
+   130 |     }
+   131 | 
+   132 |     // TEST CASE 3 — Visual redacted something structural didn't flag (should FAIL / catch over-redaction)
+   133 |     logHeader("--- TEST CASE 3: Visual redacted something structural didn't flag (should FAIL / catch over-redaction) ---");
+   134 |     try {
+   135 |       const redactedRegions3 = [
+   136 |         { element_id: 'card-1', bounding_box: {} },
+   137 |         { element_id: 'btn-1', bounding_box: {} }
+   138 |       ];
+   139 |       const result3 = checkChannelConsistency(basePayload, redactedRegions3);
+   140 |       log('Result: ' + JSON.stringify(result3, null, 2), 'info');
+   141 | 
+   142 |       const btnMismatch = result3.mismatches.find(m => m.element_id === 'btn-1');
+   143 | 
+   144 |       if (
+   145 |         result3.consistent === false &&
+   146 |         Array.isArray(result3.mismatches) &&
+   147 |         result3.mismatches.length === 1 &&
+   148 |         btnMismatch
+   149 |       ) {
+   150 |         log('TEST 3 PASSED (correctly caught over-redaction)', 'pass');
+   151 |         passCount++;
+   152 |       } else {
+   153 |         log('TEST 3 FAILED: Expected consistent === false and mismatch for btn-1', 'fail');
+   154 |       }
+   155 |     } catch (err) {
+   156 |       log('TEST 3 FAILED with unexpected exception: ' + err.message, 'fail');
+   157 |     }
+   158 | 
+   159 |     // TEST CASE 4 — assertChannelsConsistent() throwing behavior
+   160 |     logHeader('--- TEST CASE 4: assertChannelsConsistent() throwing behavior ---');
+   161 |     try {
+   162 |       const redactedRegions4 = [];
+   163 |       let threw = false;
+   164 |       let caughtError = null;
+   165 | 
+   166 |       try {
+   167 |         assertChannelsConsistent(basePayload, redactedRegions4);
+   168 |       } catch (e) {
+   169 |         threw = true;
+   170 |         caughtError = e;
+   171 |       }
+   172 | 
+   173 |       if (threw && caughtError && caughtError.message.includes('card-1')) {
+   174 |         log('Caught expected Error: ' + caughtError.message, 'info');
+   175 |         log('TEST 4 PASSED (threw correctly)', 'pass');
+   176 |         passCount++;
+   177 |       } else if (!threw) {
+   178 |         log('TEST 4 FAILED (did not throw)', 'fail');
+   179 |       } else {
+   180 |         log('TEST 4 FAILED (wrong error message): ' + caughtError.message, 'fail');
+   181 |       }
+   182 |     } catch (err) {
+   183 |       log('TEST 4 FAILED with unexpected exception: ' + err.message, 'fail');
+   184 |     }
+   185 | 
+   186 |     // SUMMARY LINE
+   187 |     log('\n' + '='.repeat(40), 'info');
+   188 |     const summaryText = `${passCount} / ${totalTests} tests passed`;
+   189 |     if (passCount === totalTests) {
+   190 |       log(summaryText, 'pass summary-pass');
+   191 |     } else {
+   192 |       log(summaryText, 'fail summary-fail');
+   193 |     }
+   194 |   </script>
+   195 | </body>
+   196 | </html>
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_67857afde26cec8c","file":"dev 2/test-dev2.js","start_line":1,"end_line":15,"language":"javascript","kind":"file_context","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+     1 | import assert from 'assert';
+     2 | import { detectPII } from './pii-patterns.js';
+     3 | import { classifyElement } from './dom-heuristics.js';
+     4 | import { classifySensitivity, classifyActionRisk } from './sensitivity-tiers.js';
+     5 | import { createTokenVault } from './token-vault.js';
+     6 | import { getVaultForSession, endSession, getActiveSessionCount, cleanExpiredSessions } from './session-vault-manager.js';
+     7 | import { auditPayload, assertSafeToSend, createSecureTransport } from './leakage-auditor.js';
+     8 | import { processPageForRedaction } from './redaction-engine.js';
+     9 | import { checkChannelConsistency, assertChannelsConsistent } from './channel-consistency-check.js';
+    10 | 
+    11 | console.log('=== RUNNING DEV 2 PRIVACY PIPELINE VERIFICATION SUITE ===\n');
+    12 | 
+    13 | let passCount = 0;
+    14 | let totalCount = 0;
+    15 | 
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_ed85ddf1f1052e8c","file":"dev 2/test-dev2.js","start_line":16,"end_line":26,"language":"javascript","kind":"function","entity":"runTestCase","qualified_name":"runTestCase","parent_entity_id":null,"role_hints":[]}>>>
+    16 | function runTestCase(name, fn) {
+    17 |   totalCount++;
+    18 |   try {
+    19 |     fn();
+    20 |     passCount++;
+    21 |     console.log(`[PASS] Test ${totalCount}: ${name}`);
+    22 |   } catch (err) {
+    23 |     console.error(`[FAIL] Test ${totalCount}: ${name}\n  Error: ${err.message}`);
+    24 |     throw err;
+    25 |   }
+    26 | }
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_5e64905f238cb9cb","file":"dev 2/test-dev2.js","start_line":27,"end_line":262,"language":"javascript","kind":"file_context","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+    27 | 
+    28 | // 1. CARD_NUMBER detection -> sensitivity_tier = 1
+    29 | runTestCase('CARD_NUMBER detection -> sensitivity_tier = 1', () => {
+    30 |   const cardElementClass = { tag: 'input', role: null, label_text: 'Card Number', is_sensitive: true, sensitivity_type: 'CARD_NUMBER' };
+    31 |   const cardPii = detectPII('4111 1111 1111 1111');
+    32 |   assert.strictEqual(cardPii.length, 1);
+    33 |   assert.strictEqual(cardPii[0].type, 'CARD_NUMBER');
+    34 | 
+    35 |   const vault = createTokenVault();
+    36 |   const res = classifySensitivity(cardElementClass, cardPii, '4111 1111 1111 1111', vault);
+    37 |   assert.strictEqual(res.sensitivity_tier, 1, 'CARD_NUMBER detection must have sensitivity_tier = 1');
+    38 |   assert.strictEqual(res.sensitivity_type, 'CARD_NUMBER');
+    39 |   assert.strictEqual(res.semantic_token, '[CARD_NUMBER_1]');
+    40 | });
+    41 | 
+    42 | // 2. CARD_NUMBER typing action -> risk_tier = "risky"
+    43 | runTestCase('CARD_NUMBER typing action -> risk_tier = "risky"', () => {
+    44 |   const action = {
+    45 |     type: 'type',
+    46 |     target_element_id: 'card-number-input',
+    47 |     value: '[CARD_NUMBER_1]'
+    48 |   };
+    49 |   const riskTier = classifyActionRisk(action);
+    50 |   assert.strictEqual(riskTier, 'risky', 'CARD_NUMBER typing action must have risk_tier = "risky"');
+    51 |   assert.notStrictEqual(riskTier, 1, 'risk_tier MUST NOT be numeric 1');
+    52 | });
+    53 | 
+    54 | // 3. Normal safe action -> risk_tier = "safe"
+    55 | runTestCase('Normal safe action -> risk_tier = "safe"', () => {
+    56 |   const action = {
+    57 |     type: 'click',
+    58 |     target_element_id: 'nav-home-link',
+    59 |     value: null
+    60 |   };
+    61 |   const riskTier = classifyActionRisk(action);
+    62 |   assert.strictEqual(riskTier, 'safe', 'Normal action must have risk_tier = "safe"');
+    63 |   assert.notStrictEqual(riskTier, 3, 'risk_tier MUST NOT be numeric 3');
+    64 | });
+    65 | 
+    66 | // 4. Semantic token [CARD_NUMBER_1] format
+    67 | runTestCase('Semantic token [CARD_NUMBER_1] format', () => {
+    68 |   const vault = createTokenVault();
+    69 |   const token = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+    70 |   assert.strictEqual(token, '[CARD_NUMBER_1]', 'Semantic token format must remain [CARD_NUMBER_1]');
+    71 | });
+    72 | 
+    73 | // 5. assertSafeToSend() still blocks raw PII
+    74 | runTestCase('assertSafeToSend() still blocks raw PII', () => {
+    75 |   const cleanPayload = {
+    76 |     dom_summary: {
+    77 |       elements: [{ element_id: 'c1', semantic_token: '[CARD_NUMBER_1]' }]
+    78 |     }
+    79 |   };
+    80 |   assert.doesNotThrow(() => assertSafeToSend(cleanPayload, detectPII));
+    81 | 
+    82 |   const leakedPayload = {
+    83 |     dom_summary: {
+    84 |       elements: [{ element_id: 'c1', label_text: '4111 1111 1111 1111' }]
+    85 |     }
+    86 |   };
+    87 |   assert.throws(() => assertSafeToSend(leakedPayload, detectPII), /Payload safety audit failed/);
+    88 | });
+    89 | 
+    90 | // 6. Basic Token Vault session isolation
+    91 | runTestCase('Basic Token Vault session isolation', () => {
+    92 |   const sessionId = 'session-test-basic';
+    93 |   const vault = getVaultForSession(sessionId);
+    94 |   const token = vault.getOrCreateToken('user@example.com', 'EMAIL');
+    95 |   assert.strictEqual(token, '[EMAIL_1]');
+    96 |   assert.strictEqual(vault.resolveToken('[EMAIL_1]'), 'user@example.com');
+    97 | 
+    98 |   endSession(sessionId);
+    99 |   assert.strictEqual(vault.resolveToken('[EMAIL_1]'), null);
+   100 | });
+   101 | 
+   102 | // 7. Verify numeric risk_tier conversion
+   103 | runTestCase('Numeric risk_tier converted properly to string enum ("safe" | "risky")', () => {
+   104 |   const actionWithNumeric1 = { type: 'type', target_element_id: 'card-input', value: '[CARD_NUMBER_1]', risk_tier: 1 };
+   105 |   assert.strictEqual(classifyActionRisk(actionWithNumeric1), 'risky');
+   106 | 
+   107 |   const actionWithNumeric3 = { type: 'click', target_element_id: 'btn-back', risk_tier: 3 };
+   108 |   assert.strictEqual(classifyActionRisk(actionWithNumeric3), 'safe');
+   109 | });
+   110 | 
+   111 | // 8. Specific validation of sensitivity_tier (1, 2, 3) & action risk_tier ("safe", "risky")
+   112 | runTestCase('sensitivity_tier (1,2,3) & action risk_tier ("safe","risky") strictly validated', () => {
+   113 |   const tier1Res = classifySensitivity({ sensitivity_type: 'CARD_NUMBER' }, []);
+   114 |   assert.strictEqual(tier1Res.sensitivity_tier, 1);
+   115 | 
+   116 |   const tier2Res = classifySensitivity({ sensitivity_type: 'EMAIL' }, []);
+   117 |   assert.strictEqual(tier2Res.sensitivity_tier, 2);
+   118 | 
+   119 |   const tier3Res = classifySensitivity({ sensitivity_type: 'UNKNOWN' }, []);
+   120 |   assert.strictEqual(tier3Res.sensitivity_tier, 3);
+   121 | 
+   122 |   const safeAction = { type: 'click', target_element_id: 'btn-home', risk_tier: 'safe' };
+   123 |   assert.strictEqual(classifyActionRisk(safeAction), 'safe');
+   124 | 
+   125 |   const riskyAction = { type: 'type', target_element_id: 'card-input', risk_tier: 'risky' };
+   126 |   assert.strictEqual(classifyActionRisk(riskyAction), 'risky');
+   127 | });
+   128 | 
+   129 | // Helper mocks for E2E tests
+   130 | const validBase64Padding = 'A'.repeat(120);
+   131 | const mockCanvas = {
+   132 |   getContext: () => ({
+   133 |     fillRect: () => {},
+   134 |     clearRect: () => {},
+   135 |     getImageData: () => ({ data: new Uint8ClampedArray(4) })
+   136 |   }),
+   137 |   toDataURL: () => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' + validBase64Padding
+   138 | };
+   139 | 
+   140 | // --- END-TO-END SPECIFIC VERIFICATION TEST CASES (1-12) ---
+   141 | 
+   142 | // E2E Test 1: Tier-1 card number full pipeline flow
+   143 | runTestCase('E2E Case 1: Tier-1 card number full pipeline flow', () => {
+   144 |   const mockCardElement = {
+   145 |     id: 'card-input-e2e',
+   146 |     tagName: 'INPUT',
+   147 |     type: 'text',
+   148 |     value: '4111 1111 1111 1111',
+   149 |     getAttribute: (attr) => (attr === 'autocomplete' ? 'cc-number' : null),
+   150 |     getBoundingClientRect: () => ({ x: 10, y: 20, width: 200, height: 30 })
+   151 |   };
+   152 | 
+   153 |   const vault = createTokenVault();
+   154 |   const payload = processPageForRedaction([mockCardElement], mockCanvas, vault);
+   155 | 
+   156 |   // Assert Tier 1 & token creation
+   157 |   const cardElem = payload.dom_summary.elements[0];
+   158 |   assert.strictEqual(cardElem.sensitivity_tier, 1);
+   159 |   assert.strictEqual(cardElem.semantic_token, '[CARD_NUMBER_1]');
+   160 |   assert.strictEqual(cardElem.is_sensitive, true);
+   161 | 
+   162 |   // Assert visual region metadata created
+   163 |   assert.strictEqual(payload.redacted_regions.length, 1);
+   164 |   assert.strictEqual(payload.redacted_regions[0].element_id, 'card-input-e2e');
+   165 | 
+   166 |   // Assert dual-channel consistency & leak audit pass
+   167 |   assert.doesNotThrow(() => assertChannelsConsistent(payload, payload.redacted_regions));
+   168 |   assert.doesNotThrow(() => assertSafeToSend(payload, detectPII));
+   169 | });
+   170 | 
+   171 | // E2E Test 2: Same card appears again in the same session -> reuse token
+   172 | runTestCase('E2E Case 2: Same card appears again in same session -> reuse [CARD_NUMBER_1]', () => {
+   173 |   const vault = createTokenVault();
+   174 |   const t1 = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+   175 |   const t2 = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+   176 | 
+   177 |   assert.strictEqual(t1, '[CARD_NUMBER_1]');
+   178 |   assert.strictEqual(t2, t1, 'Must strictly reuse exact same token instance');
+   179 | });
+   180 | 
+   181 | // E2E Test 3: Different card in same session -> receives different token
+   182 | runTestCase('E2E Case 3: Different card in same session -> receives [CARD_NUMBER_2]', () => {
+   183 |   const vault = createTokenVault();
+   184 |   const t1 = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+   185 |   const t2 = vault.getOrCreateToken('5500 0000 0000 0004', 'CARD_NUMBER');
+   186 | 
+   187 |   assert.strictEqual(t1, '[CARD_NUMBER_1]');
+   188 |   assert.strictEqual(t2, '[CARD_NUMBER_2]');
+   189 |   assert.notStrictEqual(t1, t2);
+   190 | });
+   191 | 
+   192 | // E2E Test 4: Same card in another session -> session isolation guaranteed
+   193 | runTestCase('E2E Case 4: Same card in another session -> no token state sharing across sessions', () => {
+   194 |   const sessionA = 'session-alpha-123';
+   195 |   const sessionB = 'session-beta-456';
+   196 | 
+   197 |   const vaultA = getVaultForSession(sessionA);
+   198 |   const vaultB = getVaultForSession(sessionB);
+   199 | 
+   200 |   const tA = vaultA.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+   201 |   const tB = vaultB.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+   202 | 
+   203 |   assert.strictEqual(tA, '[CARD_NUMBER_1]');
+   204 |   assert.strictEqual(tB, '[CARD_NUMBER_1]'); // Both start index at 1 independently
+   205 | 
+   206 |   // Verify resolution maps are isolated per session
+   207 |   endSession(sessionA);
+   208 |   assert.strictEqual(vaultA.resolveToken('[CARD_NUMBER_1]'), null);
+   209 |   assert.strictEqual(vaultB.resolveToken('[CARD_NUMBER_1]'), '4111 1111 1111 1111');
+   210 | 
+   211 |   endSession(sessionB);
+   212 | });
+   213 | 
+   214 | // E2E Test 5: Token resolution locally & raw value absent from payload
+   215 | runTestCase('E2E Case 5: Token resolves to raw value locally, absent from outgoing payload', () => {
+   216 |   const vault = createTokenVault();
+   217 |   const mockCardElement = {
+   218 |     id: 'card-input-5',
+   219 |     tagName: 'INPUT',
+   220 |     type: 'text',
+   221 |     value: '4111 1111 1111 1111',
+   222 |     getAttribute: (attr) => (attr === 'autocomplete' ? 'cc-number' : null),
+   223 |     getBoundingClientRect: () => ({ x: 10, y: 20, width: 200, height: 30 })
+   224 |   };
+   225 | 
+   226 |   const payload = processPageForRedaction([mockCardElement], mockCanvas, vault);
+   227 | 
+   228 |   // Local resolution succeeds
+   229 |   assert.strictEqual(vault.resolveToken('[CARD_NUMBER_1]'), '4111 1111 1111 1111');
+   230 | 
+   231 |   // Outgoing payload contains NO raw PII string anywhere
+   232 |   const payloadStr = JSON.stringify(payload);
+   233 |   assert.strictEqual(payloadStr.includes('4111 1111 1111 1111'), false);
+   234 |   assert.strictEqual(payloadStr.includes('4111111111111111'), false);
+   235 | });
+   236 | 
+   237 | // E2E Test 6: Layer 4 mismatch -> fails closed
+   238 | runTestCase('E2E Case 6: Layer 4 mismatch -> fails closed', () => {
+   239 |   const mockCardElement = {
+   240 |     id: 'card-input-6',
+   241 |     tagName: 'INPUT',
+   242 |     type: 'text',
+   243 |     value: '4111 1111 1111 1111',
+   244 |     getAttribute: (attr) => (attr === 'autocomplete' ? 'cc-number' : null),
+   245 |     getBoundingClientRect: () => ({ x: 10, y: 20, width: 200, height: 30 })
+   246 |   };
+   247 | 
+   248 |   const vault = createTokenVault();
+   249 |   const payload = processPageForRedaction([mockCardElement], mockCanvas, vault);
+   250 | 
+   251 |   // Omit visual redaction region to simulate visual engine failure
+   252 |   const corruptedRegions = [];
+   253 | 
+   254 |   assert.throws(
+   255 |     () => assertChannelsConsistent(payload, corruptedRegions),
+   256 |     /Channel consistency check failed/
+   257 |   );
+   258 | });
+   259 | 
+   260 | // E2E Test 7: Leak injection -> auditor rejects & zero transport calls
+   261 | runTestCase('E2E Case 7: Leak injection -> auditor rejects & zero transport calls', () => {
+   262 |   let calls = 0;
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_a1dae6e60a1ad585","file":"dev 2/test-dev2.js","start_line":263,"end_line":263,"language":"javascript","kind":"function","entity":"mockTransport","qualified_name":"mockTransport","parent_entity_id":null,"role_hints":[]}>>>
+   263 |   const mockTransport = () => { calls++; };
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_1a84ab213763f74d","file":"dev 2/test-dev2.js","start_line":264,"end_line":287,"language":"javascript","kind":"file_context","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+   264 |   const send = createSecureTransport(mockTransport, detectPII);
+   265 | 
+   266 |   const leakedPayload = {
+   267 |     redacted_image_base64: 'A'.repeat(120),
+   268 |     dom_summary: {
+   269 |       elements: [
+   270 |         {
+   271 |           element_id: 'elem-7',
+   272 |           semantic_token: '[CARD_NUMBER_1]',
+   273 |           nestedMetadata: {
+   274 |             leakedCard: '4111 1111 1111 1111'
+   275 |           }
+   276 |         }
+   277 |       ]
+   278 |     }
+   279 |   };
+   280 | 
+   281 |   assert.throws(() => send(leakedPayload), /Payload safety audit failed/);
+   282 |   assert.strictEqual(calls, 0, 'Transport MUST NOT be invoked when leakage auditor rejects payload');
+   283 | });
+   284 | 
+   285 | // E2E Test 8: Safe semantic token allowed through sanitized payload
+   286 | runTestCase('E2E Case 8: [CARD_NUMBER_1] semantic token allowed through payload', () => {
+   287 |   let calls = 0;
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_656767c73b3b87fb","file":"dev 2/test-dev2.js","start_line":288,"end_line":288,"language":"javascript","kind":"function","entity":"mockTransport","qualified_name":"mockTransport","parent_entity_id":null,"role_hints":[]}>>>
+   288 |   const mockTransport = () => { calls++; };
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_f37a29daf654de81","file":"dev 2/test-dev2.js","start_line":289,"end_line":387,"language":"javascript","kind":"file_context","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+   289 |   const send = createSecureTransport(mockTransport, detectPII);
+   290 | 
+   291 |   const cleanPayload = {
+   292 |     redacted_image_base64: 'A'.repeat(120),
+   293 |     dom_summary: {
+   294 |       url: 'https://checkout.example.com',
+   295 |       elements: [{ element_id: 'card-1', semantic_token: '[CARD_NUMBER_1]' }]
+   296 |     }
+   297 |   };
+   298 | 
+   299 |   assert.doesNotThrow(() => send(cleanPayload));
+   300 |   assert.strictEqual(calls, 1);
+   301 | });
+   302 | 
+   303 | // E2E Test 9: Session cleanup (task_complete clears vault)
+   304 | runTestCase('E2E Case 9: Session cleanup (task_complete clears vault)', () => {
+   305 |   const sessionId = 'session-complete-9';
+   306 |   const vault = getVaultForSession(sessionId);
+   307 |   vault.getOrCreateToken('user@example.com', 'EMAIL');
+   308 | 
+   309 |   assert.strictEqual(getActiveSessionCount() >= 1, true);
+   310 | 
+   311 |   // Simulate task_complete cleanup
+   312 |   endSession(sessionId);
+   313 | 
+   314 |   assert.strictEqual(vault.resolveToken('[EMAIL_1]'), null);
+   315 |   assert.strictEqual(vault.getStats().totalTokens, 0);
+   316 | });
+   317 | 
+   318 | // E2E Test 10: Failure cleanup (task_failed clears vault)
+   319 | runTestCase('E2E Case 10: Failure cleanup (task_failed clears vault)', () => {
+   320 |   const sessionId = 'session-failed-10';
+   321 |   const vault = getVaultForSession(sessionId);
+   322 |   vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+   323 | 
+   324 |   // Simulate task_failed error recovery teardown
+   325 |   try {
+   326 |     throw new Error('Simulated task execution error');
+   327 |   } catch (err) {
+   328 |     endSession(sessionId);
+   329 |   }
+   330 | 
+   331 |   assert.strictEqual(vault.resolveToken('[CARD_NUMBER_1]'), null);
+   332 |   assert.strictEqual(vault.getStats().totalTokens, 0);
+   333 | });
+   334 | 
+   335 | // E2E Test 11: Timeout/expired session behavior -> vault invalidated on expiration
+   336 | runTestCase('E2E Case 11: Timeout/expired session behavior -> vault invalidated after TTL', () => {
+   337 |   const sessionId = 'session-expired-11';
+   338 |   // Retrieve vault with 1ms TTL
+   339 |   const vault1 = getVaultForSession(sessionId, 1);
+   340 |   vault1.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+   341 | 
+   342 |   // Busy wait 5ms to guarantee expiration
+   343 |   const start = Date.now();
+   344 |   while (Date.now() - start < 5) {}
+   345 | 
+   346 |   // Requesting vault after TTL should trigger automatic expiration cleanup & return a fresh vault
+   347 |   const vault2 = getVaultForSession(sessionId, 1);
+   348 |   assert.notStrictEqual(vault1, vault2, 'Expired session must return a fresh new vault instance');
+   349 |   assert.strictEqual(vault2.resolveToken('[CARD_NUMBER_1]'), null, 'Expired tokens must not resolve');
+   350 | 
+   351 |   endSession(sessionId);
+   352 | });
+   353 | 
+   354 | // E2E Test 12: Final payload inspection -> recursive proof no raw PII exists anywhere
+   355 | runTestCase('E2E Case 12: Final payload inspection -> recursive proof no raw sensitive values exist anywhere', () => {
+   356 |   const mockCard = {
+   357 |     id: 'card-12',
+   358 |     tagName: 'INPUT',
+   359 |     type: 'text',
+   360 |     value: '4111 1111 1111 1111',
+   361 |     getAttribute: (attr) => (attr === 'autocomplete' ? 'cc-number' : null),
+   362 |     getBoundingClientRect: () => ({ x: 10, y: 20, width: 200, height: 30 })
+   363 |   };
+   364 | 
+   365 |   const mockEmail = {
+   366 |     id: 'email-12',
+   367 |     tagName: 'INPUT',
+   368 |     type: 'email',
+   369 |     value: 'user12@example.com',
+   370 |     getAttribute: (attr) => (attr === 'autocomplete' ? 'email' : null),
+   371 |     getBoundingClientRect: () => ({ x: 10, y: 60, width: 200, height: 30 })
+   372 |   };
+   373 | 
+   374 |   const mockPwd = {
+   375 |     id: 'pwd-12',
+   376 |     tagName: 'INPUT',
+   377 |     type: 'password',
+   378 |     value: 'SuperSecret12!Pass',
+   379 |     getAttribute: (attr) => (attr === 'type' ? 'password' : null),
+   380 |     getBoundingClientRect: () => ({ x: 10, y: 100, width: 200, height: 30 })
+   381 |   };
+   382 | 
+   383 |   const vault = createTokenVault();
+   384 |   const payload = processPageForRedaction([mockCard, mockEmail, mockPwd], mockCanvas, vault);
+   385 | 
+   386 |   const rawValuesToVerify = ['4111 1111 1111 1111', '4111111111111111', 'user12@example.com', 'SuperSecret12!Pass'];
+   387 | 
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_4b07b91e50a4e294","file":"dev 2/test-dev2.js","start_line":388,"end_line":420,"language":"javascript","kind":"function","entity":"walkObject","qualified_name":"walkObject","parent_entity_id":null,"role_hints":[]}>>>
+   388 |   function walkObject(node, path = '') {
+   389 |     if (node === null || node === undefined) return;
+   390 |     if (path === 'redacted_image_base64') return;
+   391 | 
+   392 |     if (typeof node === 'string') {
+   393 |       for (const rawVal of rawValuesToVerify) {
+   394 |         assert.strictEqual(
+   395 |           node.includes(rawVal),
+   396 |           false,
+   397 |           `Raw sensitive value "${rawVal}" MUST NOT exist in payload string at path "${path}"`
+   398 |         );
+   399 |       }
+   400 |       return;
+   401 |     }
+   402 | 
+   403 |     if (typeof node !== 'object') return;
+   404 | 
+   405 |     if (Array.isArray(node)) {
+   406 |       for (let i = 0; i < node.length; i++) {
+   407 |         walkObject(node[i], `${path}[${i}]`);
+   408 |       }
+   409 |       return;
+   410 |     }
+   411 | 
+   412 |     for (const key of Object.keys(node)) {
+   413 |       walkObject(node[key], path ? `${path}.${key}` : key);
+   414 |     }
+   415 |   }
+   416 | 
+   417 |   walkObject(payload);
+   418 | });
+   419 | 
+   420 | console.log(`\n--- ALL ${passCount} / ${totalCount} DEV 2 TESTS PASSED SUCCESSFULLY ---`);
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_0f2e83f21379a98b","file":"dev 2/test-token-vault.html","start_line":1,"end_line":203,"language":"html","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":["html_page"]}>>>
+     1 | <!DOCTYPE html>
+     2 | <html lang="en">
+     3 | <head>
+     4 |   <meta charset="UTF-8">
+     5 |   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6 |   <title>Token Vault Tests</title>
+     7 |   <style>
+     8 |     body {
+     9 |       background-color: #121212;
+    10 |       color: #e0e0e0;
+    11 |       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    12 |       padding: 20px;
+    13 |       margin: 0;
+    14 |     }
+    15 |     h1 {
+    16 |       color: #ffffff;
+    17 |       font-size: 1.5rem;
+    18 |       margin-top: 0;
+    19 |     }
+    20 |     #console {
+    21 |       background-color: #1e1e1e;
+    22 |       border: 1px solid #333333;
+    23 |       border-radius: 6px;
+    24 |       padding: 16px;
+    25 |       font-family: 'Courier New', Courier, monospace;
+    26 |       font-size: 14px;
+    27 |       line-height: 1.5;
+    28 |       white-space: pre-wrap;
+    29 |       overflow-x: auto;
+    30 |     }
+    31 |     .header {
+    32 |       color: #ffd700;
+    33 |       font-weight: bold;
+    34 |     }
+    35 |     .pass {
+    36 |       color: #4caf50;
+    37 |       font-weight: bold;
+    38 |     }
+    39 |     .fail {
+    40 |       color: #f44336;
+    41 |       font-weight: bold;
+    42 |     }
+    43 |     .info {
+    44 |       color: #9e9e9e;
+    45 |     }
+    46 |     .summary-pass {
+    47 |       color: #4caf50;
+    48 |       font-size: 16px;
+    49 |       font-weight: bold;
+    50 |     }
+    51 |     .summary-fail {
+    52 |       color: #f44336;
+    53 |       font-size: 16px;
+    54 |       font-weight: bold;
+    55 |     }
+    56 |   </style>
+    57 | </head>
+    58 | <body>
+    59 |   <h1>Token Vault Test Runner</h1>
+    60 |   <div id="console"></div>
+    61 | 
+    62 |   <script type="module">
+    63 |     import { createTokenVault } from './token-vault.js';
+    64 | 
+    65 |     const consoleDiv = document.getElementById('console');
+    66 |     let passCount = 0;
+    67 |     const totalTests = 5;
+    68 | 
+    69 |     function log(message, className = '') {
+    70 |       const span = document.createElement('span');
+    71 |       if (className) {
+    72 |         span.className = className;
+    73 |       }
+    74 |       span.textContent = message + '\n';
+    75 |       consoleDiv.appendChild(span);
+    76 |     }
+    77 | 
+    78 |     function logHeader(text) {
+    79 |       log('\n' + text, 'header');
+    80 |     }
+    81 | 
+    82 |     const vault = createTokenVault();
+    83 | 
+    84 |     // TEST 1 — First-time value gets a fresh token
+    85 |     logHeader('--- TEST 1: First-time value gets a fresh token ---');
+    86 |     try {
+    87 |       const token1 = vault.getOrCreateToken('4111111111111111', 'CARD_NUMBER');
+    88 |       log('Actual token1: ' + JSON.stringify(token1), 'info');
+    89 | 
+    90 |       if (token1 === '[CARD_NUMBER_1]') {
+    91 |         log('TEST 1 PASSED: Token correctly initialized to [CARD_NUMBER_1]', 'pass');
+    92 |         passCount++;
+    93 |       } else {
+    94 |         log('TEST 1 FAILED: Expected "[CARD_NUMBER_1]", got ' + JSON.stringify(token1), 'fail');
+    95 |       }
+    96 |     } catch (err) {
+    97 |       log('TEST 1 FAILED with unexpected exception: ' + err.message, 'fail');
+    98 |     }
+    99 | 
+   100 |     // TEST 2 — Same value seen again returns the SAME token
+   101 |     logHeader('--- TEST 2: Same value returns the SAME token ---');
+   102 |     try {
+   103 |       const token1 = vault.getOrCreateToken('4111111111111111', 'CARD_NUMBER');
+   104 |       const token2 = vault.getOrCreateToken('4111111111111111', 'CARD_NUMBER');
+   105 |       log('Actual token2: ' + JSON.stringify(token2), 'info');
+   106 | 
+   107 |       if (token2 === token1 && token2 === '[CARD_NUMBER_1]') {
+   108 |         log('TEST 2 PASSED: Identical value returned same token strictly (token2 === token1)', 'pass');
+   109 |         passCount++;
+   110 |       } else {
+   111 |         log('TEST 2 FAILED: Expected token2 === token1 === "[CARD_NUMBER_1]", got token2=' + JSON.stringify(token2), 'fail');
+   112 |       }
+   113 |     } catch (err) {
+   114 |       log('TEST 2 FAILED with unexpected exception: ' + err.message, 'fail');
+   115 |     }
+   116 | 
+   117 |     // TEST 3 — A DIFFERENT value of the same type gets a NEW incrementing token
+   118 |     logHeader('--- TEST 3: Different value gets a NEW incrementing token ---');
+   119 |     try {
+   120 |       const token1 = vault.getOrCreateToken('4111111111111111', 'CARD_NUMBER');
+   121 |       const token3 = vault.getOrCreateToken('5500000000000004', 'CARD_NUMBER');
+   122 |       log('Actual token3: ' + JSON.stringify(token3), 'info');
+   123 | 
+   124 |       if (token3 === '[CARD_NUMBER_2]' && token3 !== token1) {
+   125 |         log('TEST 3 PASSED: New value got incremented token [CARD_NUMBER_2]', 'pass');
+   126 |         passCount++;
+   127 |       } else {
+   128 |         log('TEST 3 FAILED: Expected "[CARD_NUMBER_2]" distinct from token1, got ' + JSON.stringify(token3), 'fail');
+   129 |       }
+   130 |     } catch (err) {
+   131 |       log('TEST 3 FAILED with unexpected exception: ' + err.message, 'fail');
+   132 |     }
+   133 | 
+   134 |     // TEST 4 — resolveToken() correctly reverses token back to raw value, returns null for unknown
+   135 |     logHeader('--- TEST 4: resolveToken() reverse lookup ---');
+   136 |     try {
+   137 |       const resolved1 = vault.resolveToken('[CARD_NUMBER_1]');
+   138 |       const resolvedUnknown = vault.resolveToken('[CARD_NUMBER_999]');
+   139 |       log('Resolved [CARD_NUMBER_1]: ' + JSON.stringify(resolved1), 'info');
+   140 |       log('Resolved [CARD_NUMBER_999]: ' + JSON.stringify(resolvedUnknown), 'info');
+   141 | 
+   142 |       if (resolved1 === '4111111111111111' && resolvedUnknown === null) {
+   143 |         log('TEST 4 PASSED: Resolved correctly ("4111111111111111" and null for unknown)', 'pass');
+   144 |         passCount++;
+   145 |       } else {
+   146 |         log(
+   147 |           'TEST 4 FAILED: Expected resolved1 === "4111111111111111" (got ' +
+   148 |             JSON.stringify(resolved1) +
+   149 |             ') and resolvedUnknown === null (got ' +
+   150 |             JSON.stringify(resolvedUnknown) +
+   151 |             ')',
+   152 |           'fail'
+   153 |         );
+   154 |       }
+   155 |     } catch (err) {
+   156 |       log('TEST 4 FAILED with unexpected exception: ' + err.message, 'fail');
+   157 |     }
+   158 | 
+   159 |     // TEST 5 — clear() wipes state, getStats() reflects it, resolution fails
+   160 |     logHeader('--- TEST 5: clear() wipes vault state ---');
+   161 |     try {
+   162 |       vault.clear();
+   163 |       const statsAfterClear = vault.getStats();
+   164 |       const resolvedAfterClear = vault.resolveToken('[CARD_NUMBER_1]');
+   165 |       log('statsAfterClear: ' + JSON.stringify(statsAfterClear), 'info');
+   166 |       log('resolvedAfterClear: ' + JSON.stringify(resolvedAfterClear), 'info');
+   167 | 
+   168 |       if (statsAfterClear.totalTokens === 0 && resolvedAfterClear === null) {
+   169 |         log('TEST 5 PASSED: clear() successfully wiped all tokens and stats', 'pass');
+   170 |         passCount++;
+   171 |       } else {
+   172 |         log(
+   173 |           'TEST 5 FAILED: Expected totalTokens === 0 (got ' +
+   174 |             statsAfterClear.totalTokens +
+   175 |             ') and resolvedAfterClear === null (got ' +
+   176 |             JSON.stringify(resolvedAfterClear) +
+   177 |             ')',
+   178 |           'fail'
+   179 |         );
+   180 |       }
+   181 |     } catch (err) {
+   182 |       log('TEST 5 FAILED with unexpected exception: ' + err.message, 'fail');
+   183 |     }
+   184 | 
+   185 |     // BONUS SECURITY CHECK
+   186 |     logHeader('--- BONUS SECURITY CHECK ---');
+   187 |     if (vault.getAllValues === undefined && vault.getAllTokens === undefined) {
+   188 |       log('Security check: no bulk-export method exposed', 'pass');
+   189 |     } else {
+   190 |       log('Security check WARNING: bulk-export method detected on vault instance!', 'fail');
+   191 |     }
+   192 | 
+   193 |     // SUMMARY LINE
+   194 |     log('\n' + '='.repeat(40), 'info');
+   195 |     const summaryText = `${passCount} / ${totalTests} tests passed`;
+   196 |     if (passCount === totalTests) {
+   197 |       log(summaryText, 'pass summary-pass');
+   198 |     } else {
+   199 |       log(summaryText, 'fail summary-fail');
+   200 |     }
+   201 |   </script>
+   202 | </body>
+   203 | </html>
+<<<END_CHUNK>>>
+
+<<<CHUNK {"chunk_id":"chunk_673f99a40f4762f8","file":"dev 2/token-vault.js","start_line":1,"end_line":96,"language":"javascript","kind":"whole_file","entity":null,"qualified_name":null,"parent_entity_id":null,"role_hints":[]}>>>
+     1 | /**
+     2 |  * Creates an in-memory token vault for session-scoped mapping between sensitive values and tokens.
+     3 |  * @returns {{
+     4 |  *   getOrCreateToken: (rawValue: string, sensitivityType: string) => string,
+     5 |  *   resolveToken: (token: string) => string | null,
+     6 |  *   hasToken: (token: string) => boolean,
+     7 |  *   clear: () => void,
+     8 |  *   getStats: () => { totalTokens: number, byType: Record<string, number> }
+     9 |  * }}
+    10 |  */
+    11 | export function createTokenVault() {
+    12 |   const forwardMap = new Map(); // rawValue -> token
+    13 |   const reverseMap = new Map(); // token -> rawValue
+    14 |   const typeCounters = new Map(); // sensitivityType -> current counter integer
+    15 | 
+    16 |   return {
+    17 |     /**
+    18 |      * Gets existing token for rawValue or creates a new indexed token [TYPE_N].
+    19 |      * @param {string} rawValue
+    20 |      * @param {string} sensitivityType
+    21 |      * @returns {string}
+    22 |      */
+    23 |     getOrCreateToken(rawValue, sensitivityType) {
+    24 |       if (typeof rawValue !== 'string' || !rawValue) {
+    25 |         return '';
+    26 |       }
+    27 | 
+    28 |       const typeKey = (sensitivityType || 'UNKNOWN').toUpperCase();
+    29 | 
+    30 |       if (forwardMap.has(rawValue)) {
+    31 |         return forwardMap.get(rawValue);
+    32 |       }
+    33 | 
+    34 |       const currentCount = (typeCounters.get(typeKey) || 0) + 1;
+    35 |       typeCounters.set(typeKey, currentCount);
+    36 | 
+    37 |       const token = `[${typeKey}_${currentCount}]`;
+    38 |       forwardMap.set(rawValue, token);
+    39 |       reverseMap.set(token, rawValue);
+    40 | 
+    41 |       return token;
+    42 |     },
+    43 | 
+    44 |     /**
+    45 |      * Resolves token back to raw value.
+    46 |      * @param {string} token
+    47 |      * @returns {string | null}
+    48 |      */
+    49 |     resolveToken(token) {
+    50 |       if (typeof token !== 'string' || !token) {
+    51 |         return null;
+    52 |       }
+    53 |       return reverseMap.get(token) || null;
+    54 |     },
+    55 | 
+    56 |     /**
+    57 |      * Checks if token exists in the vault.
+    58 |      * @param {string} token
+    59 |      * @returns {boolean}
+    60 |      */
+    61 |     hasToken(token) {
+    62 |       if (typeof token !== 'string' || !token) {
+    63 |         return false;
+    64 |       }
+    65 |       return reverseMap.has(token);
+    66 |     },
+    67 | 
+    68 |     /**
+    69 |      * Clears all mapped tokens and resets state for session teardown.
+    70 |      */
+    71 |     clear() {
+    72 |       forwardMap.clear();
+    73 |       reverseMap.clear();
+    74 |       typeCounters.clear();
+    75 |     },
+    76 | 
+    77 |     /**
+    78 |      * Returns count statistics without exposing raw values or tokens.
+    79 |      * @returns {{ totalTokens: number, byType: Record<string, number> }}
+    80 |      */
+    81 |     getStats() {
+    82 |       const byType = {};
+    83 | 
+    84 |       for (const [token] of reverseMap.entries()) {
+    85 |         const match = token.match(/^\[([A-Z_]+)_\d+\]$/);
+    86 |         const type = match ? match[1] : 'UNKNOWN';
+    87 |         byType[type] = (byType[type] || 0) + 1;
+    88 |       }
+    89 | 
+    90 |       return {
+    91 |         totalTokens: reverseMap.size,
+    92 |         byType
+    93 |       };
+    94 |     }
+    95 |   };
+    96 | }
+<<<END_CHUNK>>>
+
+===== INTERNAL RELATIONSHIPS =====
+{"source_chunk":"chunk_0067432d917d6e5b","target_chunk":"chunk_673f99a40f4762f8","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"createTokenVault","uncertain":false}
+{"source_chunk":"chunk_0067432d917d6e5b","target_chunk":"chunk_673f99a40f4762f8","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_1a84ab213763f74d","target_chunk":"chunk_656767c73b3b87fb","relationship":"same_file","weight":3.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_5e64905f238cb9cb","target_chunk":"chunk_a1dae6e60a1ad585","relationship":"same_file","weight":3.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_221be66be448f92f","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"redactImage","uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_221be66be448f92f","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"canvasToBase64","uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_221be66be448f92f","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_32bff1c580ffdd53","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"detectPII","uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_32bff1c580ffdd53","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_d8e2621583ecfe86","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"classifyElement","uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_d8e2621583ecfe86","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"getElementId","uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_d8e2621583ecfe86","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_fb04c958c99d0987","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"classifySensitivity","uncertain":false}
+{"source_chunk":"chunk_629652fe2a334c23","target_chunk":"chunk_fb04c958c99d0987","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_656767c73b3b87fb","target_chunk":"chunk_f37a29daf654de81","relationship":"same_file","weight":3.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_0067432d917d6e5b","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"getVaultForSession","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_0067432d917d6e5b","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"endSession","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_0067432d917d6e5b","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"getActiveSessionCount","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_0067432d917d6e5b","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"cleanExpiredSessions","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_0067432d917d6e5b","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_04240ed2b40a31ea","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"auditPayload","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_04240ed2b40a31ea","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"assertSafeToSend","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_04240ed2b40a31ea","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"createSecureTransport","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_04240ed2b40a31ea","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_32bff1c580ffdd53","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"detectPII","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_32bff1c580ffdd53","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_629652fe2a334c23","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"processPageForRedaction","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_629652fe2a334c23","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_673f99a40f4762f8","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"createTokenVault","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_673f99a40f4762f8","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_8b94513436b4d877","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"checkChannelConsistency","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_8b94513436b4d877","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"assertChannelsConsistent","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_8b94513436b4d877","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_d8e2621583ecfe86","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"classifyElement","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_d8e2621583ecfe86","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_ed85ddf1f1052e8c","relationship":"same_file","weight":3.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_fb04c958c99d0987","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"classifySensitivity","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_fb04c958c99d0987","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"classifyActionRisk","uncertain":false}
+{"source_chunk":"chunk_67857afde26cec8c","target_chunk":"chunk_fb04c958c99d0987","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_8db9c3d07fa96cc9","target_chunk":"chunk_278ebdb2b721c12a","relationship":"same_entity_segment","weight":10.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_a1dae6e60a1ad585","target_chunk":"chunk_1a84ab213763f74d","relationship":"same_file","weight":3.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_acae45ec085ae4dd","target_chunk":"chunk_8db9c3d07fa96cc9","relationship":"same_entity_segment","weight":10.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_ed85ddf1f1052e8c","target_chunk":"chunk_5e64905f238cb9cb","relationship":"same_file","weight":3.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_f37a29daf654de81","target_chunk":"chunk_4b07b91e50a4e294","relationship":"same_file","weight":3.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_fb04c958c99d0987","target_chunk":"chunk_32bff1c580ffdd53","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"detectPII","uncertain":false}
+{"source_chunk":"chunk_fb04c958c99d0987","target_chunk":"chunk_32bff1c580ffdd53","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}
+{"source_chunk":"chunk_fb04c958c99d0987","target_chunk":"chunk_d8e2621583ecfe86","relationship":"imports_symbol","weight":5.0,"confidence":"high","symbol":"classifyElement","uncertain":false}
+{"source_chunk":"chunk_fb04c958c99d0987","target_chunk":"chunk_d8e2621583ecfe86","relationship":"file_import","weight":2.0,"confidence":"high","symbol":null,"uncertain":false}

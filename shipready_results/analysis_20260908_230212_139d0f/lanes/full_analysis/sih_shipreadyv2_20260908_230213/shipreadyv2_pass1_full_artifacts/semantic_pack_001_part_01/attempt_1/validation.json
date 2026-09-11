@@ -1,0 +1,67 @@
+{
+  "status": "PASSED",
+  "warnings": [],
+  "deterministic_repair_count": 4,
+  "deterministic_repairs": [
+    {
+      "repair_type": "REASSIGN_TO_OVERLAPPING_CHUNK",
+      "file_path": "dev 2/e2e-test.html",
+      "before": {
+        "chunk_id": "chunk_acae45ec085ae4dd",
+        "start_line": 259,
+        "end_line": 264
+      },
+      "after": {
+        "chunk_id": "chunk_8db9c3d07fa96cc9",
+        "start_line": 259,
+        "end_line": 264
+      }
+    },
+    {
+      "repair_type": "CLAMP_TO_NAMED_CHUNK",
+      "file_path": "dev 2/e2e-test.html",
+      "before": {
+        "chunk_id": "chunk_acae45ec085ae4dd",
+        "start_line": 218,
+        "end_line": 240
+      },
+      "after": {
+        "chunk_id": "chunk_acae45ec085ae4dd",
+        "start_line": 218,
+        "end_line": 235
+      }
+    },
+    {
+      "repair_type": "REASSIGN_TO_OVERLAPPING_CHUNK",
+      "file_path": "dev 2/e2e-test.html",
+      "before": {
+        "chunk_id": "chunk_acae45ec085ae4dd",
+        "start_line": 264,
+        "end_line": 271
+      },
+      "after": {
+        "chunk_id": "chunk_8db9c3d07fa96cc9",
+        "start_line": 264,
+        "end_line": 271
+      }
+    },
+    {
+      "repair_type": "CLAMP_TO_NAMED_CHUNK",
+      "file_path": "dev 2/e2e-test.html",
+      "before": {
+        "chunk_id": "chunk_acae45ec085ae4dd",
+        "start_line": 218,
+        "end_line": 240
+      },
+      "after": {
+        "chunk_id": "chunk_acae45ec085ae4dd",
+        "start_line": 218,
+        "end_line": 235
+      }
+    }
+  ],
+  "evidence_reference_count": 41,
+  "path_count": 1,
+  "activation_fact_count": 3,
+  "risk_trigger_fields_present": false
+}

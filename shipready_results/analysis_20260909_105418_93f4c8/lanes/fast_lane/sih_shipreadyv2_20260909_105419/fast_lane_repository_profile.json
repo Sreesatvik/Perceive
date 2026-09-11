@@ -1,0 +1,84 @@
+{
+  "schema_version": "shipreadyv2.fast_lane_profile.v1",
+  "repository_name": "sih",
+  "workspace_root": "C:\\Users\\Sreesatvik\\Documents\\sih",
+  "files_scanned": 120,
+  "language_counts": {
+    "css": 2,
+    "html": 15,
+    "javascript": 42,
+    "python": 22,
+    "typescript": 39
+  },
+  "language_percentages": {
+    "css": 1.67,
+    "html": 12.5,
+    "javascript": 35.0,
+    "python": 18.33,
+    "typescript": 32.5
+  },
+  "application_shapes": [
+    {
+      "shape": "API_SERVICE",
+      "confidence": "HIGH",
+      "evidence": [
+        "6 API/controller signals"
+      ]
+    },
+    {
+      "shape": "WEB_FRONTEND",
+      "confidence": "HIGH",
+      "evidence": [
+        "17 page/UI signals"
+      ]
+    },
+    {
+      "shape": "BACKGROUND_WORKER_OR_CONSUMER",
+      "confidence": "MEDIUM",
+      "evidence": [
+        "extension/src/background/service-worker.ts"
+      ]
+    },
+    {
+      "shape": "CLI_APPLICATION",
+      "confidence": "HIGH",
+      "evidence": [
+        "extension/build.js",
+        "extension/fetch-models.js",
+        "extension/verify-full-checkout.js",
+        "extension/verify-wasm-fallback.js",
+        "extension/verify.js"
+      ]
+    }
+  ],
+  "top_role_hints": {
+    "html_page": 15,
+    "data_model_file": 7,
+    "api_route": 6,
+    "auth_related_file": 6,
+    "has_script_asset": 5,
+    "has_css_asset": 4,
+    "has_form": 3,
+    "entry_or_index_page": 2,
+    "css_stylesheet": 2,
+    "persistence_related_file": 2,
+    "service_file": 1,
+    "transaction_related_file": 1
+  },
+  "entity_kind_counts": {
+    "function": 285,
+    "method": 77,
+    "css_selector": 34,
+    "class": 27,
+    "route_handler": 24,
+    "html_document": 15,
+    "html_heading_h2": 15,
+    "html_heading_h3": 15,
+    "html_title": 13,
+    "html_meta": 12,
+    "html_heading_h1": 12,
+    "html_form": 5,
+    "async_function": 4
+  },
+  "interpretation_boundary": "Fast deterministic profile. Application shapes are evidence-backed hints, not final business classifications."
+}

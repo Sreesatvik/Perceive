@@ -1,0 +1,1801 @@
+{
+  "schema_version": "shipready.critical_business_insight_selector.v4",
+  "rules_version": "proof_obligations.v1.reporting_ceiling.v4",
+  "generated_at": "2026-09-08T17:33:01.096214+00:00",
+  "repository_id": "repository_8b4b76b1fa0c0f95",
+  "repository_name": "sih",
+  "interpretation_boundary": "Selected records are prioritized detections, not automatically confirmed defects. For each record, reporting_ceiling.maximum_allowed_claim is an absolute ceiling. Step 4 may retain or downgrade that category and must never upgrade it.",
+  "reporting_contract": {
+    "category_levels": {
+      "NOT_REPORTABLE": -1,
+      "WORKFLOW_OBSERVATION": 0,
+      "INVESTIGATION_HYPOTHESIS": 1,
+      "EVIDENCE_BACKED_RISK": 2,
+      "CONFIRMED_FLAW": 3
+    },
+    "category_descriptions": {
+      "NOT_REPORTABLE": "The trigger check did not establish a reportable material path.",
+      "WORKFLOW_OBSERVATION": "The code behaviour is observed, but no adverse mechanism is established.",
+      "INVESTIGATION_HYPOTHESIS": "A material detection exists, but one or more required links are inferred or incomplete.",
+      "EVIDENCE_BACKED_RISK": "The risk-shaped mechanism and material consequence are observed; a violated business policy is not proved.",
+      "CONFIRMED_FLAW": "An observed repository rule, requirement, or internal contract is explicitly contradicted by validated evidence."
+    },
+    "step4_may_downgrade": true,
+    "step4_may_upgrade": false,
+    "selected_means": "A prioritized detection, not a confirmed defect."
+  },
+  "rejected_candidates": [
+    {
+      "insight_id": "insight_811a407c7f5e57ff",
+      "family": "STATE_TRANSITION_INTEGRITY",
+      "title": "State-transition integrity path",
+      "decision": "REJECTED",
+      "qualification_status": "REJECTED",
+      "priority": "NOT_SELECTED",
+      "normalized_path_ids": [
+        "business_path_c9bde9037f1f2ad0"
+      ],
+      "component_ids": [
+        "component_b9d0d228c07ccc20"
+      ],
+      "implementation_group_ids": [],
+      "path_summary": "Browser page inspection turns sensitive DOM fields into semantic tokens and a redacted canvas payload for the privacy demo.",
+      "capability": {
+        "statement": "Privacy and redaction orchestration",
+        "semantic_status": "INFERRED",
+        "evidence_refs": [
+          "evidence_9b6cbca6677ba8ed",
+          "evidence_6ba2cf9dd39160f6",
+          "evidence_8696e41ce508aeb2",
+          "evidence_4abbb1f26ea5b9ab",
+          "evidence_a461a3764c513aea",
+          "evidence_30613013357bca47",
+          "evidence_583b6c6c976bb627",
+          "evidence_53a1f4633182a72c",
+          "evidence_c5e18cd07fa5829c",
+          "evidence_1ea01197043e44b8",
+          "evidence_1d29b03867b4d7ef",
+          "evidence_4ef402a9aa91fcca",
+          "evidence_6be1f01f30e5a987",
+          "evidence_7e60c5366638d49d",
+          "evidence_3f0b68e5355e6105",
+          "evidence_8cc61fa1daf91075",
+          "evidence_251581edefd11ef3",
+          "evidence_807a4629cd4288d2",
+          "evidence_a316b21d4f948eec",
+          "evidence_a293f60976e54b7f",
+          "evidence_b7e51d8bdb24c10e",
+          "evidence_be57706bc73d898d",
+          "evidence_6e8bcd56122cf21d",
+          "evidence_87497202ebede506",
+          "evidence_79e33dd3c5829371",
+          "evidence_41bf1a2a81c445f2",
+          "evidence_71447a1f53b0c87c",
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db",
+          "evidence_ac4dbcad5e0d7756",
+          "evidence_9bd57aef78bcd014",
+          "evidence_46fdcfb9733008a0",
+          "evidence_e61366d44f5c6da6",
+          "evidence_9c98af9824a42240"
+        ]
+      },
+      "entrypoints": [
+        {
+          "entrypoint_id": "entrypoint_597b29989525d4e0",
+          "repo_native_entrypoint": "processPageForRedaction(elements, mockCanvas, tokenVault)",
+          "entrypoint_kind": "UI_ACTION",
+          "reachability": {
+            "llm_assertions": [],
+            "canonical_value": "PRODUCTION_ENTRYPOINT",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+            "rule_ids": [
+              "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2"
+            ],
+            "canonical_confidence": {
+              "score": 82,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 30,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+              ],
+              "caps_applied": []
+            }
+          },
+          "graph_node_ids": [
+            "chunk_32bff1c580ffdd53",
+            "chunk_acae45ec085ae4dd",
+            "chunk_673f99a40f4762f8",
+            "chunk_fb04c958c99d0987",
+            "chunk_d8e2621583ecfe86",
+            "chunk_629652fe2a334c23",
+            "chunk_278ebdb2b721c12a"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        },
+        {
+          "entrypoint_id": "entrypoint_3998e6c6258deee4",
+          "repo_native_entrypoint": "executePipeline(simulateLeak=false)",
+          "entrypoint_kind": "PUBLIC_FUNCTION_OR_METHOD",
+          "reachability": {
+            "llm_assertions": [],
+            "canonical_value": "PRODUCTION_ENTRYPOINT",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+            "rule_ids": [
+              "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2"
+            ],
+            "canonical_confidence": {
+              "score": 82,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 30,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+              ],
+              "caps_applied": []
+            }
+          },
+          "graph_node_ids": [
+            "chunk_32bff1c580ffdd53",
+            "chunk_acae45ec085ae4dd",
+            "chunk_673f99a40f4762f8",
+            "chunk_fb04c958c99d0987",
+            "chunk_d8e2621583ecfe86",
+            "chunk_629652fe2a334c23",
+            "chunk_278ebdb2b721c12a"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        },
+        {
+          "entrypoint_id": "entrypoint_da7e8a6028a879de",
+          "repo_native_entrypoint": "btn-run-pipeline click",
+          "entrypoint_kind": "CLI_COMMAND",
+          "reachability": {
+            "llm_assertions": [],
+            "canonical_value": "PRODUCTION_ENTRYPOINT",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+            "rule_ids": [
+              "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2"
+            ],
+            "canonical_confidence": {
+              "score": 82,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 30,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+              ],
+              "caps_applied": []
+            }
+          },
+          "graph_node_ids": [
+            "chunk_32bff1c580ffdd53",
+            "chunk_acae45ec085ae4dd",
+            "chunk_673f99a40f4762f8",
+            "chunk_fb04c958c99d0987",
+            "chunk_d8e2621583ecfe86",
+            "chunk_629652fe2a334c23",
+            "chunk_278ebdb2b721c12a"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        }
+      ],
+      "reachability": "PRODUCTION_ENTRYPOINT",
+      "proof_obligations": [
+        {
+          "obligation_id": "REACHABLE_ENTRYPOINT",
+          "evidence_role": "ENTRYPOINT",
+          "passed": true,
+          "semantic_status": "OBSERVED",
+          "reason": "A directly eligible entrypoint and validated reachability evidence are present.",
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        },
+        {
+          "obligation_id": "MATERIAL_CONSEQUENCE",
+          "evidence_role": "MATERIAL_EFFECT",
+          "passed": false,
+          "semantic_status": "OBSERVED",
+          "reason": "No sufficiently material effect has supported or verified operation-specific evidence.",
+          "evidence_refs": []
+        },
+        {
+          "obligation_id": "BUSINESS_STATE_RESOURCE",
+          "evidence_role": "STATE_OR_RESOURCE",
+          "passed": true,
+          "semantic_status": "OBSERVED",
+          "reason": "A non-presentation state-bearing resource with observed values is established.",
+          "evidence_refs": [
+            "evidence_c5e18cd07fa5829c",
+            "evidence_1ea01197043e44b8",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_4ef402a9aa91fcca"
+          ]
+        },
+        {
+          "obligation_id": "BUSINESS_STATE_TRANSITION",
+          "evidence_role": "CAUSAL_LINK",
+          "passed": false,
+          "semantic_status": "UNKNOWN",
+          "reason": "A business-resource starting state, resulting state, and material consequence are not causally established.",
+          "evidence_refs": []
+        },
+        {
+          "obligation_id": "CAUSAL_CONNECTION",
+          "evidence_role": "CAUSAL_LINK",
+          "passed": false,
+          "semantic_status": "UNKNOWN",
+          "reason": "No same-symbol or path-graph connection establishes the causal relationship.",
+          "evidence_refs": []
+        }
+      ],
+      "material_consequences": [],
+      "structural_corroboration": {
+        "graph_node_ids": [
+          "chunk_32bff1c580ffdd53",
+          "chunk_acae45ec085ae4dd",
+          "chunk_673f99a40f4762f8",
+          "chunk_fb04c958c99d0987",
+          "chunk_d8e2621583ecfe86",
+          "chunk_629652fe2a334c23",
+          "chunk_278ebdb2b721c12a"
+        ],
+        "graph_edges": [
+          {
+            "source_node_id": "dev 2/redaction-engine.js",
+            "target_node_id": "dev 2/dom-heuristics.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/redaction-engine.js",
+            "target_node_id": "dev 2/pii-patterns.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/redaction-engine.js",
+            "target_node_id": "dev 2/redaction-renderer.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/redaction-engine.js",
+            "target_node_id": "dev 2/sensitivity-tiers.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/sensitivity-tiers.js",
+            "target_node_id": "dev 2/dom-heuristics.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/sensitivity-tiers.js",
+            "target_node_id": "dev 2/pii-patterns.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/session-vault-manager.js",
+            "target_node_id": "dev 2/token-vault.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          }
+        ],
+        "files_in_positive_proof": [
+          "dev 2/e2e-test.html",
+          "dev 2/redaction-engine.js",
+          "dev 2/sensitivity-tiers.js",
+          "dev 2/token-vault.js"
+        ]
+      },
+      "why_difficult_to_discover_locally": "The entrypoint, decision context, and consequence span multiple connected source locations.",
+      "confidence": {
+        "path_reconstruction": 49,
+        "effect": 0,
+        "activation": 40,
+        "causal_link": 0,
+        "candidate": 0,
+        "coverage": 65
+      },
+      "reporting_ceiling": {
+        "maximum_allowed_claim": "NOT_REPORTABLE",
+        "maximum_allowed_claim_level": -1,
+        "maximum_allowed_claim_description": "The trigger check did not establish a reportable material path.",
+        "reporting_confidence_score": 0,
+        "reporting_confidence_label": "LOW",
+        "classification_basis": "The trigger check did not establish both material reachability and a material consequence.",
+        "explicit_violation_proofs": [],
+        "llm_may_downgrade": true,
+        "llm_may_upgrade": false,
+        "detection_preserved": true
+      },
+      "score": {
+        "total": 6,
+        "maximum": 24,
+        "positive_proof_strength": 0,
+        "material_consequence": 0,
+        "structural_hiddenness": 4,
+        "causal_path_completeness": 1,
+        "downstream_blast_radius": 0,
+        "coverage_reliability": 1,
+        "selection_threshold": 14
+      },
+      "unresolved_behavior": [
+        "Permitted starting states and invalid or repeated transition behaviour are not assumed from absent code.",
+        "No sufficiently material effect has supported or verified operation-specific evidence.",
+        "A business-resource starting state, resulting state, and material consequence are not causally established.",
+        "No same-symbol or path-graph connection establishes the causal relationship."
+      ],
+      "counterevidence": [],
+      "rejection_reasons": [
+        {
+          "code": "EFFECT_NOT_ESTABLISHED",
+          "reason": "No sufficiently material effect has supported or verified operation-specific evidence."
+        },
+        {
+          "code": "BUSINESS_TRANSITION_NOT_ESTABLISHED",
+          "reason": "A business-resource starting state, resulting state, and material consequence are not causally established."
+        },
+        {
+          "code": "SIGNAL_NOT_CAUSALLY_LINKED",
+          "reason": "No same-symbol or path-graph connection establishes the causal relationship."
+        },
+        {
+          "code": "MATERIALITY_BELOW_THRESHOLD",
+          "reason": "No materially significant supported effect was established."
+        }
+      ],
+      "scan_qualification": {
+        "request_completeness": "COMPLETE",
+        "material_source_coverage": "PARTIAL_OR_UNKNOWN",
+        "repository_wide_conclusions_allowed": false,
+        "qualification_message": "Repository-wide absence conclusions are prohibited: 1 significant production source files are not represented by normalized paths."
+      },
+      "classification_provenance": {
+        "llm_confidences": [
+          "HIGH"
+        ],
+        "raw_activation_facts": [
+          {
+            "value": {
+              "fact_name": "external_input_present",
+              "value": "TRUE",
+              "reason": "The pipeline consumes live DOM elements and canvas/image input from the page."
+            },
+            "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+            "evidence_status": "OBSERVED",
+            "evidence_refs": [
+              "evidence_be57706bc73d898d",
+              "evidence_6e8bcd56122cf21d"
+            ]
+          },
+          {
+            "value": {
+              "fact_name": "state_transition_present",
+              "value": "TRUE",
+              "reason": "Elements transition from raw values to classified/tiered/tokenized summary entries and redacted regions."
+            },
+            "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+            "evidence_status": "OBSERVED",
+            "evidence_refs": [
+              "evidence_87497202ebede506",
+              "evidence_79e33dd3c5829371"
+            ]
+          },
+          {
+            "value": {
+              "fact_name": "irreversible_effect_present",
+              "value": "TRUE",
+              "reason": "Redaction draws solid black boxes over sensitive regions and the outgoing audit blocks raw PII."
+            },
+            "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+            "evidence_status": "OBSERVED",
+            "evidence_refs": [
+              "evidence_41bf1a2a81c445f2",
+              "evidence_71447a1f53b0c87c"
+            ]
+          }
+        ],
+        "canonical_signal_ids_used_only_as_hints": [
+          "DATA_INPUT_CONTRACT",
+          "DATA_TRANSFORMATION",
+          "DOWNSTREAM_CONSUMER_OR_SINK",
+          "EXTERNAL_OR_CALLER_CONTROLLED_INPUT",
+          "REACHABLE_ENTRYPOINT",
+          "REPEATABLE_INVOCATION",
+          "RESOURCE_OR_SCOPE_SELECTION"
+        ],
+        "effect_classifications": [
+          {
+            "llm_assertions": [
+              {
+                "value": "STRUCTURED_OBJECT_RETURNED",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_71447a1f53b0c87c",
+                  "evidence_3f0b68e5355e6105",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_807a4629cd4288d2",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_6ccdccc17427a1be"
+                ],
+                "llm_confidence": "HIGH"
+              },
+              {
+                "value": "FILE_WRITTEN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_71447a1f53b0c87c",
+                  "evidence_3f0b68e5355e6105",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_807a4629cd4288d2",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_6ccdccc17427a1be"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category.",
+            "rule_ids": [
+              "EFFECT_SPECIFIC_EVIDENCE",
+              "EFFECT_FROM_OPERATION_NOT_POSITION"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category."
+              ],
+              "caps_applied": []
+            }
+          },
+          {
+            "llm_assertions": [
+              {
+                "value": "STRUCTURED_OBJECT_RETURNED",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_41bf1a2a81c445f2",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_5460d85c8615acc6",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_3f0b68e5355e6105"
+                ],
+                "llm_confidence": "HIGH"
+              },
+              {
+                "value": "FILE_WRITTEN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_41bf1a2a81c445f2",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_5460d85c8615acc6",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_3f0b68e5355e6105"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category.",
+            "rule_ids": [
+              "EFFECT_SPECIFIC_EVIDENCE",
+              "EFFECT_FROM_OPERATION_NOT_POSITION"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category."
+              ],
+              "caps_applied": []
+            }
+          },
+          {
+            "llm_assertions": [
+              {
+                "value": "STRUCTURED_OBJECT_RETURNED",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_1d29b03867b4d7ef",
+                  "evidence_8696e41ce508aeb2",
+                  "evidence_c5e18cd07fa5829c",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_7e60c5366638d49d",
+                  "evidence_6be1f01f30e5a987"
+                ],
+                "llm_confidence": "HIGH"
+              },
+              {
+                "value": "FILE_WRITTEN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_1d29b03867b4d7ef",
+                  "evidence_8696e41ce508aeb2",
+                  "evidence_c5e18cd07fa5829c",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_7e60c5366638d49d",
+                  "evidence_6be1f01f30e5a987"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category.",
+            "rule_ids": [
+              "EFFECT_SPECIFIC_EVIDENCE",
+              "EFFECT_FROM_OPERATION_NOT_POSITION"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category."
+              ],
+              "caps_applied": []
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "evidence_id": "evidence_9b6cbca6677ba8ed",
+          "chunk_id": "chunk_8db9c3d07fa96cc9",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 259,
+          "end_line": 264,
+          "symbol_or_node_id": "executePipeline",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "User-facing buttons trigger the pipeline and the page presents a live demo interface.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   259 |   <div class=\"actions-bar\">\n   260 |     <button class=\"action-btn btn-run\" id=\"btn-run-pipeline\">Run Full Pipeline</button>\n   261 |     <button class=\"action-btn btn-leak\" id=\"btn-simulate-leak\">Simulate Leak (Break It On Purpose)</button>\n   262 |   </div>\n   263 | \n   264 |   <script type=\"module\">"
+        },
+        {
+          "evidence_id": "evidence_6ba2cf9dd39160f6",
+          "chunk_id": "chunk_278ebdb2b721c12a",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 463,
+          "end_line": 464,
+          "symbol_or_node_id": "executePipeline",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Button handlers start the pipeline or the deliberate leak simulation.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   463 |     document.getElementById('btn-run-pipeline').addEventListener('click', () => executePipeline(false));\n   464 |     document.getElementById('btn-simulate-leak').addEventListener('click', () => executePipeline(true));"
+        },
+        {
+          "evidence_id": "evidence_8696e41ce508aeb2",
+          "chunk_id": "chunk_673f99a40f4762f8",
+          "file_path": "dev 2/token-vault.js",
+          "start_line": 11,
+          "end_line": 41,
+          "symbol_or_node_id": "createTokenVault/getOrCreateToken",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Creates and maintains forward/reverse mappings between raw values and indexed tokens.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    11 | export function createTokenVault() {\n    12 |   const forwardMap = new Map(); // rawValue -> token\n    13 |   const reverseMap = new Map(); // token -> rawValue\n    14 |   const typeCounters = new Map(); // sensitivityType -> current counter integer\n    15 | \n    16 |   return {\n    17 |     /**\n    18 |      * Gets existing token for rawValue or creates a new indexed token [TYPE_N].\n    19 |      * @param {string} rawValue\n    20 |      * @param {string} sensitivityType\n    21 |      * @returns {string}\n    22 |      */\n    23 |     getOrCreateToken(rawValue, sensitivityType) {\n    24 |       if (typeof rawValue !== 'string' || !rawValue) {\n    25 |         return '';\n    26 |       }\n    27 | \n    28 |       const typeKey = (sensitivityType || 'UNKNOWN').toUpperCase();\n    29 | \n    30 |       if (forwardMap.has(rawValue)) {\n    31 |         return forwardMap.get(rawValue);\n    32 |       }\n    33 | \n    34 |       const currentCount = (typeCounters.get(typeKey) || 0) + 1;\n    35 |       typeCounters.set(typeKey, currentCount);\n    36 | \n    37 |       const token=<redacted>\n    38 |       forwardMap.set(rawValue, token);\n    39 |       reverseMap.set(token, rawValue);\n    40 | \n    41 |       return token;"
+        },
+        {
+          "evidence_id": "evidence_c5e18cd07fa5829c",
+          "chunk_id": "chunk_fb04c958c99d0987",
+          "file_path": "dev 2/sensitivity-tiers.js",
+          "start_line": 87,
+          "end_line": 163,
+          "symbol_or_node_id": "classifySensitivity",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Maps detected sensitivity types to tier 1/2/3 and emits semantic tokens for tier 1 or 2.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    87 | export function classifySensitivity(elementClassification, piiMatches = [], rawValue = null, tokenVault = null) {\n    88 |   const domType = (elementClassification && elementClassification.sensitivity_type && elementClassification.sensitivity_type !== 'UNKNOWN')\n    89 |     ? elementClassification.sensitivity_type\n    90 |     : null;\n    91 | \n    92 |   const validPiiMatches = Array.isArray(piiMatches) ? piiMatches.filter(m => m && m.type) : [];\n    93 | \n    94 |   let chosenType = null;\n    95 | \n    96 |   if (validPiiMatches.length > 0) {\n    97 |     // Pick highest sensitivity (lowest tier number) among PII matches\n    98 |     let bestPiiType = validPiiMatches[0].type;\n    99 |     let bestPiiTier = getTierNumber(bestPiiType);\n   100 | \n   101 |     for (let i = 1; i < validPiiMatches.length; i++) {\n   102 |       const t = validPiiMatches[i].type;\n   103 |       const tier = getTierNumber(t);\n   104 |       if (tier < bestPiiTier) {\n   105 |         bestPiiType = t;\n   106 |         bestPiiTier = tier;\n   107 |       }\n   108 |     }\n   109 | \n   110 |     if (!domType) {\n   111 |       chosenType = bestPiiType;\n   112 |     } else if (domType === bestPiiType) {\n   113 |       chosenType = domType;\n   114 |     } else {\n   115 |       const domTier = getTierNumber(domType);\n   116 | \n   117 |       if (domTier < bestPiiTier) {\n   118 |         chosenType = domType;\n   119 |       } else if (bestPiiTier < domTier) {\n   120 |         chosenType = bestPiiType;\n   121 |       } else {\n   122 |         chosenType = bestPiiType;\n   123 |       }\n   124 | \n   125 |       console.warn(\n   126 |         `Sensitivity type mismatch: DOM heuristic detected \"${domType}\" (Tier ${domTier}) but PII pattern detected \"${bestPiiType}\" (Tier ${bestPiiTier}). Defaulting to higher sensitivity tier type: \"${chosenType}\".`\n   127 |       );\n   128 |     }\n   129 |   } else if (domType) {\n   130 |     chosenType = domType;\n   131 |   }\n   132 | \n   133 |   if (!chosenType || chosenType === 'UNKNOWN') {\n   134 |     return {\n   135 |       sensitivity_tier: 3,\n   136 |       sensitivity_type: 'UNKNOWN',\n   137 |       semantic_token=<redacted>\n   138 |     };\n   139 |   }\n   140 | \n   141 |   const tier = getTierNumber(chosenType);\n   142 | \n   143 |   let semantic_token=<redacted>\n   144 | \n   145 |   if (tier === 1 || tier === 2) {\n   146 |     if (tokenVault && typeof tokenVault.getOrCreateToken=<redacted> 'function' && rawValue !== null && rawValue !== undefined && rawValue !== '') {\n   147 |       semantic_token=<redacted>, chosenType);\n   148 |     } else {\n   149 |       if (tier === 1) {\n   150 |         semantic_token=<redacted>\n   151 |       } else {\n   152 |         semantic_token=<redacted> === 'AMOUNT'\n   153 |           ? getAmountToken(elementClassification, piiMatches)\n   154 |           : `[${chosenType}]`;\n   155 |       }\n   156 |     }\n   157 |   }\n   158 | \n   159 |   return {\n   160 |     sensitivity_tier: tier,\n   161 |     sensitivity_type: chosenType,\n   162 |     semantic_token\n   163 |   };"
+        },
+        {
+          "evidence_id": "evidence_1ea01197043e44b8",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 72,
+          "end_line": 96,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Stores sensitivity_tier in the DOM summary for each element.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    72 |       // 2. Classify sensitivity passing rawValue and tokenVault\n    73 |       const sensitivity = classifySensitivity(elementClassification, piiMatches, rawValue, tokenVault);\n    74 |       const { sensitivity_tier, sensitivity_type, semantic_token } = sensitivity;\n    75 |       const is_sensitive = sensitivity_tier !== 3;\n    76 | \n    77 |       // 3. Verify token presence in vault\n    78 |       const has_stable_token=<redacted>\n    79 |         semantic_token &&\n    80 |         tokenVault &&\n    81 |         typeof tokenVault.hasToken=<redacted> 'function' &&\n    82 |         tokenVault.hasToken(semantic_token)\n    83 |       );\n    84 | \n    85 |       summaryElements.push({\n    86 |         element_id,\n    87 |         tag: elementClassification.tag,\n    88 |         role: elementClassification.role,\n    89 |         label_text: elementClassification.label_text,\n    90 |         is_sensitive,\n    91 |         sensitivity_tier,\n    92 |         sensitivity_type,\n    93 |         semantic_token,\n    94 |         has_stable_token,\n    95 |         bounding_box\n    96 |       });"
+        },
+        {
+          "evidence_id": "evidence_1d29b03867b4d7ef",
+          "chunk_id": "chunk_673f99a40f4762f8",
+          "file_path": "dev 2/token-vault.js",
+          "start_line": 23,
+          "end_line": 41,
+          "symbol_or_node_id": "getOrCreateToken",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Creates indexed tokens like [TYPE_N] and reuses them for repeated raw values.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    23 |     getOrCreateToken(rawValue, sensitivityType) {\n    24 |       if (typeof rawValue !== 'string' || !rawValue) {\n    25 |         return '';\n    26 |       }\n    27 | \n    28 |       const typeKey = (sensitivityType || 'UNKNOWN').toUpperCase();\n    29 | \n    30 |       if (forwardMap.has(rawValue)) {\n    31 |         return forwardMap.get(rawValue);\n    32 |       }\n    33 | \n    34 |       const currentCount = (typeCounters.get(typeKey) || 0) + 1;\n    35 |       typeCounters.set(typeKey, currentCount);\n    36 | \n    37 |       const token=<redacted>\n    38 |       forwardMap.set(rawValue, token);\n    39 |       reverseMap.set(token, rawValue);\n    40 | \n    41 |       return token;"
+        },
+        {
+          "evidence_id": "evidence_4ef402a9aa91fcca",
+          "chunk_id": "chunk_fb04c958c99d0987",
+          "file_path": "dev 2/sensitivity-tiers.js",
+          "start_line": 145,
+          "end_line": 162,
+          "symbol_or_node_id": "classifySensitivity",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Assigns semantic_token for tier 1 and 2 sensitivities, optionally via the token vault.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   145 |   if (tier === 1 || tier === 2) {\n   146 |     if (tokenVault && typeof tokenVault.getOrCreateToken=<redacted> 'function' && rawValue !== null && rawValue !== undefined && rawValue !== '') {\n   147 |       semantic_token=<redacted>, chosenType);\n   148 |     } else {\n   149 |       if (tier === 1) {\n   150 |         semantic_token=<redacted>\n   151 |       } else {\n   152 |         semantic_token=<redacted> === 'AMOUNT'\n   153 |           ? getAmountToken(elementClassification, piiMatches)\n   154 |           : `[${chosenType}]`;\n   155 |       }\n   156 |     }\n   157 |   }\n   158 | \n   159 |   return {\n   160 |     sensitivity_tier: tier,\n   161 |     sensitivity_type: chosenType,\n   162 |     semantic_token"
+        }
+      ],
+      "selection_reasons": []
+    },
+    {
+      "insight_id": "insight_ee49f9a4a2f58ef0",
+      "family": "DATA_CONTRACT_TRANSFORMATION",
+      "title": "Data-contract transformation path",
+      "decision": "REJECTED",
+      "qualification_status": "REJECTED",
+      "priority": "NOT_SELECTED",
+      "normalized_path_ids": [
+        "business_path_c9bde9037f1f2ad0"
+      ],
+      "component_ids": [
+        "component_b9d0d228c07ccc20"
+      ],
+      "implementation_group_ids": [],
+      "path_summary": "Browser page inspection turns sensitive DOM fields into semantic tokens and a redacted canvas payload for the privacy demo.",
+      "capability": {
+        "statement": "Privacy and redaction orchestration",
+        "semantic_status": "INFERRED",
+        "evidence_refs": [
+          "evidence_9b6cbca6677ba8ed",
+          "evidence_6ba2cf9dd39160f6",
+          "evidence_8696e41ce508aeb2",
+          "evidence_4abbb1f26ea5b9ab",
+          "evidence_a461a3764c513aea",
+          "evidence_30613013357bca47",
+          "evidence_583b6c6c976bb627",
+          "evidence_53a1f4633182a72c",
+          "evidence_c5e18cd07fa5829c",
+          "evidence_1ea01197043e44b8",
+          "evidence_1d29b03867b4d7ef",
+          "evidence_4ef402a9aa91fcca",
+          "evidence_6be1f01f30e5a987",
+          "evidence_7e60c5366638d49d",
+          "evidence_3f0b68e5355e6105",
+          "evidence_8cc61fa1daf91075",
+          "evidence_251581edefd11ef3",
+          "evidence_807a4629cd4288d2",
+          "evidence_a316b21d4f948eec",
+          "evidence_a293f60976e54b7f",
+          "evidence_b7e51d8bdb24c10e",
+          "evidence_be57706bc73d898d",
+          "evidence_6e8bcd56122cf21d",
+          "evidence_87497202ebede506",
+          "evidence_79e33dd3c5829371",
+          "evidence_41bf1a2a81c445f2",
+          "evidence_71447a1f53b0c87c",
+          "evidence_5460d85c8615acc6",
+          "evidence_6ccdccc17427a1be",
+          "evidence_daea818b8e5cf5db",
+          "evidence_ac4dbcad5e0d7756",
+          "evidence_9bd57aef78bcd014",
+          "evidence_46fdcfb9733008a0",
+          "evidence_e61366d44f5c6da6",
+          "evidence_9c98af9824a42240"
+        ]
+      },
+      "entrypoints": [
+        {
+          "entrypoint_id": "entrypoint_597b29989525d4e0",
+          "repo_native_entrypoint": "processPageForRedaction(elements, mockCanvas, tokenVault)",
+          "entrypoint_kind": "UI_ACTION",
+          "reachability": {
+            "llm_assertions": [],
+            "canonical_value": "PRODUCTION_ENTRYPOINT",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+            "rule_ids": [
+              "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2"
+            ],
+            "canonical_confidence": {
+              "score": 82,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 30,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+              ],
+              "caps_applied": []
+            }
+          },
+          "graph_node_ids": [
+            "chunk_32bff1c580ffdd53",
+            "chunk_acae45ec085ae4dd",
+            "chunk_673f99a40f4762f8",
+            "chunk_fb04c958c99d0987",
+            "chunk_d8e2621583ecfe86",
+            "chunk_629652fe2a334c23",
+            "chunk_278ebdb2b721c12a"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        },
+        {
+          "entrypoint_id": "entrypoint_3998e6c6258deee4",
+          "repo_native_entrypoint": "executePipeline(simulateLeak=false)",
+          "entrypoint_kind": "PUBLIC_FUNCTION_OR_METHOD",
+          "reachability": {
+            "llm_assertions": [],
+            "canonical_value": "PRODUCTION_ENTRYPOINT",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+            "rule_ids": [
+              "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2"
+            ],
+            "canonical_confidence": {
+              "score": 82,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 30,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+              ],
+              "caps_applied": []
+            }
+          },
+          "graph_node_ids": [
+            "chunk_32bff1c580ffdd53",
+            "chunk_acae45ec085ae4dd",
+            "chunk_673f99a40f4762f8",
+            "chunk_fb04c958c99d0987",
+            "chunk_d8e2621583ecfe86",
+            "chunk_629652fe2a334c23",
+            "chunk_278ebdb2b721c12a"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        },
+        {
+          "entrypoint_id": "entrypoint_da7e8a6028a879de",
+          "repo_native_entrypoint": "btn-run-pipeline click",
+          "entrypoint_kind": "CLI_COMMAND",
+          "reachability": {
+            "llm_assertions": [],
+            "canonical_value": "PRODUCTION_ENTRYPOINT",
+            "canonicalization_status": "VERIFIED",
+            "semantic_status": "OBSERVED",
+            "canonicalization_reason": "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint.",
+            "rule_ids": [
+              "REACHABILITY_FROM_ENTRYPOINT_AND_GRAPH"
+            ],
+            "evidence_refs": [
+              "evidence_9b6cbca6677ba8ed",
+              "evidence_6ba2cf9dd39160f6",
+              "evidence_8696e41ce508aeb2"
+            ],
+            "canonical_confidence": {
+              "score": 82,
+              "label": "HIGH",
+              "components": {
+                "evidence_strength": 30,
+                "path_completeness": 25,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "A user/network/CLI runtime shape is corroborated by a repo-native entrypoint."
+              ],
+              "caps_applied": []
+            }
+          },
+          "graph_node_ids": [
+            "chunk_32bff1c580ffdd53",
+            "chunk_acae45ec085ae4dd",
+            "chunk_673f99a40f4762f8",
+            "chunk_fb04c958c99d0987",
+            "chunk_d8e2621583ecfe86",
+            "chunk_629652fe2a334c23",
+            "chunk_278ebdb2b721c12a"
+          ],
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        }
+      ],
+      "reachability": "PRODUCTION_ENTRYPOINT",
+      "proof_obligations": [
+        {
+          "obligation_id": "REACHABLE_ENTRYPOINT",
+          "evidence_role": "ENTRYPOINT",
+          "passed": true,
+          "semantic_status": "OBSERVED",
+          "reason": "A directly eligible entrypoint and validated reachability evidence are present.",
+          "evidence_refs": [
+            "evidence_9b6cbca6677ba8ed",
+            "evidence_6ba2cf9dd39160f6",
+            "evidence_8696e41ce508aeb2"
+          ]
+        },
+        {
+          "obligation_id": "MATERIAL_CONSEQUENCE",
+          "evidence_role": "MATERIAL_EFFECT",
+          "passed": false,
+          "semantic_status": "OBSERVED",
+          "reason": "No sufficiently material effect has supported or verified operation-specific evidence.",
+          "evidence_refs": []
+        },
+        {
+          "obligation_id": "DATA_INPUT_CONTRACT",
+          "evidence_role": "CALLER_CONTROLLED_INPUT",
+          "passed": false,
+          "semantic_status": "OBSERVED",
+          "reason": "DATA_INPUT_CONTRACT was asserted canonically, but its cited source does not establish the required operation.",
+          "evidence_refs": [
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d"
+          ]
+        },
+        {
+          "obligation_id": "DATA_TRANSFORMATION",
+          "evidence_role": "TRANSFORMATION",
+          "passed": true,
+          "semantic_status": "OBSERVED",
+          "reason": "Validated evidence establishes transformation.",
+          "evidence_refs": [
+            "evidence_8696e41ce508aeb2",
+            "evidence_a461a3764c513aea",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_71447a1f53b0c87c",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6"
+          ]
+        },
+        {
+          "obligation_id": "DOWNSTREAM_CONSUMER_OR_SINK",
+          "evidence_role": "MATERIAL_EFFECT",
+          "passed": true,
+          "semantic_status": "OBSERVED",
+          "reason": "Validated evidence establishes material effect.",
+          "evidence_refs": [
+            "evidence_71447a1f53b0c87c",
+            "evidence_3f0b68e5355e6105",
+            "evidence_a316b21d4f948eec",
+            "evidence_807a4629cd4288d2",
+            "evidence_79e33dd3c5829371",
+            "evidence_6ccdccc17427a1be",
+            "evidence_41bf1a2a81c445f2",
+            "evidence_5460d85c8615acc6",
+            "evidence_1d29b03867b4d7ef",
+            "evidence_8696e41ce508aeb2",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_7e60c5366638d49d",
+            "evidence_6be1f01f30e5a987"
+          ]
+        },
+        {
+          "obligation_id": "CAUSAL_CONNECTION",
+          "evidence_role": "CAUSAL_LINK",
+          "passed": true,
+          "semantic_status": "OBSERVED",
+          "reason": "Producer-to-transform: A validated path graph edge connects the files supporting the two proof roles. Transform-to-consumer: The two proof roles are connected inside the same validated symbol and chunk.",
+          "evidence_refs": [
+            "evidence_be57706bc73d898d",
+            "evidence_6e8bcd56122cf21d",
+            "evidence_8696e41ce508aeb2",
+            "evidence_a461a3764c513aea",
+            "evidence_583b6c6c976bb627",
+            "evidence_53a1f4633182a72c",
+            "evidence_c5e18cd07fa5829c",
+            "evidence_71447a1f53b0c87c",
+            "evidence_6ccdccc17427a1be",
+            "evidence_daea818b8e5cf5db",
+            "evidence_ac4dbcad5e0d7756",
+            "evidence_46fdcfb9733008a0",
+            "evidence_e61366d44f5c6da6"
+          ]
+        }
+      ],
+      "material_consequences": [],
+      "structural_corroboration": {
+        "graph_node_ids": [
+          "chunk_32bff1c580ffdd53",
+          "chunk_acae45ec085ae4dd",
+          "chunk_673f99a40f4762f8",
+          "chunk_fb04c958c99d0987",
+          "chunk_d8e2621583ecfe86",
+          "chunk_629652fe2a334c23",
+          "chunk_278ebdb2b721c12a"
+        ],
+        "graph_edges": [
+          {
+            "source_node_id": "dev 2/redaction-engine.js",
+            "target_node_id": "dev 2/dom-heuristics.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/redaction-engine.js",
+            "target_node_id": "dev 2/pii-patterns.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/redaction-engine.js",
+            "target_node_id": "dev 2/redaction-renderer.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/redaction-engine.js",
+            "target_node_id": "dev 2/sensitivity-tiers.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/sensitivity-tiers.js",
+            "target_node_id": "dev 2/dom-heuristics.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/sensitivity-tiers.js",
+            "target_node_id": "dev 2/pii-patterns.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          },
+          {
+            "source_node_id": "dev 2/session-vault-manager.js",
+            "target_node_id": "dev 2/token-vault.js",
+            "edge_type": "RESOLVED_FILE_DEPENDENCY",
+            "confidence": "HIGH",
+            "evidence_refs": []
+          }
+        ],
+        "files_in_positive_proof": [
+          "dev 2/channel-consistency-check.js",
+          "dev 2/e2e-test.html",
+          "dev 2/leakage-auditor.js",
+          "dev 2/redaction-engine.js",
+          "dev 2/redaction-renderer.js",
+          "dev 2/sensitivity-tiers.js",
+          "dev 2/session-vault-manager.js",
+          "dev 2/token-vault.js"
+        ]
+      },
+      "why_difficult_to_discover_locally": "The entrypoint, decision context, and consequence span multiple connected source locations.",
+      "confidence": {
+        "path_reconstruction": 49,
+        "effect": 0,
+        "activation": 66,
+        "causal_link": 100,
+        "candidate": 49,
+        "coverage": 65
+      },
+      "reporting_ceiling": {
+        "maximum_allowed_claim": "NOT_REPORTABLE",
+        "maximum_allowed_claim_level": -1,
+        "maximum_allowed_claim_description": "The trigger check did not establish a reportable material path.",
+        "reporting_confidence_score": 49,
+        "reporting_confidence_label": "LOW",
+        "classification_basis": "The trigger check did not establish both material reachability and a material consequence.",
+        "explicit_violation_proofs": [],
+        "llm_may_downgrade": true,
+        "llm_may_upgrade": false,
+        "detection_preserved": true
+      },
+      "score": {
+        "total": 9,
+        "maximum": 24,
+        "positive_proof_strength": 2,
+        "material_consequence": 0,
+        "structural_hiddenness": 4,
+        "causal_path_completeness": 2,
+        "downstream_blast_radius": 0,
+        "coverage_reliability": 1,
+        "selection_threshold": 14
+      },
+      "unresolved_behavior": [
+        "No sufficiently material effect has supported or verified operation-specific evidence.",
+        "DATA_INPUT_CONTRACT was asserted canonically, but its cited source does not establish the required operation."
+      ],
+      "counterevidence": [],
+      "rejection_reasons": [
+        {
+          "code": "EFFECT_NOT_ESTABLISHED",
+          "reason": "No sufficiently material effect has supported or verified operation-specific evidence."
+        },
+        {
+          "code": "MISSING_POSITIVE_PROOF",
+          "reason": "DATA_INPUT_CONTRACT was asserted canonically, but its cited source does not establish the required operation."
+        },
+        {
+          "code": "MATERIALITY_BELOW_THRESHOLD",
+          "reason": "No materially significant supported effect was established."
+        }
+      ],
+      "scan_qualification": {
+        "request_completeness": "COMPLETE",
+        "material_source_coverage": "PARTIAL_OR_UNKNOWN",
+        "repository_wide_conclusions_allowed": false,
+        "qualification_message": "Repository-wide absence conclusions are prohibited: 1 significant production source files are not represented by normalized paths."
+      },
+      "classification_provenance": {
+        "llm_confidences": [
+          "HIGH"
+        ],
+        "raw_activation_facts": [
+          {
+            "value": {
+              "fact_name": "external_input_present",
+              "value": "TRUE",
+              "reason": "The pipeline consumes live DOM elements and canvas/image input from the page."
+            },
+            "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+            "evidence_status": "OBSERVED",
+            "evidence_refs": [
+              "evidence_be57706bc73d898d",
+              "evidence_6e8bcd56122cf21d"
+            ]
+          },
+          {
+            "value": {
+              "fact_name": "state_transition_present",
+              "value": "TRUE",
+              "reason": "Elements transition from raw values to classified/tiered/tokenized summary entries and redacted regions."
+            },
+            "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+            "evidence_status": "OBSERVED",
+            "evidence_refs": [
+              "evidence_87497202ebede506",
+              "evidence_79e33dd3c5829371"
+            ]
+          },
+          {
+            "value": {
+              "fact_name": "irreversible_effect_present",
+              "value": "TRUE",
+              "reason": "Redaction draws solid black boxes over sensitive regions and the outgoing audit blocks raw PII."
+            },
+            "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+            "evidence_status": "OBSERVED",
+            "evidence_refs": [
+              "evidence_41bf1a2a81c445f2",
+              "evidence_71447a1f53b0c87c"
+            ]
+          }
+        ],
+        "canonical_signal_ids_used_only_as_hints": [
+          "DATA_INPUT_CONTRACT",
+          "DATA_TRANSFORMATION",
+          "DOWNSTREAM_CONSUMER_OR_SINK",
+          "EXTERNAL_OR_CALLER_CONTROLLED_INPUT",
+          "REACHABLE_ENTRYPOINT",
+          "REPEATABLE_INVOCATION",
+          "RESOURCE_OR_SCOPE_SELECTION"
+        ],
+        "effect_classifications": [
+          {
+            "llm_assertions": [
+              {
+                "value": "STRUCTURED_OBJECT_RETURNED",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_71447a1f53b0c87c",
+                  "evidence_3f0b68e5355e6105",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_807a4629cd4288d2",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_6ccdccc17427a1be"
+                ],
+                "llm_confidence": "HIGH"
+              },
+              {
+                "value": "FILE_WRITTEN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_71447a1f53b0c87c",
+                  "evidence_3f0b68e5355e6105",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_807a4629cd4288d2",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_6ccdccc17427a1be"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category.",
+            "rule_ids": [
+              "EFFECT_SPECIFIC_EVIDENCE",
+              "EFFECT_FROM_OPERATION_NOT_POSITION"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category."
+              ],
+              "caps_applied": []
+            }
+          },
+          {
+            "llm_assertions": [
+              {
+                "value": "STRUCTURED_OBJECT_RETURNED",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_41bf1a2a81c445f2",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_5460d85c8615acc6",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_3f0b68e5355e6105"
+                ],
+                "llm_confidence": "HIGH"
+              },
+              {
+                "value": "FILE_WRITTEN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_41bf1a2a81c445f2",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_5460d85c8615acc6",
+                  "evidence_79e33dd3c5829371",
+                  "evidence_3f0b68e5355e6105"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category.",
+            "rule_ids": [
+              "EFFECT_SPECIFIC_EVIDENCE",
+              "EFFECT_FROM_OPERATION_NOT_POSITION"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category."
+              ],
+              "caps_applied": []
+            }
+          },
+          {
+            "llm_assertions": [
+              {
+                "value": "STRUCTURED_OBJECT_RETURNED",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_1d29b03867b4d7ef",
+                  "evidence_8696e41ce508aeb2",
+                  "evidence_c5e18cd07fa5829c",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_7e60c5366638d49d",
+                  "evidence_6be1f01f30e5a987"
+                ],
+                "llm_confidence": "HIGH"
+              },
+              {
+                "value": "FILE_WRITTEN",
+                "source_fragment_ref": "semantic_pack_001_part_01::path_1_dom_to_redacted_payload",
+                "evidence_status": "INFERRED",
+                "evidence_refs": [
+                  "evidence_1d29b03867b4d7ef",
+                  "evidence_8696e41ce508aeb2",
+                  "evidence_c5e18cd07fa5829c",
+                  "evidence_a316b21d4f948eec",
+                  "evidence_7e60c5366638d49d",
+                  "evidence_6be1f01f30e5a987"
+                ],
+                "llm_confidence": "HIGH"
+              }
+            ],
+            "canonical_value": "UNKNOWN",
+            "canonicalization_status": "UNKNOWN",
+            "semantic_status": "UNKNOWN",
+            "canonicalization_reason": "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category.",
+            "rule_ids": [
+              "EFFECT_SPECIFIC_EVIDENCE",
+              "EFFECT_FROM_OPERATION_NOT_POSITION"
+            ],
+            "evidence_refs": [],
+            "canonical_confidence": {
+              "score": 20,
+              "label": "INSUFFICIENT",
+              "components": {
+                "evidence_strength": 0,
+                "path_completeness": 20,
+                "independent_corroboration": 0,
+                "reachability_confidence": 0,
+                "evidence_integrity": 0
+              },
+              "reasons": [
+                "Raw effect labels were preserved, but the effect-specific evidence does not establish a canonical effect category."
+              ],
+              "caps_applied": []
+            }
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "evidence_id": "evidence_9b6cbca6677ba8ed",
+          "chunk_id": "chunk_8db9c3d07fa96cc9",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 259,
+          "end_line": 264,
+          "symbol_or_node_id": "executePipeline",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "User-facing buttons trigger the pipeline and the page presents a live demo interface.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   259 |   <div class=\"actions-bar\">\n   260 |     <button class=\"action-btn btn-run\" id=\"btn-run-pipeline\">Run Full Pipeline</button>\n   261 |     <button class=\"action-btn btn-leak\" id=\"btn-simulate-leak\">Simulate Leak (Break It On Purpose)</button>\n   262 |   </div>\n   263 | \n   264 |   <script type=\"module\">"
+        },
+        {
+          "evidence_id": "evidence_6ba2cf9dd39160f6",
+          "chunk_id": "chunk_278ebdb2b721c12a",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 463,
+          "end_line": 464,
+          "symbol_or_node_id": "executePipeline",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Button handlers start the pipeline or the deliberate leak simulation.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   463 |     document.getElementById('btn-run-pipeline').addEventListener('click', () => executePipeline(false));\n   464 |     document.getElementById('btn-simulate-leak').addEventListener('click', () => executePipeline(true));"
+        },
+        {
+          "evidence_id": "evidence_8696e41ce508aeb2",
+          "chunk_id": "chunk_673f99a40f4762f8",
+          "file_path": "dev 2/token-vault.js",
+          "start_line": 11,
+          "end_line": 41,
+          "symbol_or_node_id": "createTokenVault/getOrCreateToken",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Creates and maintains forward/reverse mappings between raw values and indexed tokens.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    11 | export function createTokenVault() {\n    12 |   const forwardMap = new Map(); // rawValue -> token\n    13 |   const reverseMap = new Map(); // token -> rawValue\n    14 |   const typeCounters = new Map(); // sensitivityType -> current counter integer\n    15 | \n    16 |   return {\n    17 |     /**\n    18 |      * Gets existing token for rawValue or creates a new indexed token [TYPE_N].\n    19 |      * @param {string} rawValue\n    20 |      * @param {string} sensitivityType\n    21 |      * @returns {string}\n    22 |      */\n    23 |     getOrCreateToken(rawValue, sensitivityType) {\n    24 |       if (typeof rawValue !== 'string' || !rawValue) {\n    25 |         return '';\n    26 |       }\n    27 | \n    28 |       const typeKey = (sensitivityType || 'UNKNOWN').toUpperCase();\n    29 | \n    30 |       if (forwardMap.has(rawValue)) {\n    31 |         return forwardMap.get(rawValue);\n    32 |       }\n    33 | \n    34 |       const currentCount = (typeCounters.get(typeKey) || 0) + 1;\n    35 |       typeCounters.set(typeKey, currentCount);\n    36 | \n    37 |       const token=<redacted>\n    38 |       forwardMap.set(rawValue, token);\n    39 |       reverseMap.set(token, rawValue);\n    40 | \n    41 |       return token;"
+        },
+        {
+          "evidence_id": "evidence_be57706bc73d898d",
+          "chunk_id": "chunk_8db9c3d07fa96cc9",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 264,
+          "end_line": 271,
+          "symbol_or_node_id": "module imports",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Imports the processing and audit modules into the demo page.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   264 |   <script type=\"module\">\n   265 |     import { detectPII } from './pii-patterns.js';\n   266 |     import { classifyElement, getElementId } from './dom-heuristics.js';\n   267 |     import { classifySensitivity, classifySensitivityWithConfidence, getConfidenceBadgeColor } from './sensitivity-tiers.js';\n   268 |     import { redactImage, canvasToBase64 } from './redaction-renderer.js';\n   269 |     import { processPageForRedaction } from './redaction-engine.js';\n   270 |     import { auditPayload, assertSafeToSend } from './leakage-auditor.js';\n   271 |     import { checkChannelConsistency, assertChannelsConsistent } from './channel-consistency-check.js';"
+        },
+        {
+          "evidence_id": "evidence_6e8bcd56122cf21d",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 32,
+          "end_line": 41,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Takes elements and a source canvas/image as inputs.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    32 | export function processPageForRedaction(elements = [], sourceCanvasOrImage, tokenVault) {\n    33 |   const currentUrl = typeof window !== 'undefined' && window.location ? window.location.href : '';\n    34 | \n    35 |   const summaryElements = [];\n    36 |   const confidenceNotes = [];\n    37 |   const sensitiveRegions = [];\n    38 |   const sensitiveRawValues = [];\n    39 |   const redactedRegionsList = [];\n    40 | \n    41 |   if (Array.isArray(elements)) {"
+        },
+        {
+          "evidence_id": "evidence_a461a3764c513aea",
+          "chunk_id": "chunk_acae45ec085ae4dd",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 218,
+          "end_line": 235,
+          "symbol_or_node_id": "checkout-form",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "The demo page contains visible input fields for name, email, password, card number, phone, and total amount.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   218 |       <div class=\"fake-form\" id=\"checkout-form\">\n   219 |         <div class=\"form-group\">\n   220 |           <label for=\"fullname-input\">Full Name</label>\n   221 |           <input type=\"text\" id=\"fullname-input\" value=\"Jane Doe\">\n   222 |         </div>\n   223 |         <div class=\"form-group\">\n   224 |           <label for=\"email-input\">Email Address</label>\n   225 |           <input type=\"email\" id=\"email-input\" autocomplete=\"email\" value=\"jane.doe@example.com\">\n   226 |         </div>\n   227 |         <div class=\"form-group\">\n   228 |           <label for=\"pwd-input\">Password</label>\n   229 |           <input type=\"password\" id=\"pwd-input\" value=\"SuperSecret123!\">\n   230 |         </div>\n   231 |         <div class=\"form-group\">\n   232 |           <label for=\"card-number-input\">Card Number</label>\n   233 |           <input type=\"text\" id=\"card-number-input\" autocomplete=\"cc-number\" value=\"4111 1111 1111 1111\">\n   234 |         </div>\n   235 |         <div class=\"form-group\">"
+        },
+        {
+          "evidence_id": "evidence_583b6c6c976bb627",
+          "chunk_id": "chunk_673f99a40f4762f8",
+          "file_path": "dev 2/token-vault.js",
+          "start_line": 12,
+          "end_line": 15,
+          "symbol_or_node_id": "createTokenVault",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Maintains in-memory forward, reverse, and counter maps internal to the vault.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    12 |   const forwardMap = new Map(); // rawValue -> token\n    13 |   const reverseMap = new Map(); // token -> rawValue\n    14 |   const typeCounters = new Map(); // sensitivityType -> current counter integer\n    15 | "
+        },
+        {
+          "evidence_id": "evidence_53a1f4633182a72c",
+          "chunk_id": "chunk_0067432d917d6e5b",
+          "file_path": "dev 2/session-vault-manager.js",
+          "start_line": 3,
+          "end_line": 5,
+          "symbol_or_node_id": "sessionVaults/DEFAULT_SESSION_TTL_MS",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Stores token vaults per session id with TTL-based lifecycle management.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "     3 | const sessionVaults = new Map(); // session_id -> { vault, createdAt, lastAccessedAt }\n     4 | const MAX_SESSIONS_THRESHOLD = 20;\n     5 | export const DEFAULT_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes default TTL"
+        },
+        {
+          "evidence_id": "evidence_c5e18cd07fa5829c",
+          "chunk_id": "chunk_fb04c958c99d0987",
+          "file_path": "dev 2/sensitivity-tiers.js",
+          "start_line": 87,
+          "end_line": 163,
+          "symbol_or_node_id": "classifySensitivity",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Maps detected sensitivity types to tier 1/2/3 and emits semantic tokens for tier 1 or 2.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    87 | export function classifySensitivity(elementClassification, piiMatches = [], rawValue = null, tokenVault = null) {\n    88 |   const domType = (elementClassification && elementClassification.sensitivity_type && elementClassification.sensitivity_type !== 'UNKNOWN')\n    89 |     ? elementClassification.sensitivity_type\n    90 |     : null;\n    91 | \n    92 |   const validPiiMatches = Array.isArray(piiMatches) ? piiMatches.filter(m => m && m.type) : [];\n    93 | \n    94 |   let chosenType = null;\n    95 | \n    96 |   if (validPiiMatches.length > 0) {\n    97 |     // Pick highest sensitivity (lowest tier number) among PII matches\n    98 |     let bestPiiType = validPiiMatches[0].type;\n    99 |     let bestPiiTier = getTierNumber(bestPiiType);\n   100 | \n   101 |     for (let i = 1; i < validPiiMatches.length; i++) {\n   102 |       const t = validPiiMatches[i].type;\n   103 |       const tier = getTierNumber(t);\n   104 |       if (tier < bestPiiTier) {\n   105 |         bestPiiType = t;\n   106 |         bestPiiTier = tier;\n   107 |       }\n   108 |     }\n   109 | \n   110 |     if (!domType) {\n   111 |       chosenType = bestPiiType;\n   112 |     } else if (domType === bestPiiType) {\n   113 |       chosenType = domType;\n   114 |     } else {\n   115 |       const domTier = getTierNumber(domType);\n   116 | \n   117 |       if (domTier < bestPiiTier) {\n   118 |         chosenType = domType;\n   119 |       } else if (bestPiiTier < domTier) {\n   120 |         chosenType = bestPiiType;\n   121 |       } else {\n   122 |         chosenType = bestPiiType;\n   123 |       }\n   124 | \n   125 |       console.warn(\n   126 |         `Sensitivity type mismatch: DOM heuristic detected \"${domType}\" (Tier ${domTier}) but PII pattern detected \"${bestPiiType}\" (Tier ${bestPiiTier}). Defaulting to higher sensitivity tier type: \"${chosenType}\".`\n   127 |       );\n   128 |     }\n   129 |   } else if (domType) {\n   130 |     chosenType = domType;\n   131 |   }\n   132 | \n   133 |   if (!chosenType || chosenType === 'UNKNOWN') {\n   134 |     return {\n   135 |       sensitivity_tier: 3,\n   136 |       sensitivity_type: 'UNKNOWN',\n   137 |       semantic_token=<redacted>\n   138 |     };\n   139 |   }\n   140 | \n   141 |   const tier = getTierNumber(chosenType);\n   142 | \n   143 |   let semantic_token=<redacted>\n   144 | \n   145 |   if (tier === 1 || tier === 2) {\n   146 |     if (tokenVault && typeof tokenVault.getOrCreateToken=<redacted> 'function' && rawValue !== null && rawValue !== undefined && rawValue !== '') {\n   147 |       semantic_token=<redacted>, chosenType);\n   148 |     } else {\n   149 |       if (tier === 1) {\n   150 |         semantic_token=<redacted>\n   151 |       } else {\n   152 |         semantic_token=<redacted> === 'AMOUNT'\n   153 |           ? getAmountToken(elementClassification, piiMatches)\n   154 |           : `[${chosenType}]`;\n   155 |       }\n   156 |     }\n   157 |   }\n   158 | \n   159 |   return {\n   160 |     sensitivity_tier: tier,\n   161 |     sensitivity_type: chosenType,\n   162 |     semantic_token\n   163 |   };"
+        },
+        {
+          "evidence_id": "evidence_71447a1f53b0c87c",
+          "chunk_id": "chunk_04240ed2b40a31ea",
+          "file_path": "dev 2/leakage-auditor.js",
+          "start_line": 112,
+          "end_line": 126,
+          "symbol_or_node_id": "assertSafeToSend",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Throws to block a network request when payload audit finds violations.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   112 | export function assertSafeToSend(payload, piiDetectFn) {\n   113 |   const result = auditPayload(payload, piiDetectFn);\n   114 | \n   115 |   if (!result.passed) {\n   116 |     const details = result.violations\n   117 |       .map(function (v) {\n   118 |         return '  - [' + v.matched_type + '] at \"' + v.path + '\": ' + v.reason;\n   119 |       })\n   120 |       .join('\\n');\n   121 | \n   122 |     throw new Error(\n   123 |       'Payload safety audit failed with ' + result.violations.length +\n   124 |       ' violation(s). Blocking network request.\\n' + details\n   125 |     );\n   126 |   }"
+        },
+        {
+          "evidence_id": "evidence_6ccdccc17427a1be",
+          "chunk_id": "chunk_04240ed2b40a31ea",
+          "file_path": "dev 2/leakage-auditor.js",
+          "start_line": 112,
+          "end_line": 126,
+          "symbol_or_node_id": "assertSafeToSend",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Blocks payloads containing raw PII before transport.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   112 | export function assertSafeToSend(payload, piiDetectFn) {\n   113 |   const result = auditPayload(payload, piiDetectFn);\n   114 | \n   115 |   if (!result.passed) {\n   116 |     const details = result.violations\n   117 |       .map(function (v) {\n   118 |         return '  - [' + v.matched_type + '] at \"' + v.path + '\": ' + v.reason;\n   119 |       })\n   120 |       .join('\\n');\n   121 | \n   122 |     throw new Error(\n   123 |       'Payload safety audit failed with ' + result.violations.length +\n   124 |       ' violation(s). Blocking network request.\\n' + details\n   125 |     );\n   126 |   }"
+        },
+        {
+          "evidence_id": "evidence_daea818b8e5cf5db",
+          "chunk_id": "chunk_8b94513436b4d877",
+          "file_path": "dev 2/channel-consistency-check.js",
+          "start_line": 63,
+          "end_line": 88,
+          "symbol_or_node_id": "assertChannelsConsistent",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Throws when structural and visual redactions do not agree.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    63 |   // 4. Consistent if no mismatches\n    64 |   return {\n    65 |     consistent: mismatches.length === 0,\n    66 |     mismatches\n    67 |   };\n    68 | }\n    69 | \n    70 | /**\n    71 |  * Hard gate that throws a descriptive Error if visual and structural redactions do not agree.\n    72 |  *\n    73 |  * @param {object} payload - Payload containing dom_summary.elements\n    74 |  * @param {Array<{element_id: string, bounding_box: object}>} redactedRegions - Regions visually redacted\n    75 |  * @throws {Error} If channel consistency check fails\n    76 |  */\n    77 | export function assertChannelsConsistent(payload, redactedRegions) {\n    78 |   const result = checkChannelConsistency(payload, redactedRegions);\n    79 | \n    80 |   if (!result.consistent) {\n    81 |     const details = result.mismatches\n    82 |       .map(m => `  - [${m.element_id}]: ${m.issue}`)\n    83 |       .join('\\n');\n    84 | \n    85 |     throw new Error(\n    86 |       `Channel consistency check failed with ${result.mismatches.length} mismatch(es):\\n${details}`\n    87 |     );\n    88 |   }"
+        },
+        {
+          "evidence_id": "evidence_ac4dbcad5e0d7756",
+          "chunk_id": "chunk_acae45ec085ae4dd",
+          "file_path": "dev 2/e2e-test.html",
+          "start_line": 218,
+          "end_line": 235,
+          "symbol_or_node_id": "checkout-form",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Demo page exposes a checkout-like form with name, email, password, card, phone, and amount fields.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   218 |       <div class=\"fake-form\" id=\"checkout-form\">\n   219 |         <div class=\"form-group\">\n   220 |           <label for=\"fullname-input\">Full Name</label>\n   221 |           <input type=\"text\" id=\"fullname-input\" value=\"Jane Doe\">\n   222 |         </div>\n   223 |         <div class=\"form-group\">\n   224 |           <label for=\"email-input\">Email Address</label>\n   225 |           <input type=\"email\" id=\"email-input\" autocomplete=\"email\" value=\"jane.doe@example.com\">\n   226 |         </div>\n   227 |         <div class=\"form-group\">\n   228 |           <label for=\"pwd-input\">Password</label>\n   229 |           <input type=\"password\" id=\"pwd-input\" value=\"SuperSecret123!\">\n   230 |         </div>\n   231 |         <div class=\"form-group\">\n   232 |           <label for=\"card-number-input\">Card Number</label>\n   233 |           <input type=\"text\" id=\"card-number-input\" autocomplete=\"cc-number\" value=\"4111 1111 1111 1111\">\n   234 |         </div>\n   235 |         <div class=\"form-group\">"
+        },
+        {
+          "evidence_id": "evidence_46fdcfb9733008a0",
+          "chunk_id": "chunk_04240ed2b40a31ea",
+          "file_path": "dev 2/leakage-auditor.js",
+          "start_line": 45,
+          "end_line": 147,
+          "symbol_or_node_id": "auditPayload/assertSafeToSend/createSecureTransport",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Audits payloads for raw PII and prevents transport on violations.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    45 | export function auditPayload(payload, piiDetectFn) {\n    46 |   const violations = [];\n    47 | \n    48 |   if (!payload || typeof payload !== 'object') {\n    49 |     return { passed: true, violations };\n    50 |   }\n    51 | \n    52 |   if (typeof piiDetectFn !== 'function') {\n    53 |     return { passed: true, violations };\n    54 |   }\n    55 | \n    56 |   const seen = new Set();\n    57 | \n    58 |   walkStrings(payload, '', function onString(value, path) {\n    59 |     // Skip redacted_image_base64 — it's expected binary/opaque data.\n    60 |     // But flag a warning if it looks suspiciously short or malformed.\n    61 |     if (path === 'redacted_image_base64') {\n    62 |       if (typeof value === 'string' && value.length < 100) {\n    63 |         violations.push({\n    64 |           path,\n    65 |           reason: 'redacted_image_base64 is suspiciously short or malformed',\n    66 |           matched_type: 'IMAGE_DATA_WARNING'\n    67 |         });\n    68 |       }\n    69 |       return;\n    70 |     }\n    71 | \n    72 |     // Skip values that are semantic token placeholders\n    73 |     if (SEMANTIC_TOKEN_PATTERN.test(value)) {\n    74 |       return;\n    75 |     }\n    76 | \n    77 |     // 1. Check PII detection regex matches\n    78 |     const matches = piiDetectFn(value);\n    79 |     if (Array.isArray(matches) && matches.length > 0) {\n    80 |       for (const match of matches) {\n    81 |         violations.push({\n    82 |           path,\n    83 |           reason: 'raw PII value found outside semantic token',\n    84 |           matched_type: match.type || 'UNKNOWN'\n    85 |         });\n    86 |       }\n    87 |     }\n    88 | \n    89 |     // 2. Check for unredacted passwords or secrets in sensitive fields/keys\n    90 |     if (SENSITIVE_KEY_PATTERN.test(path) && value && !SEMANTIC_TOKEN_PATTERN.test(value)) {\n    91 |       violations.push({\n    92 |         path,\n    93 |         reason: 'unredacted password or secret string found in sensitive field',\n    94 |         matched_type: 'PASSWORD'\n    95 |       });\n    96 |     }\n    97 |   }, seen);\n    98 | \n    99 |   return {\n   100 |     passed: violations.length === 0,\n   101 |     violations\n   102 |   };\n   103 | }\n   104 | \n   105 | /**\n   106 |  * Hard gate that throws a descriptive Error if the payload contains leaked PII.\n   107 |  * Intended to be called immediately before any fetch() call in the transport module.\n   108 |  * @param {object} payload - The full payload object to audit.\n   109 |  * @param {function} piiDetectFn - PII detection function.\n   110 |  * @throws {Error} If any PII violations are detected.\n   111 |  */\n   112 | export function assertSafeToSend(payload, piiDetectFn) {\n   113 |   const result = auditPayload(payload, piiDetectFn);\n   114 | \n   115 |   if (!result.passed) {\n   116 |     const details = result.violations\n   117 |       .map(function (v) {\n   118 |         return '  - [' + v.matched_type + '] at \"' + v.path + '\": ' + v.reason;\n   119 |       })\n   120 |       .join('\\n');\n   121 | \n   122 |     throw new Error(\n   123 |       'Payload safety audit failed with ' + result.violations.length +\n   124 |       ' violation(s). Blocking network request.\\n' + details\n   125 |     );\n   126 |   }\n   127 | }\n   128 | \n   129 | /**\n   130 |  * Higher-order transport wrapper enforcing fail-closed security.\n   131 |  * Guarantees assertSafeToSend runs on the final payload immediately before transportFn is called.\n   132 |  * If audit fails, transportFn is ZERO-invoked and an Error is thrown.\n   133 |  *\n   134 |  * @param {function} transportFn - Network send function with signature (payload) => Promise<any> | any\n   135 |  * @param {function} piiDetectFn - PII detection function\n   136 |  * @returns {function(object): Promise<any> | any} Wrapped transport function\n   137 |  */\n   138 | export function createSecureTransport(transportFn, piiDetectFn) {\n   139 |   if (typeof transportFn !== 'function') {\n   140 |     throw new Error('createSecureTransport requires a valid transport function.');\n   141 |   }\n   142 | \n   143 |   return function sendSecurePayload(payload) {\n   144 |     // Hard gate assertion on the FINAL assembled payload immediately before transport\n   145 |     assertSafeToSend(payload, piiDetectFn);\n   146 |     return transportFn(payload);\n   147 |   };"
+        },
+        {
+          "evidence_id": "evidence_e61366d44f5c6da6",
+          "chunk_id": "chunk_8b94513436b4d877",
+          "file_path": "dev 2/channel-consistency-check.js",
+          "start_line": 15,
+          "end_line": 88,
+          "symbol_or_node_id": "checkChannelConsistency/assertChannelsConsistent",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Checks that structural and visual redaction channels agree and throws on mismatch.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    15 | export function checkChannelConsistency(payload, redactedRegions) {\n    16 |   const mismatches = [];\n    17 | \n    18 |   const elements = (payload && payload.dom_summary && Array.isArray(payload.dom_summary.elements))\n    19 |     ? payload.dom_summary.elements\n    20 |     : [];\n    21 | \n    22 |   const regions = Array.isArray(redactedRegions) ? redactedRegions : [];\n    23 | \n    24 |   // 1. Set of element_ids that SHOULD be redacted\n    25 |   const shouldBeRedacted = new Set();\n    26 |   for (const el of elements) {\n    27 |     if (el && el.is_sensitive === true && el.semantic_token !== null) {\n    28 |       if (el.element_id) {\n    29 |         shouldBeRedacted.add(el.element_id);\n    30 |       }\n    31 |     }\n    32 |   }\n    33 | \n    34 |   // 2. Set of element_ids that WERE ACTUALLY visually redacted\n    35 |   const actuallyRedacted = new Set();\n    36 |   for (const region of regions) {\n    37 |     if (region && region.element_id) {\n    38 |       actuallyRedacted.add(region.element_id);\n    39 |     }\n    40 |   }\n    41 | \n    42 |   // 3. Compare sets\n    43 |   // Structural claimed but visual missing\n    44 |   for (const id of shouldBeRedacted) {\n    45 |     if (!actuallyRedacted.has(id)) {\n    46 |       mismatches.push({\n    47 |         element_id: id,\n    48 |         issue: 'structural redaction claimed but visual redaction missing'\n    49 |       });\n    50 |     }\n    51 |   }\n    52 | \n    53 |   // Visual present but structural missing/not sensitive\n    54 |   for (const id of actuallyRedacted) {\n    55 |     if (!shouldBeRedacted.has(id)) {\n    56 |       mismatches.push({\n    57 |         element_id: id,\n    58 |         issue: 'visual redaction present but structural summary shows no sensitivity — possible over-redaction or stale data'\n    59 |       });\n    60 |     }\n    61 |   }\n    62 | \n    63 |   // 4. Consistent if no mismatches\n    64 |   return {\n    65 |     consistent: mismatches.length === 0,\n    66 |     mismatches\n    67 |   };\n    68 | }\n    69 | \n    70 | /**\n    71 |  * Hard gate that throws a descriptive Error if visual and structural redactions do not agree.\n    72 |  *\n    73 |  * @param {object} payload - Payload containing dom_summary.elements\n    74 |  * @param {Array<{element_id: string, bounding_box: object}>} redactedRegions - Regions visually redacted\n    75 |  * @throws {Error} If channel consistency check fails\n    76 |  */\n    77 | export function assertChannelsConsistent(payload, redactedRegions) {\n    78 |   const result = checkChannelConsistency(payload, redactedRegions);\n    79 | \n    80 |   if (!result.consistent) {\n    81 |     const details = result.mismatches\n    82 |       .map(m => `  - [${m.element_id}]: ${m.issue}`)\n    83 |       .join('\\n');\n    84 | \n    85 |     throw new Error(\n    86 |       `Channel consistency check failed with ${result.mismatches.length} mismatch(es):\\n${details}`\n    87 |     );\n    88 |   }"
+        },
+        {
+          "evidence_id": "evidence_3f0b68e5355e6105",
+          "chunk_id": "chunk_fb04c958c99d0987",
+          "file_path": "dev 2/sensitivity-tiers.js",
+          "start_line": 159,
+          "end_line": 163,
+          "symbol_or_node_id": "classifySensitivity",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Returns sensitivity_tier in the 1/2/3 model.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   159 |   return {\n   160 |     sensitivity_tier: tier,\n   161 |     sensitivity_type: chosenType,\n   162 |     semantic_token\n   163 |   };"
+        },
+        {
+          "evidence_id": "evidence_a316b21d4f948eec",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 153,
+          "end_line": 183,
+          "symbol_or_node_id": "walkAndAssert",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Recursively asserts that raw sensitive values do not appear in the output object tree.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   153 |   // Top-level Recursive Guard Assertion: confirm no sensitive raw values leak into output object tree\n   154 |   function walkAndAssert(node, path) {\n   155 |     if (node === null || node === undefined) return;\n   156 |     if (path === 'redacted_image_base64') return;\n   157 | \n   158 |     if (typeof node === 'string') {\n   159 |       for (const rawVal of sensitiveRawValues) {\n   160 |         if (!rawVal || rawVal.length < 3) continue;\n   161 |         if (node.includes(rawVal) && !node.startsWith('[')) {\n   162 |           throw new Error(`Privacy Assertion Violated: Raw sensitive value \"${rawVal}\" found in output object at \"${path}\"`);\n   163 |         }\n   164 |       }\n   165 |       return;\n   166 |     }\n   167 | \n   168 |     if (typeof node !== 'object') return;\n   169 | \n   170 |     if (Array.isArray(node)) {\n   171 |       for (let i = 0; i < node.length; i++) {\n   172 |         walkAndAssert(node[i], `${path}[${i}]`);\n   173 |       }\n   174 |       return;\n   175 |     }\n   176 | \n   177 |     for (const key of Object.keys(node)) {\n   178 |       const childPath = path ? `${path}.${key}` : key;\n   179 |       walkAndAssert(node[key], childPath);\n   180 |     }\n   181 |   }\n   182 | \n   183 |   walkAndAssert(output, '');"
+        },
+        {
+          "evidence_id": "evidence_807a4629cd4288d2",
+          "chunk_id": "chunk_04240ed2b40a31ea",
+          "file_path": "dev 2/leakage-auditor.js",
+          "start_line": 58,
+          "end_line": 96,
+          "symbol_or_node_id": "auditPayload",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Flags raw PII matches and unredacted secrets in sensitive paths.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    58 |   walkStrings(payload, '', function onString(value, path) {\n    59 |     // Skip redacted_image_base64 — it's expected binary/opaque data.\n    60 |     // But flag a warning if it looks suspiciously short or malformed.\n    61 |     if (path === 'redacted_image_base64') {\n    62 |       if (typeof value === 'string' && value.length < 100) {\n    63 |         violations.push({\n    64 |           path,\n    65 |           reason: 'redacted_image_base64 is suspiciously short or malformed',\n    66 |           matched_type: 'IMAGE_DATA_WARNING'\n    67 |         });\n    68 |       }\n    69 |       return;\n    70 |     }\n    71 | \n    72 |     // Skip values that are semantic token placeholders\n    73 |     if (SEMANTIC_TOKEN_PATTERN.test(value)) {\n    74 |       return;\n    75 |     }\n    76 | \n    77 |     // 1. Check PII detection regex matches\n    78 |     const matches = piiDetectFn(value);\n    79 |     if (Array.isArray(matches) && matches.length > 0) {\n    80 |       for (const match of matches) {\n    81 |         violations.push({\n    82 |           path,\n    83 |           reason: 'raw PII value found outside semantic token',\n    84 |           matched_type: match.type || 'UNKNOWN'\n    85 |         });\n    86 |       }\n    87 |     }\n    88 | \n    89 |     // 2. Check for unredacted passwords or secrets in sensitive fields/keys\n    90 |     if (SENSITIVE_KEY_PATTERN.test(path) && value && !SEMANTIC_TOKEN_PATTERN.test(value)) {\n    91 |       violations.push({\n    92 |         path,\n    93 |         reason: 'unredacted password or secret string found in sensitive field',\n    94 |         matched_type: 'PASSWORD'\n    95 |       });\n    96 |     }"
+        },
+        {
+          "evidence_id": "evidence_79e33dd3c5829371",
+          "chunk_id": "chunk_fb04c958c99d0987",
+          "file_path": "dev 2/sensitivity-tiers.js",
+          "start_line": 159,
+          "end_line": 163,
+          "symbol_or_node_id": "classifySensitivity",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Outputs sensitivity_tier, sensitivity_type, and semantic_token.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   159 |   return {\n   160 |     sensitivity_tier: tier,\n   161 |     sensitivity_type: chosenType,\n   162 |     semantic_token\n   163 |   };"
+        },
+        {
+          "evidence_id": "evidence_41bf1a2a81c445f2",
+          "chunk_id": "chunk_221be66be448f92f",
+          "file_path": "dev 2/redaction-renderer.js",
+          "start_line": 51,
+          "end_line": 83,
+          "symbol_or_node_id": "redactImage",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Overlays black rectangles onto the output canvas for sensitive regions.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    51 |   if (Array.isArray(sensitiveRegions)) {\n    52 |     for (const region of sensitiveRegions) {\n    53 |       if (!region || !region.bounding_box) continue;\n    54 | \n    55 |       const tier = region.sensitivity_tier;\n    56 |       if (tier === 1 || (tier === 2 && REDACT_TIER_2)) {\n    57 |         const { x, y, w, h } = region.bounding_box;\n    58 | \n    59 |         let catW = 260;\n    60 |         let catH = 24;\n    61 | \n    62 |         if (w <= 80 && h <= 24) {\n    63 |           catW = 80;\n    64 |           catH = 24;\n    65 |         } else if (w <= 160 && h <= 24) {\n    66 |           catW = 160;\n    67 |           catH = 24;\n    68 |         } else {\n    69 |           catW = 260;\n    70 |           catH = 24;\n    71 |         }\n    72 | \n    73 |         const centerX = x + w / 2;\n    74 |         const centerY = y + h / 2;\n    75 |         const drawX = centerX - catW / 2;\n    76 |         const drawY = centerY - catH / 2;\n    77 | \n    78 |         if (ctx && typeof ctx.fillRect === 'function') {\n    79 |           ctx.fillStyle = '#000000';\n    80 |           ctx.fillRect(drawX, drawY, catW, catH);\n    81 |         }\n    82 |       }\n    83 |     }"
+        },
+        {
+          "evidence_id": "evidence_5460d85c8615acc6",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 143,
+          "end_line": 151,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Constructs the declared output object shape.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   143 |   const output = {\n   144 |     dom_summary: {\n   145 |       url: currentUrl,\n   146 |       elements: summaryElements\n   147 |     },\n   148 |     redacted_image_base64,\n   149 |     detection_confidence_notes: confidenceNotes,\n   150 |     redacted_regions: redactedRegionsList\n   151 |   };"
+        },
+        {
+          "evidence_id": "evidence_1d29b03867b4d7ef",
+          "chunk_id": "chunk_673f99a40f4762f8",
+          "file_path": "dev 2/token-vault.js",
+          "start_line": 23,
+          "end_line": 41,
+          "symbol_or_node_id": "getOrCreateToken",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Creates indexed tokens like [TYPE_N] and reuses them for repeated raw values.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    23 |     getOrCreateToken(rawValue, sensitivityType) {\n    24 |       if (typeof rawValue !== 'string' || !rawValue) {\n    25 |         return '';\n    26 |       }\n    27 | \n    28 |       const typeKey = (sensitivityType || 'UNKNOWN').toUpperCase();\n    29 | \n    30 |       if (forwardMap.has(rawValue)) {\n    31 |         return forwardMap.get(rawValue);\n    32 |       }\n    33 | \n    34 |       const currentCount = (typeCounters.get(typeKey) || 0) + 1;\n    35 |       typeCounters.set(typeKey, currentCount);\n    36 | \n    37 |       const token=<redacted>\n    38 |       forwardMap.set(rawValue, token);\n    39 |       reverseMap.set(token, rawValue);\n    40 | \n    41 |       return token;"
+        },
+        {
+          "evidence_id": "evidence_7e60c5366638d49d",
+          "chunk_id": "chunk_629652fe2a334c23",
+          "file_path": "dev 2/redaction-engine.js",
+          "start_line": 115,
+          "end_line": 136,
+          "symbol_or_node_id": "processPageForRedaction",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Only tier 1 or 2 elements are added to redacted regions and sensitive raw values.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "   115 |       if (sensitivity_tier === 1 || sensitivity_tier === 2) {\n   116 |         sensitiveRegions.push({\n   117 |           bounding_box,\n   118 |           sensitivity_tier\n   119 |         });\n   120 | \n   121 |         redactedRegionsList.push({\n   122 |           element_id,\n   123 |           bounding_box,\n   124 |           sensitivity_tier,\n   125 |           semantic_token\n   126 |         });\n   127 | \n   128 |         if (rawValue && String(rawValue).trim()) {\n   129 |           sensitiveRawValues.push(String(rawValue).trim());\n   130 |         }\n   131 |         for (const m of piiMatches) {\n   132 |           if (m && m.match && m.match.trim()) {\n   133 |             sensitiveRawValues.push(m.match.trim());\n   134 |           }\n   135 |         }\n   136 |       }"
+        },
+        {
+          "evidence_id": "evidence_6be1f01f30e5a987",
+          "chunk_id": "chunk_8b94513436b4d877",
+          "file_path": "dev 2/channel-consistency-check.js",
+          "start_line": 24,
+          "end_line": 32,
+          "symbol_or_node_id": "checkChannelConsistency",
+          "original_evidence_level": "E1_DIRECT_CODE",
+          "canonical_evidence_level": "E1_DIRECT_CODE",
+          "evidence_summary": "Builds expected-redaction set only for sensitive elements that have a semantic token.",
+          "source_request_id": "semantic_pack_001_part_01",
+          "source_semantic_pack_id": "semantic_pack_001",
+          "validation_status": "VALID",
+          "redaction_applied": false,
+          "excerpt": "    24 |   // 1. Set of element_ids that SHOULD be redacted\n    25 |   const shouldBeRedacted = new Set();\n    26 |   for (const el of elements) {\n    27 |     if (el && el.is_sensitive === true && el.semantic_token !== null) {\n    28 |       if (el.element_id) {\n    29 |         shouldBeRedacted.add(el.element_id);\n    30 |       }\n    31 |     }\n    32 |   }"
+        }
+      ],
+      "selection_reasons": []
+    }
+  ]
+}

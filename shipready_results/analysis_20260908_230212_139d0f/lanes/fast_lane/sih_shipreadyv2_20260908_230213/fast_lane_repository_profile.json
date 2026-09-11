@@ -1,0 +1,36 @@
+{
+  "schema_version": "shipreadyv2.fast_lane_profile.v1",
+  "repository_name": "sih",
+  "workspace_root": "C:\\Users\\Sreesatvik\\Documents\\sih",
+  "files_scanned": 13,
+  "language_counts": {
+    "html": 3,
+    "javascript": 10
+  },
+  "language_percentages": {
+    "html": 23.08,
+    "javascript": 76.92
+  },
+  "application_shapes": [
+    {
+      "shape": "WEB_FRONTEND",
+      "confidence": "HIGH",
+      "evidence": [
+        "3 page/UI signals"
+      ]
+    }
+  ],
+  "top_role_hints": {
+    "html_page": 3,
+    "auth_related_file": 1
+  },
+  "entity_kind_counts": {
+    "function": 31,
+    "method": 5,
+    "html_document": 3,
+    "html_meta": 3,
+    "html_title": 3,
+    "html_heading_h1": 3
+  },
+  "interpretation_boundary": "Fast deterministic profile. Application shapes are evidence-backed hints, not final business classifications."
+}
