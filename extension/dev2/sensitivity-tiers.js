@@ -142,19 +142,17 @@ export function classifySensitivity(elementClassification, piiMatches = [], rawV
 
   let semantic_token = null;
 
-    if (tier === 1 || tier === 2) {
+  if (tier === 1 || tier === 2) {
     if (tokenVault && typeof tokenVault.getOrCreateToken === 'function' && rawValue !== null && rawValue !== undefined && rawValue !== '') {
       semantic_token = tokenVault.getOrCreateToken(rawValue, chosenType);
-    } else if (chosenType === 'AMOUNT' && rawValue) {
-      semantic_token = getAmountToken(elementClassification, piiMatches);
     } else {
-      // No real value present yet (e.g. an empty input field) — don't emit
-      // a bare, non-vault-backed placeholder like "[PASSWORD]". A token
-      // with no vault entry can never be resolved by resolveToken(), and
-      // seeing it in the DOM summary misleads the LLM into echoing it
-      // back verbatim instead of using a real token from elsewhere
-      // (e.g. one seeded from the task instruction).
-      semantic_token = null;
+      if (tier === 1) {
+        semantic_token = `[${chosenType}]`;
+      } else {
+        semantic_token = chosenType === 'AMOUNT'
+          ? getAmountToken(elementClassification, piiMatches)
+          : `[${chosenType}]`;
+      }
     }
   }
 

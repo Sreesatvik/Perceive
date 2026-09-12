@@ -26,3 +26,20 @@ document.getElementById('run-btn').addEventListener('click', async () => {
     }
   );
 });
+
+// A running task can finish with an UNRESOLVED_SENSITIVE_REFERENCE reason
+// when the instruction implies a login but no credential value could be
+// found. Rather than silently proceeding with an ambiguous instruction
+// (or leaving the user guessing why the task stopped), surface it here so
+// they can retype the task with an explicit credential.
+chrome.runtime.onMessage.addListener((message) => {
+  if (message && message.type === 'TASK_RESULT' && !message.result.success) {
+    const status = document.getElementById('status');
+    if (!status) return;
+    if (message.result.reason === 'UNRESOLVED_SENSITIVE_REFERENCE') {
+      status.textContent = '⚠ ' + message.result.message;
+    } else {
+      status.textContent = '⚠ Task failed: ' + (message.result.reason || 'unknown error');
+    }
+  }
+});

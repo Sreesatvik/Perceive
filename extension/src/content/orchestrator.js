@@ -5,6 +5,10 @@ import { RETRY_CONFIG } from '../shared/constants.js';
 import { getVaultForSession, endSession } from '../../dev2/session-vault-manager.js';
 import { processPageForRedaction } from '../../dev2/redaction-engine.js';
 import { detectPII } from '../../dev2/pii-patterns.js';
+import {
+  resolveCredentialTokens,
+  UnresolvedSensitiveReferenceError,
+} from '../../dev2/task-entity-extractor.js';
 
 const IS_TEST_MODE = typeof window !== 'undefined' && window.__PERCEIVE_TEST_MODE__ === true;
 
@@ -22,25 +26,11 @@ const mockDev1 = {
  * back to the real value at execution time.
  */
 function tokenizeCredentialsInInstruction(taskInstruction, vault) {
-  let sanitizedInstruction = taskInstruction;
-
-  // Match: username 'X' or username "X"
-  sanitizedInstruction = sanitizedInstruction.replace(
-    /username\s+['"]([^'"]+)['"]/i,
-    (match, value) => {
-      const token = vault.getOrCreateToken(value, 'NAME');
-      return `username ${token}`;
-    }
-  );
-
-  // Match: password 'X' or password "X"
-  sanitizedInstruction = sanitizedInstruction.replace(
-    /password\s+['"]([^'"]+)['"]/i,
-    (match, value) => {
-      const token = vault.getOrCreateToken(value, 'PASSWORD');
-      return `password ${token}`;
-    }
-  );
+  // Stage A/B/C (fast-path regex, informal-phrasing fallback, then
+  // fail-closed) live in dev2/task-entity-extractor.js so they can be
+  // unit-tested directly. May throw UnresolvedSensitiveReferenceError,
+  // which callers must handle without retrying.
+  let sanitizedInstruction = resolveCredentialTokens(taskInstruction, vault);
 
   const piiMatches = detectPII(sanitizedInstruction);
   const sortedMatches = [...piiMatches].sort((a, b) => b.startIndex - a.startIndex);
@@ -271,6 +261,19 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                         retriesLeft--;
                     }
                 } catch (err) {
+                    if (err instanceof UnresolvedSensitiveReferenceError) {
+                        // Fail-closed, no retries: an ambiguous credential
+                        // reference must never be sent to the LLM. Surface a
+                        // distinct reason so the popup can prompt the user
+                        // for an explicit value instead of retrying blindly.
+                        console.warn(`[Orchestrator] Unresolved sensitive reference:`, err.message);
+                        await finalizeTask(sessionId, 'unresolved_sensitive_reference');
+                        return {
+                            success: false,
+                            reason: 'UNRESOLVED_SENSITIVE_REFERENCE',
+                            message: err.message,
+                        };
+                    }
                     console.error(`[Orchestrator] Error during step ${stepNumber}:`, err);
                     retriesLeft--;
                     if (retriesLeft === 0) {
@@ -314,7 +317,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         canvas
       };
     };
-    runTaskLoop(message.taskInstruction, capture);
+    runTaskLoop(message.taskInstruction, capture).then((result) => {
+      // Best-effort notification to the popup (if still open) so the user
+      // learns why a task stopped rather than being left guessing —
+      // particularly for UNRESOLVED_SENSITIVE_REFERENCE, which requires
+      // them to retype the task with an explicit credential.
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+        try {
+          chrome.runtime.sendMessage({ type: 'TASK_RESULT', result }, () => {
+            // Swallow "Receiving end does not exist" when the popup is closed.
+            void chrome.runtime.lastError;
+          });
+        } catch (_e) {
+          // Non-fatal: no listener currently attached.
+        }
+      }
+    }).catch((err) => {
+      console.error('[Orchestrator] runTaskLoop rejected:', err);
+    });
     sendResponse({ started: true });
     return true;
   }

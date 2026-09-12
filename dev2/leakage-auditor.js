@@ -79,7 +79,7 @@ export function auditPayload(payload, piiDetectFn) {
       }
 
       const regions = payload.redacted_regions;
-      if (!Array.isArray(regions) || regions.length < requiredCount) {
+      if (requiredCount > 0 && (!Array.isArray(regions) || regions.length < requiredCount)) {
         violations.push({
           path: 'redacted_regions',
           reason: 'redacted_regions count does not cover all tier 1/2 sensitive elements',

@@ -14,7 +14,7 @@ from .llm_client import generate_action
 from .session import get_or_create_session, clear_session, get_session_lock
 from .logger import log_audit_event_async
 from .auth import require_api_key
-from .policy import evaluate_action_risk
+from .policy import evaluate_action_risk, value_field_violates_pii_guard
 from .config import settings
 
 logger = logging.getLogger(__name__)
@@ -102,7 +102,28 @@ async def analyze_step(payload: ClientPayload):
                     valid_ids = [el.element_id for el in payload.dom_summary.elements]
                     if action.target_element_id not in valid_ids:
                         raise ValueError(f"Hallucinated target_element_id '{action.target_element_id}'. Must be one of {valid_ids}")
-                        
+
+                # Fail-closed guard against the LLM echoing or hallucinating a
+                # raw-looking PII value instead of a semantic token. This is
+                # rejected outright (422), not retried like a hallucinated
+                # target — a raw value in the value field is a policy
+                # violation, not a transient parsing failure.
+                if action.type == "type":
+                    violated_type = value_field_violates_pii_guard(action.value)
+                    if violated_type:
+                        await log_audit_event_async(
+                            session_id=payload.session_id,
+                            step_number=payload.step_number,
+                            instruction=payload.task_instruction,
+                            action={"error": f"Rejected: value field matched raw {violated_type} shape, not a valid token"},
+                            confidence=0.0,
+                            payload_notes=[n.model_dump() for n in payload.detection_confidence_notes]
+                        )
+                        raise HTTPException(
+                            status_code=422,
+                            detail=f"Action value field matched a raw {violated_type} shape instead of a valid semantic token. Rejected."
+                        )
+
                 # Server-authoritative risk tier override / enforcement
                 target_el = None
                 if action.target_element_id:
@@ -151,6 +172,11 @@ async def analyze_step(payload: ClientPayload):
                     content={"detail": "Rate limit exceeded. Please wait and try again."},
                     headers={"Retry-After": "5"}
                 )
+            except HTTPException:
+                # Deliberate rejections raised above (e.g. the PII value-field
+                # guard) must propagate with their own status code, not be
+                # swallowed into a generic 500 by the catch-all below.
+                raise
             except Exception as e:
                 # Other errors (e.g., API failures)
                 logger.error("API Failure in analyze_step", exc_info=True)
@@ -175,8 +201,8 @@ async def analyze_step(payload: ClientPayload):
             payload_notes=[n.model_dump() for n in payload.detection_confidence_notes]
         )
         raise HTTPException(
-            status_code=500, 
-            detail="Internal server error"
+            status_code=500,
+            detail=f"Internal server error: {last_exception}"
         )
 
 @app.exception_handler(ValidationError)

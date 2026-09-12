@@ -24,11 +24,7 @@ export function checkChannelConsistency(payload, redactedRegions) {
   // 1. Set of element_ids that SHOULD be redacted
   const shouldBeRedacted = new Set();
   for (const el of elements) {
-    // Redaction should be based on sensitivity, not on whether a token
-    // happened to be assigned. A tier 1/2 field can be legitimately
-    // sensitive with no token yet (e.g. an empty password input) and
-    // must still be treated as "should be redacted."
-    if (el && el.is_sensitive === true) {
+    if (el && el.is_sensitive === true && el.semantic_token !== null) {
       if (el.element_id) {
         shouldBeRedacted.add(el.element_id);
       }

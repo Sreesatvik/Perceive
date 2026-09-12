@@ -16,7 +16,7 @@ def test_valid_client_payload():
                     "role": "textbox",
                     "label_text": "Card Number",
                     "is_sensitive": True,
-                    "sensitivity_tier": "1",
+                    "sensitivity_tier": 1,
                     "sensitivity_type": "CARD_NUMBER",
                     "semantic_token": "[CARD_NUMBER]",
                     "bounding_box": {"x": 120, "y": 340, "w": 220, "h": 32}

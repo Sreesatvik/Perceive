@@ -1,9 +1,0 @@
-{
-  "updated_at": "2026-09-09T05:24:27.678515+00:00",
-  "updated_epoch": 1788931467.6785326,
-  "percent": 5,
-  "phase": "FAILED",
-  "message": "Needs attention",
-  "detail": "Semantic pack exceeded hard limit during partition: 134790",
-  "report_folder": null
-}

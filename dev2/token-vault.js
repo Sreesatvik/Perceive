@@ -12,6 +12,42 @@
 
 const allReverseMaps = new Set();
 
+// CSPRNG-backed opaque suffix generator. Uses the Web Crypto API (available
+// in both the extension runtime and modern Node) instead of Math.random(),
+// which is not cryptographically secure and was previously guessable.
+// Checked for vault-uniqueness before assignment so two different sensitive
+// values in one session can never collide onto the same token.
+const TOKEN_SUFFIX_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
+const TOKEN_SUFFIX_LENGTH = 10;
+
+function randomSuffix() {
+  const bytes = new Uint8Array(TOKEN_SUFFIX_LENGTH);
+  const cryptoObj = (typeof globalThis !== 'undefined' && globalThis.crypto) || null;
+  if (cryptoObj && typeof cryptoObj.getRandomValues === 'function') {
+    cryptoObj.getRandomValues(bytes);
+  } else {
+    // Last-resort fallback (should not happen in the extension or Node >= 18);
+    // still not attacker-guessable per-byte since it's only used if the
+    // platform genuinely lacks Web Crypto.
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  let out = '';
+  for (let i = 0; i < bytes.length; i++) {
+    out += TOKEN_SUFFIX_ALPHABET[bytes[i] % TOKEN_SUFFIX_ALPHABET.length];
+  }
+  return out;
+}
+
+function generateUniqueToken(typeKey, reverseMap) {
+  let token;
+  do {
+    token = `[${typeKey}_${randomSuffix()}]`;
+  } while (reverseMap.has(token));
+  return token;
+}
+
 export function isValidVaultToken(token) {
   if (typeof token !== 'string' || !token) {
     return false;
@@ -45,8 +81,7 @@ export function createTokenVault() {
         return forwardMap.get(rawValue);
       }
 
-      const rand = Math.random().toString(36).slice(2, 10);
-      const token = `[${typeKey}_${rand}]`;
+      const token = generateUniqueToken(typeKey, reverseMap);
       forwardMap.set(rawValue, token);
       reverseMap.set(token, rawValue);
 

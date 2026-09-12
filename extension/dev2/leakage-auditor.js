@@ -1,3 +1,5 @@
+import { isValidVaultToken } from './token-vault.js';
+
 const SEMANTIC_TOKEN_PATTERN = /^\[[A-Z0-9_]+(?:\?|: [^\]]+)?\]$/;
 const SENSITIVE_KEY_PATTERN = /password|pwd|secret|credit_card|cvv|ssn|aadhaar|otp/i;
 
@@ -66,11 +68,46 @@ export function auditPayload(payload, piiDetectFn) {
           matched_type: 'IMAGE_DATA_WARNING'
         });
       }
+
+      let requiredCount = 0;
+      if (payload.dom_summary && Array.isArray(payload.dom_summary.elements)) {
+        for (const el of payload.dom_summary.elements) {
+          if (el.is_sensitive === true && (el.sensitivity_tier === 1 || el.sensitivity_tier === 2)) {
+            requiredCount++;
+          }
+        }
+      }
+
+      const regions = payload.redacted_regions;
+      if (requiredCount > 0 && (!Array.isArray(regions) || regions.length < requiredCount)) {
+        violations.push({
+          path: 'redacted_regions',
+          reason: 'redacted_regions count does not cover all tier 1/2 sensitive elements',
+          matched_type: 'REDACTION_MISSING'
+        });
+      }
+      
+      if (Array.isArray(regions)) {
+        for (let i = 0; i < regions.length; i++) {
+          const r = regions[i];
+          if (!r || !r.bounding_box || typeof r.bounding_box.x !== 'number' || typeof r.bounding_box.y !== 'number' || typeof r.bounding_box.w !== 'number' || typeof r.bounding_box.h !== 'number') {
+            violations.push({
+              path: 'redacted_regions[' + i + ']',
+              reason: 'Invalid bounding_box in redacted_regions',
+              matched_type: 'INVALID_BOUNDING_BOX'
+            });
+          }
+        }
+      }
+
       return;
     }
 
+    const isTokenShape = SEMANTIC_TOKEN_PATTERN.test(value);
+    const isActuallyVaultIssued = typeof isValidVaultToken === 'function' && isValidVaultToken(value);
+
     // Skip values that are semantic token placeholders
-    if (SEMANTIC_TOKEN_PATTERN.test(value)) {
+    if (isTokenShape && isActuallyVaultIssued) {
       return;
     }
 
@@ -87,7 +124,7 @@ export function auditPayload(payload, piiDetectFn) {
     }
 
     // 2. Check for unredacted passwords or secrets in sensitive fields/keys
-    if (SENSITIVE_KEY_PATTERN.test(path) && value && !SEMANTIC_TOKEN_PATTERN.test(value)) {
+    if (SENSITIVE_KEY_PATTERN.test(path) && value && !(isTokenShape && isActuallyVaultIssued)) {
       violations.push({
         path,
         reason: 'unredacted password or secret string found in sensitive field',

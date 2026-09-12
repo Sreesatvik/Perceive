@@ -35,3 +35,5 @@ server/*.jsonl
 server/audit.jsonl
 audit.jsonl
 shipready_results/
+test-logs/
+server/venv/

@@ -7,8 +7,18 @@ import { getVaultForSession, endSession, getActiveSessionCount, cleanExpiredSess
 import { auditPayload, assertSafeToSend, createSecureTransport } from './leakage-auditor.js';
 import { processPageForRedaction } from './redaction-engine.js';
 import { checkChannelConsistency, assertChannelsConsistent } from './channel-consistency-check.js';
+import { isValidVaultToken } from './token-vault.js';
 
 console.log('=== RUNNING DEV 2 PRIVACY PIPELINE VERIFICATION SUITE ===\n');
+
+// Tokens are now CSPRNG-backed opaque suffixes (Phase 1.3), not deterministic
+// [TYPE_1], [TYPE_2] counters. Assert on shape + behavior instead of literal
+// values, so this suite can never again drift silently out of sync with the
+// actual token format the way it did before Phase 1.
+function assertTokenShape(token, expectedType, message) {
+  const re = new RegExp(`^\\[${expectedType}_[a-z0-9]{10}\\]$`);
+  assert.ok(re.test(token), message || `Token "${token}" must match shape [${expectedType}_<10 char opaque suffix>]`);
+}
 
 let passCount = 0;
 let totalCount = 0;
@@ -36,7 +46,7 @@ runTestCase('CARD_NUMBER detection -> sensitivity_tier = 1', () => {
   const res = classifySensitivity(cardElementClass, cardPii, '4111 1111 1111 1111', vault);
   assert.strictEqual(res.sensitivity_tier, 1, 'CARD_NUMBER detection must have sensitivity_tier = 1');
   assert.strictEqual(res.sensitivity_type, 'CARD_NUMBER');
-  assert.strictEqual(res.semantic_token, '[CARD_NUMBER_1]');
+  assertTokenShape(res.semantic_token, 'CARD_NUMBER');
 });
 
 // 2. CARD_NUMBER typing action -> risk_tier = "risky"
@@ -63,11 +73,11 @@ runTestCase('Normal safe action -> risk_tier = "safe"', () => {
   assert.notStrictEqual(riskTier, 3, 'risk_tier MUST NOT be numeric 3');
 });
 
-// 4. Semantic token [CARD_NUMBER_1] format
-runTestCase('Semantic token [CARD_NUMBER_1] format', () => {
+// 4. Semantic token format
+runTestCase('Semantic token format is [TYPE_<opaque CSPRNG suffix>]', () => {
   const vault = createTokenVault();
   const token = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
-  assert.strictEqual(token, '[CARD_NUMBER_1]', 'Semantic token format must remain [CARD_NUMBER_1]');
+  assertTokenShape(token, 'CARD_NUMBER');
 });
 
 // 5. assertSafeToSend() still blocks raw PII
@@ -92,11 +102,11 @@ runTestCase('Basic Token Vault session isolation', () => {
   const sessionId = 'session-test-basic';
   const vault = getVaultForSession(sessionId);
   const token = vault.getOrCreateToken('user@example.com', 'EMAIL');
-  assert.strictEqual(token, '[EMAIL_1]');
-  assert.strictEqual(vault.resolveToken('[EMAIL_1]'), 'user@example.com');
+  assertTokenShape(token, 'EMAIL');
+  assert.strictEqual(vault.resolveToken(token), 'user@example.com');
 
   endSession(sessionId);
-  assert.strictEqual(vault.resolveToken('[EMAIL_1]'), null);
+  assert.strictEqual(vault.resolveToken(token), null);
 });
 
 // 7. Verify numeric risk_tier conversion
@@ -156,7 +166,7 @@ runTestCase('E2E Case 1: Tier-1 card number full pipeline flow', () => {
   // Assert Tier 1 & token creation
   const cardElem = payload.dom_summary.elements[0];
   assert.strictEqual(cardElem.sensitivity_tier, 1);
-  assert.strictEqual(cardElem.semantic_token, '[CARD_NUMBER_1]');
+  assertTokenShape(cardElem.semantic_token, 'CARD_NUMBER');
   assert.strictEqual(cardElem.is_sensitive, true);
 
   // Assert visual region metadata created
@@ -169,23 +179,23 @@ runTestCase('E2E Case 1: Tier-1 card number full pipeline flow', () => {
 });
 
 // E2E Test 2: Same card appears again in the same session -> reuse token
-runTestCase('E2E Case 2: Same card appears again in same session -> reuse [CARD_NUMBER_1]', () => {
+runTestCase('E2E Case 2: Same card appears again in same session -> reuse the same token', () => {
   const vault = createTokenVault();
   const t1 = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
   const t2 = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
 
-  assert.strictEqual(t1, '[CARD_NUMBER_1]');
+  assertTokenShape(t1, 'CARD_NUMBER');
   assert.strictEqual(t2, t1, 'Must strictly reuse exact same token instance');
 });
 
 // E2E Test 3: Different card in same session -> receives different token
-runTestCase('E2E Case 3: Different card in same session -> receives [CARD_NUMBER_2]', () => {
+runTestCase('E2E Case 3: Different card in same session -> receives a different token', () => {
   const vault = createTokenVault();
   const t1 = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
   const t2 = vault.getOrCreateToken('5500 0000 0000 0004', 'CARD_NUMBER');
 
-  assert.strictEqual(t1, '[CARD_NUMBER_1]');
-  assert.strictEqual(t2, '[CARD_NUMBER_2]');
+  assertTokenShape(t1, 'CARD_NUMBER');
+  assertTokenShape(t2, 'CARD_NUMBER');
   assert.notStrictEqual(t1, t2);
 });
 
@@ -200,13 +210,17 @@ runTestCase('E2E Case 4: Same card in another session -> no token state sharing 
   const tA = vaultA.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
   const tB = vaultB.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
 
-  assert.strictEqual(tA, '[CARD_NUMBER_1]');
-  assert.strictEqual(tB, '[CARD_NUMBER_1]'); // Both start index at 1 independently
+  assertTokenShape(tA, 'CARD_NUMBER');
+  assertTokenShape(tB, 'CARD_NUMBER');
+  // Random suffixes mean the two vaults will not coincidentally issue the
+  // same token for the same raw value — reinforces isolation rather than
+  // relying on both counters starting at 1.
+  assert.notStrictEqual(tA, tB, 'Independent vaults must not coincidentally share a token for the same raw value');
 
   // Verify resolution maps are isolated per session
   endSession(sessionA);
-  assert.strictEqual(vaultA.resolveToken('[CARD_NUMBER_1]'), null);
-  assert.strictEqual(vaultB.resolveToken('[CARD_NUMBER_1]'), '4111 1111 1111 1111');
+  assert.strictEqual(vaultA.resolveToken(tA), null);
+  assert.strictEqual(vaultB.resolveToken(tB), '4111 1111 1111 1111');
 
   endSession(sessionB);
 });
@@ -224,14 +238,43 @@ runTestCase('E2E Case 5: Token resolves to raw value locally, absent from outgoi
   };
 
   const payload = processPageForRedaction([mockCardElement], mockCanvas, vault);
+  const issuedToken = payload.dom_summary.elements[0].semantic_token;
 
   // Local resolution succeeds
-  assert.strictEqual(vault.resolveToken('[CARD_NUMBER_1]'), '4111 1111 1111 1111');
+  assert.strictEqual(vault.resolveToken(issuedToken), '4111 1111 1111 1111');
 
   // Outgoing payload contains NO raw PII string anywhere
   const payloadStr = JSON.stringify(payload);
   assert.strictEqual(payloadStr.includes('4111 1111 1111 1111'), false);
   assert.strictEqual(payloadStr.includes('4111111111111111'), false);
+});
+
+// E2E Test 3b: Token uniqueness fuzz test (Phase 1.3) — 10,000 tokens, zero collisions
+runTestCase('E2E Case 3b: 10,000 generated tokens have zero collisions', () => {
+  const vault = createTokenVault();
+  const seen = new Set();
+  for (let i = 0; i < 10000; i++) {
+    // Each call uses a distinct raw value so the vault must mint a fresh token every time.
+    const token = vault.getOrCreateToken(`raw-value-${i}`, 'CARD_NUMBER');
+    assert.ok(!seen.has(token), `Collision detected at i=${i}: token ${token} already issued`);
+    seen.add(token);
+  }
+  assert.strictEqual(seen.size, 10000);
+});
+
+// E2E Test 3c: A user-typed string that happens to look token-shaped is NOT
+// treated as a safe vault token unless it was actually issued by the active vault.
+runTestCase('E2E Case 3c: token-shaped but non-vault-issued string is rejected as unsafe', () => {
+  const vault = createTokenVault();
+  const realToken = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+  assert.strictEqual(isValidVaultToken(realToken), true, 'A real vault-issued token must be recognized as valid');
+
+  const forgedLookalike = '[PASSWORD_a1b2c3d4e5]'; // never issued by any vault, just shaped like one
+  assert.strictEqual(
+    isValidVaultToken(forgedLookalike),
+    false,
+    'A token-shaped string that was never actually issued by a vault must NOT be treated as safe'
+  );
 });
 
 // E2E Test 6: Layer 4 mismatch -> fails closed
@@ -304,14 +347,14 @@ runTestCase('E2E Case 8: [CARD_NUMBER_1] semantic token allowed through payload'
 runTestCase('E2E Case 9: Session cleanup (task_complete clears vault)', () => {
   const sessionId = 'session-complete-9';
   const vault = getVaultForSession(sessionId);
-  vault.getOrCreateToken('user@example.com', 'EMAIL');
+  const emailToken = vault.getOrCreateToken('user@example.com', 'EMAIL');
 
   assert.strictEqual(getActiveSessionCount() >= 1, true);
 
   // Simulate task_complete cleanup
   endSession(sessionId);
 
-  assert.strictEqual(vault.resolveToken('[EMAIL_1]'), null);
+  assert.strictEqual(vault.resolveToken(emailToken), null);
   assert.strictEqual(vault.getStats().totalTokens, 0);
 });
 
@@ -319,7 +362,7 @@ runTestCase('E2E Case 9: Session cleanup (task_complete clears vault)', () => {
 runTestCase('E2E Case 10: Failure cleanup (task_failed clears vault)', () => {
   const sessionId = 'session-failed-10';
   const vault = getVaultForSession(sessionId);
-  vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+  const cardToken = vault.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
 
   // Simulate task_failed error recovery teardown
   try {
@@ -328,7 +371,7 @@ runTestCase('E2E Case 10: Failure cleanup (task_failed clears vault)', () => {
     endSession(sessionId);
   }
 
-  assert.strictEqual(vault.resolveToken('[CARD_NUMBER_1]'), null);
+  assert.strictEqual(vault.resolveToken(cardToken), null);
   assert.strictEqual(vault.getStats().totalTokens, 0);
 });
 
@@ -337,7 +380,7 @@ runTestCase('E2E Case 11: Timeout/expired session behavior -> vault invalidated 
   const sessionId = 'session-expired-11';
   // Retrieve vault with 1ms TTL
   const vault1 = getVaultForSession(sessionId, 1);
-  vault1.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
+  const expiredToken = vault1.getOrCreateToken('4111 1111 1111 1111', 'CARD_NUMBER');
 
   // Busy wait 5ms to guarantee expiration
   const start = Date.now();
@@ -346,7 +389,7 @@ runTestCase('E2E Case 11: Timeout/expired session behavior -> vault invalidated 
   // Requesting vault after TTL should trigger automatic expiration cleanup & return a fresh vault
   const vault2 = getVaultForSession(sessionId, 1);
   assert.notStrictEqual(vault1, vault2, 'Expired session must return a fresh new vault instance');
-  assert.strictEqual(vault2.resolveToken('[CARD_NUMBER_1]'), null, 'Expired tokens must not resolve');
+  assert.strictEqual(vault2.resolveToken(expiredToken), null, 'Expired tokens must not resolve');
 
   endSession(sessionId);
 });
