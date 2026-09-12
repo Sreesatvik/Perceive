@@ -8,7 +8,7 @@ from typing import List, Optional, Literal
 TagType = str
 RoleType = str
 SensitivityTier = Literal[1, 2, 3]
-SensitivityType = Literal["PASSWORD", "CARD_NUMBER", "EMAIL", "NAME", "AMOUNT", "PHONE", "UNKNOWN"]
+SensitivityType = Literal["PASSWORD", "CARD_NUMBER", "EMAIL", "NAME", "AMOUNT", "PHONE", "AADHAAR", "OTP", "IFSC", "UNKNOWN"]
 DetectionMethod = Literal["dom_heuristic", "vision_model", "ocr_regex"]
 ActionType = Literal["click", "type", "scroll", "wait", "ask_user_confirmation", "task_complete", "task_failed"]
 RiskTier = Literal["safe", "risky"]
@@ -36,16 +36,15 @@ class DOMElement(BaseModel):
 
     @model_validator(mode='after')
     def check_sensitive_has_token(self):
-        # Section 8.2: Redaction breaks task utility - Semantic placeholder tokens instead of blind blackout
-        # The server must NEVER receive a real sensitive value in any field.
-        if self.is_sensitive and self.semantic_token is None:
-            # We don't strictly reject missing token if they just blinded it, but we encourage it.
-            pass
+        # Fail-closed invariant: The server must NEVER receive a real sensitive value.
+        # Sensitive elements must always use a semantic token rather than blind blackout or raw values.
+        if self.is_sensitive and (self.semantic_token is None or self.semantic_token == ""):
+            raise ValueError('Sensitive DOM element must include a semantic_token')
         return self
 
 class DOMSummary(BaseModel):
     url: str
-    elements: List[DOMElement]
+    elements: List[DOMElement] = Field(max_length=500)
 
 class DetectionConfidenceNote(BaseModel):
     element_id: str
@@ -54,11 +53,11 @@ class DetectionConfidenceNote(BaseModel):
 
 class ClientPayload(BaseModel):
     session_id: str
-    task_instruction: str
+    task_instruction: str = Field(min_length=1, max_length=2000)
     step_number: int
     dom_summary: DOMSummary
-    redacted_image_base64: Optional[str] = None
-    detection_confidence_notes: List[DetectionConfidenceNote] = []
+    redacted_image_base64: Optional[str] = Field(default=None, max_length=8_000_000)
+    detection_confidence_notes: List[DetectionConfidenceNote] = Field(default_factory=list, max_length=500)
     redacted_regions: Optional[List[dict]] = None
 
 # -------------------------------------------------------------------

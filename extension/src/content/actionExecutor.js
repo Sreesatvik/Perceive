@@ -4,7 +4,7 @@
  * @param {Function} resolveToken — Dev 2's vault.resolveToken, bound and passed in
  * @returns {Promise<Object>} — { success: boolean, error?: string, domChanged?: boolean }
  */
-export async function executeAction(action, resolveToken) {
+export async function executeAction(action, resolveToken, perceivedElement = null) {
     console.log(`[ActionExecutor] Executing action: ${action.type}`);
 
     if (action.type === 'task_complete' || action.type === 'task_failed') {
@@ -28,6 +28,16 @@ export async function executeAction(action, resolveToken) {
 
     if (!targetElement && ['click', 'type', 'scroll'].includes(action.type)) {
         return { success: false, error: 'target_element_not_found' };
+    }
+
+    if (targetElement && perceivedElement != null) {
+        const tagMismatch = targetElement.tagName.toLowerCase() !== (perceivedElement.tag || '').toLowerCase();
+        const currentLabel = (targetElement.getAttribute('aria-label') || targetElement.labels?.[0]?.innerText || targetElement.innerText || targetElement.placeholder || '').trim().toLowerCase();
+        const perceivedLabel = (perceivedElement.label_text || '').trim().toLowerCase();
+        
+        if (tagMismatch && currentLabel !== perceivedLabel) {
+            return { success: false, error: 'stale_target_mismatch' };
+        }
     }
 
     // Visibility check

@@ -4,6 +4,9 @@ import { RETRY_CONFIG } from '../shared/constants.js';
 
 import { getVaultForSession, endSession } from '../../dev2/session-vault-manager.js';
 import { processPageForRedaction } from '../../dev2/redaction-engine.js';
+import { detectPII } from '../../dev2/pii-patterns.js';
+
+const IS_TEST_MODE = typeof window !== 'undefined' && window.__PERCEIVE_TEST_MODE__ === true;
 
 // TODO: replace with Dev 1's real capture module once available
 const mockDev1 = {
@@ -39,6 +42,20 @@ function tokenizeCredentialsInInstruction(taskInstruction, vault) {
     }
   );
 
+  const piiMatches = detectPII(sanitizedInstruction);
+  const sortedMatches = [...piiMatches].sort((a, b) => b.startIndex - a.startIndex);
+  for (const match of sortedMatches) {
+    const token = vault.getOrCreateToken(match.match, match.type);
+    sanitizedInstruction = sanitizedInstruction.substring(0, match.startIndex) + token + sanitizedInstruction.substring(match.endIndex);
+  }
+
+  const finalCheck = detectPII(sanitizedInstruction);
+  if (finalCheck.length > 0) {
+    const err = new Error('Unresolved sensitive pattern in task instruction');
+    err.name = 'InstructionLeakageError';
+    throw err;
+  }
+
   return sanitizedInstruction;
 }
 
@@ -64,7 +81,14 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
 
 // Fallback BACKEND_URL used only outside the extension runtime (plain-webpage test harness)
 const BACKEND_URL = 'http://localhost:8000';
-const BACKEND_API_KEY = 'my-test-secret-123'; // must match server/.env BACKEND_API_KEY
+
+async function getBackendApiKey() {
+  if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+    return null; // test harness / non-extension context
+  }
+  const result = await chrome.storage.local.get('backendApiKey');
+  return result.backendApiKey || null;
+}
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -107,11 +131,16 @@ async function finalizeTask(sessionId, reason) {
         const response = await sendMessageAsync({ type: 'END_SESSION', sessionId, reason });
         if (response === null) {
             // Fallback: plain-webpage test harness — direct fetch is acceptable
+          const apiKey = await getBackendApiKey();
+          if (!apiKey) {
+            console.error('[Transport] No backend API key configured \u2014 set one via the extension options page');
+          } else {
             fetch(`${BACKEND_URL}/session/${sessionId}/end`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-API-Key': BACKEND_API_KEY },
-                body: JSON.stringify({ reason }),
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+              body: JSON.stringify({ reason }),
             }).catch(() => {}); // Fire and forget
+          }
         }
     } catch (e) {
         // non-fatal, swallow silently
@@ -123,12 +152,37 @@ async function finalizeTask(sessionId, reason) {
     }));
 }
 
+function verifyTaskCompletion() {
+  // Heuristic postcondition check — looks for common failure signals
+  // still visible in the DOM. This is a best-effort check, not a
+  // site-specific guarantee.
+  const bodyText = (document.body?.innerText || '').toLowerCase();
+  const failureSignals = [
+    'invalid username', 'invalid password', 'login failed',
+    'incorrect password', 'error', 'try again', 'access denied'
+  ];
+  const hasVisibleError = failureSignals.some(signal => bodyText.includes(signal));
+
+  const hasErrorRoleElement = !!document.querySelector(
+    '[role="alert"], .error, .alert-danger, [aria-invalid="true"]'
+  );
+
+  return {
+    verified: !hasVisibleError && !hasErrorRoleElement,
+    reason: hasVisibleError
+      ? 'Visible error text detected on page'
+      : hasErrorRoleElement
+        ? 'Element with error role/class detected'
+        : null,
+  };
+}
+
 export async function runTaskLoop(taskInstruction, captureOverride = null) {
     const sessionId = crypto.randomUUID();
     let stepNumber = 0;
     
     // Track active vaults for E2E testing
-    if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production') {
+    if (IS_TEST_MODE) {
         if (window.__activeVaults === undefined) window.__activeVaults = 0;
         window.__activeVaults++;
     }
@@ -173,6 +227,16 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
 
                     // 4. Check for terminal actions
                     if (actionResponse.action.type === 'task_complete') {
+                        const verification = verifyTaskCompletion();
+                        if (!verification.verified) {
+                            console.warn('[Orchestrator] task_complete rejected — postcondition check failed:', verification.reason);
+                            retriesLeft--;
+                            if (retriesLeft === 0) {
+                                await finalizeTask(sessionId, 'max_retries_exceeded');
+                                return { success: false, reason: `Step ${stepNumber} failed after max retries: ${verification.reason}` };
+                            }
+                            continue;
+                        }
                         await finalizeTask(sessionId, 'completed');
                         return { success: true, steps: stepNumber };
                     }
@@ -195,7 +259,8 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                     if (window.__forceExecuteFailure) {
                         result = { success: false, error: 'forced_failure' };
                     } else {
-                        result = await executeAction(actionResponse.action, resolveToken);
+                        const perceivedElement = payload.dom_summary?.elements?.find(el => el.element_id === actionResponse.action.target_element_id) || null;
+                        result = await executeAction(actionResponse.action, resolveToken, perceivedElement);
                     }
 
                     if (result.success) {
@@ -234,7 +299,7 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
 }
 
 // Expose for testing
-if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production') {
+if (IS_TEST_MODE) {
     window.__runTaskLoop = runTaskLoop;
 }
 

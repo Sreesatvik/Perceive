@@ -1,4 +1,5 @@
 import threading
+import asyncio
 from typing import Dict, List, Any
 from .models import ActionInstruction
 
@@ -32,6 +33,14 @@ class Session:
 
 # Simple in-memory store
 _sessions: Dict[str, Session] = {}
+_session_locks: Dict[str, asyncio.Lock] = {}
+_locks_registry_lock = asyncio.Lock()
+
+async def get_session_lock(session_id: str) -> asyncio.Lock:
+    async with _locks_registry_lock:
+        if session_id not in _session_locks:
+            _session_locks[session_id] = asyncio.Lock()
+        return _session_locks[session_id]
 
 def get_or_create_session(session_id: str) -> Session:
     if session_id not in _sessions:
@@ -41,3 +50,5 @@ def get_or_create_session(session_id: str) -> Session:
 def clear_session(session_id: str):
     if session_id in _sessions:
         del _sessions[session_id]
+    if session_id in _session_locks:
+        del _session_locks[session_id]

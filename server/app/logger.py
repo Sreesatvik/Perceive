@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import os
+import asyncio
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -35,3 +36,9 @@ def log_audit_event(session_id: str, step_number: int, instruction: str, action:
             f.write(json.dumps(event) + "\n")
     except Exception:
         logger.error("audit_log_error")
+
+async def log_audit_event_async(session_id: str, step_number: int, instruction: str, action: dict, confidence: float, payload_notes: list):
+    """Runs the synchronous audit write in a thread pool so it never blocks the event loop."""
+    await asyncio.to_thread(
+        log_audit_event, session_id, step_number, instruction, action, confidence, payload_notes
+    )

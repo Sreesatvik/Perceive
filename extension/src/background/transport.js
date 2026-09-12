@@ -8,7 +8,14 @@ import { detectPII } from '../../dev2/pii-patterns.js';
 const BACKEND_URL = 'http://localhost:8000';
 const ANALYZE_ENDPOINT = '/analyze';
 const TIMEOUT_MS = 30000;
-const BACKEND_API_KEY = 'my-test-secret-123'; // must match server/.env BACKEND_API_KEY
+
+async function getBackendApiKey() {
+    if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+        return null; // test harness / non-extension context
+    }
+    const result = await chrome.storage.local.get('backendApiKey');
+    return result.backendApiKey || null;
+}
 
 class PayloadLeakageError extends Error {
     constructor(message) {
@@ -43,9 +50,15 @@ export async function sendToBackend(payload) {
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
+        const apiKey = await getBackendApiKey();
+        if (!apiKey) {
+            console.error('[Transport] No backend API key configured \u2014 set one via the extension options page');
+            throw new TransportError('No backend API key configured');
+        }
+
         const response = await fetch(`${BACKEND_URL}${ANALYZE_ENDPOINT}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-API-Key': BACKEND_API_KEY },
+            headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
             body: jsonString,
             signal: controller.signal,
         });
@@ -83,9 +96,15 @@ export async function sendToBackend(payload) {
  */
 async function endSessionOnBackend(sessionId, reason) {
     try {
+        const apiKey = await getBackendApiKey();
+        if (!apiKey) {
+            console.error('[Transport] No backend API key configured \u2014 set one via the extension options page');
+            return;
+        }
+
         const response = await fetch(`${BACKEND_URL}/session/${sessionId}/end`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-API-Key': BACKEND_API_KEY },
+            headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
             body: JSON.stringify({ reason }),
         });
         if (!response.ok) {

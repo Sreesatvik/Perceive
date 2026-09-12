@@ -14,7 +14,7 @@
       __defProp(target, name, { get: all[name], enumerable: true });
   };
 
-  // dev2/pii-patterns.js
+  // extension/dev2/pii-patterns.js
   function detectPII(text) {
     if (typeof text !== "string" || !text) {
       return [];
@@ -60,11 +60,11 @@
     return results;
   }
   var init_pii_patterns = __esm({
-    "dev2/pii-patterns.js"() {
+    "extension/dev2/pii-patterns.js"() {
     }
   });
 
-  // src/shared/schemas.js
+  // extension/src/shared/schemas.js
   function validateActionResponse(response, expectedSessionId, expectedStep) {
     if (!response || typeof response !== "object") throw new Error("Invalid response");
     if (response.session_id !== expectedSessionId) throw new Error("Session mismatch");
@@ -76,11 +76,11 @@
     return true;
   }
   var init_schemas = __esm({
-    "src/shared/schemas.js"() {
+    "extension/src/shared/schemas.js"() {
     }
   });
 
-  // dev2/leakage-auditor.js
+  // extension/dev2/leakage-auditor.js
   function walkStrings(node, path, callback, seen) {
     if (node === null || node === void 0) return;
     if (seen.has(node)) return;
@@ -161,13 +161,13 @@
   }
   var SEMANTIC_TOKEN_PATTERN, SENSITIVE_KEY_PATTERN;
   var init_leakage_auditor = __esm({
-    "dev2/leakage-auditor.js"() {
+    "extension/dev2/leakage-auditor.js"() {
       SEMANTIC_TOKEN_PATTERN = /^\[[A-Z0-9_]+(?:\?|: [^\]]+)?\]$/;
       SENSITIVE_KEY_PATTERN = /password|pwd|secret|credit_card|cvv|ssn|aadhaar|otp/i;
     }
   });
 
-  // dev2/channel-consistency-check.js
+  // extension/dev2/channel-consistency-check.js
   function checkChannelConsistency(payload, redactedRegions) {
     const mismatches = [];
     const elements = payload && payload.dom_summary && Array.isArray(payload.dom_summary.elements) ? payload.dom_summary.elements : [];
@@ -218,15 +218,22 @@ ${details}`
     }
   }
   var init_channel_consistency_check = __esm({
-    "dev2/channel-consistency-check.js"() {
+    "extension/dev2/channel-consistency-check.js"() {
     }
   });
 
-  // src/background/transport.js
+  // extension/src/background/transport.js
   var transport_exports = {};
   __export(transport_exports, {
     sendToBackend: () => sendToBackend
   });
+  async function getBackendApiKey() {
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.local) {
+      return null;
+    }
+    const result = await chrome.storage.local.get("backendApiKey");
+    return result.backendApiKey || null;
+  }
   async function sendToBackend(payload) {
     try {
       assertSafeToSend(payload, detectPII);
@@ -240,9 +247,14 @@ ${details}`
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
     try {
+      const apiKey = await getBackendApiKey();
+      if (!apiKey) {
+        console.error("[Transport] No backend API key configured \u2014 set one via the extension options page");
+        throw new TransportError("No backend API key configured");
+      }
       const response = await fetch(`${BACKEND_URL}${ANALYZE_ENDPOINT}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-API-Key": BACKEND_API_KEY },
+        headers: { "Content-Type": "application/json", "X-API-Key": apiKey },
         body: jsonString,
         signal: controller.signal
       });
@@ -271,9 +283,14 @@ ${details}`
   }
   async function endSessionOnBackend(sessionId, reason) {
     try {
+      const apiKey = await getBackendApiKey();
+      if (!apiKey) {
+        console.error("[Transport] No backend API key configured \u2014 set one via the extension options page");
+        return;
+      }
       const response = await fetch(`${BACKEND_URL}/session/${sessionId}/end`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-API-Key": BACKEND_API_KEY },
+        headers: { "Content-Type": "application/json", "X-API-Key": apiKey },
         body: JSON.stringify({ reason })
       });
       if (!response.ok) {
@@ -283,9 +300,9 @@ ${details}`
       console.warn("[Transport] END_SESSION fetch error:", err.message);
     }
   }
-  var BACKEND_URL, ANALYZE_ENDPOINT, TIMEOUT_MS, BACKEND_API_KEY, PayloadLeakageError, TransportError;
+  var BACKEND_URL, ANALYZE_ENDPOINT, TIMEOUT_MS, PayloadLeakageError, TransportError;
   var init_transport = __esm({
-    "src/background/transport.js"() {
+    "extension/src/background/transport.js"() {
       init_schemas();
       init_leakage_auditor();
       init_channel_consistency_check();
@@ -294,7 +311,6 @@ ${details}`
       BACKEND_URL = "http://localhost:8000";
       ANALYZE_ENDPOINT = "/analyze";
       TIMEOUT_MS = 3e4;
-      BACKEND_API_KEY = "my-test-secret-123";
       PayloadLeakageError = class extends Error {
         constructor(message) {
           super(message);
@@ -330,8 +346,8 @@ ${details}`
     }
   });
 
-  // src/content/actionExecutor.js
-  async function executeAction(action, resolveToken) {
+  // extension/src/content/actionExecutor.js
+  async function executeAction(action, resolveToken, perceivedElement = null) {
     console.log(`[ActionExecutor] Executing action: ${action.type}`);
     if (action.type === "task_complete" || action.type === "task_failed") {
       return { success: true, domChanged: false };
@@ -350,6 +366,14 @@ ${details}`
     }
     if (!targetElement && ["click", "type", "scroll"].includes(action.type)) {
       return { success: false, error: "target_element_not_found" };
+    }
+    if (targetElement && perceivedElement != null) {
+      const tagMismatch = targetElement.tagName.toLowerCase() !== (perceivedElement.tag || "").toLowerCase();
+      const currentLabel = (targetElement.getAttribute("aria-label") || targetElement.labels?.[0]?.innerText || targetElement.innerText || targetElement.placeholder || "").trim().toLowerCase();
+      const perceivedLabel = (perceivedElement.label_text || "").trim().toLowerCase();
+      if (tagMismatch && currentLabel !== perceivedLabel) {
+        return { success: false, error: "stale_target_mismatch" };
+      }
     }
     if (targetElement) {
       const rect = targetElement.getBoundingClientRect();
@@ -392,7 +416,7 @@ ${details}`
     }
   }
 
-  // src/shared/constants.js
+  // extension/src/shared/constants.js
   var RISK_TIERS = {
     SAFE: "safe",
     RISKY: "risky"
@@ -404,7 +428,7 @@ ${details}`
     POST_ACTION_DELAY_MS: 800
   };
 
-  // src/content/confirmationUI.js
+  // extension/src/content/confirmationUI.js
   var confirmationOverlay = null;
   function findAgentElement(elementId) {
     if (!elementId) return null;
@@ -517,7 +541,7 @@ ${details}`
     return false;
   }
 
-  // dev2/token-vault.js
+  // extension/dev2/token-vault.js
   function createTokenVault() {
     const forwardMap = /* @__PURE__ */ new Map();
     const reverseMap = /* @__PURE__ */ new Map();
@@ -593,7 +617,7 @@ ${details}`
     };
   }
 
-  // dev2/session-vault-manager.js
+  // extension/dev2/session-vault-manager.js
   var sessionVaults = /* @__PURE__ */ new Map();
   var MAX_SESSIONS_THRESHOLD = 20;
   var DEFAULT_SESSION_TTL_MS = 30 * 60 * 1e3;
@@ -635,7 +659,7 @@ ${details}`
     }
   }
 
-  // dev2/dom-heuristics.js
+  // extension/dev2/dom-heuristics.js
   function getNearbyLabelText(el) {
     if (!el || typeof el.getAttribute !== "function") {
       return null;
@@ -795,10 +819,10 @@ ${details}`
     return generatedId;
   }
 
-  // dev2/redaction-engine.js
+  // extension/dev2/redaction-engine.js
   init_pii_patterns();
 
-  // dev2/sensitivity-tiers.js
+  // extension/dev2/sensitivity-tiers.js
   init_pii_patterns();
   var TIER_1_TYPES = /* @__PURE__ */ new Set(["PASSWORD", "CARD_NUMBER", "AADHAAR", "OTP"]);
   var TIER_2_TYPES = /* @__PURE__ */ new Set(["NAME", "AMOUNT", "EMAIL", "PHONE", "IFSC"]);
@@ -908,7 +932,7 @@ ${details}`
     };
   }
 
-  // dev2/redaction-renderer.js
+  // extension/dev2/redaction-renderer.js
   var REDACT_TIER_2 = true;
   function redactImage(sourceCanvasOrImage, sensitiveRegions = []) {
     if (!sourceCanvasOrImage) {
@@ -980,7 +1004,7 @@ ${details}`
     return dataUrl.replace(/^data:image\/png;base64,/, "");
   }
 
-  // dev2/redaction-engine.js
+  // extension/dev2/redaction-engine.js
   function processPageForRedaction(elements = [], sourceCanvasOrImage, tokenVault) {
     const currentUrl = typeof window !== "undefined" && window.location ? window.location.href : "";
     const summaryElements = [];
@@ -1103,7 +1127,9 @@ ${details}`
     return output;
   }
 
-  // src/content/orchestrator.js
+  // extension/src/content/orchestrator.js
+  init_pii_patterns();
+  var IS_TEST_MODE = typeof window !== "undefined" && window.__PERCEIVE_TEST_MODE__ === true;
   var mockDev1 = {
     captureCurrentState: async () => ({ dom: {}, screenshot: "mock_screenshot_data" })
   };
@@ -1123,6 +1149,18 @@ ${details}`
         return `password ${token}`;
       }
     );
+    const piiMatches = detectPII(sanitizedInstruction);
+    const sortedMatches = [...piiMatches].sort((a, b) => b.startIndex - a.startIndex);
+    for (const match of sortedMatches) {
+      const token = vault.getOrCreateToken(match.match, match.type);
+      sanitizedInstruction = sanitizedInstruction.substring(0, match.startIndex) + token + sanitizedInstruction.substring(match.endIndex);
+    }
+    const finalCheck = detectPII(sanitizedInstruction);
+    if (finalCheck.length > 0) {
+      const err = new Error("Unresolved sensitive pattern in task instruction");
+      err.name = "InstructionLeakageError";
+      throw err;
+    }
     return sanitizedInstruction;
   }
   async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepNumber) {
@@ -1137,7 +1175,13 @@ ${details}`
     };
   }
   var BACKEND_URL2 = "http://localhost:8000";
-  var BACKEND_API_KEY2 = "my-test-secret-123";
+  async function getBackendApiKey2() {
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.local) {
+      return null;
+    }
+    const result = await chrome.storage.local.get("backendApiKey");
+    return result.backendApiKey || null;
+  }
   var delay = (ms) => new Promise((res) => setTimeout(res, ms));
   function sendMessageAsync(message) {
     return new Promise((resolve, reject) => {
@@ -1160,12 +1204,17 @@ ${details}`
     try {
       const response = await sendMessageAsync({ type: "END_SESSION", sessionId, reason });
       if (response === null) {
-        fetch(`${BACKEND_URL2}/session/${sessionId}/end`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-API-Key": BACKEND_API_KEY2 },
-          body: JSON.stringify({ reason })
-        }).catch(() => {
-        });
+        const apiKey = await getBackendApiKey2();
+        if (!apiKey) {
+          console.error("[Transport] No backend API key configured \u2014 set one via the extension options page");
+        } else {
+          fetch(`${BACKEND_URL2}/session/${sessionId}/end`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-API-Key": apiKey },
+            body: JSON.stringify({ reason })
+          }).catch(() => {
+          });
+        }
       }
     } catch (e) {
     }
@@ -1173,10 +1222,30 @@ ${details}`
       detail: { sessionId, reason }
     }));
   }
+  function verifyTaskCompletion() {
+    const bodyText = (document.body?.innerText || "").toLowerCase();
+    const failureSignals = [
+      "invalid username",
+      "invalid password",
+      "login failed",
+      "incorrect password",
+      "error",
+      "try again",
+      "access denied"
+    ];
+    const hasVisibleError = failureSignals.some((signal) => bodyText.includes(signal));
+    const hasErrorRoleElement = !!document.querySelector(
+      '[role="alert"], .error, .alert-danger, [aria-invalid="true"]'
+    );
+    return {
+      verified: !hasVisibleError && !hasErrorRoleElement,
+      reason: hasVisibleError ? "Visible error text detected on page" : hasErrorRoleElement ? "Element with error role/class detected" : null
+    };
+  }
   async function runTaskLoop(taskInstruction, captureOverride = null) {
     const sessionId = crypto.randomUUID();
     let stepNumber = 0;
-    if (typeof process !== "undefined" && process.env && true) {
+    if (IS_TEST_MODE) {
       if (window.__activeVaults === void 0) window.__activeVaults = 0;
       window.__activeVaults++;
     }
@@ -1206,6 +1275,16 @@ ${details}`
               }
             }
             if (actionResponse.action.type === "task_complete") {
+              const verification = verifyTaskCompletion();
+              if (!verification.verified) {
+                console.warn("[Orchestrator] task_complete rejected \u2014 postcondition check failed:", verification.reason);
+                retriesLeft--;
+                if (retriesLeft === 0) {
+                  await finalizeTask(sessionId, "max_retries_exceeded");
+                  return { success: false, reason: `Step ${stepNumber} failed after max retries: ${verification.reason}` };
+                }
+                continue;
+              }
               await finalizeTask(sessionId, "completed");
               return { success: true, steps: stepNumber };
             }
@@ -1224,7 +1303,8 @@ ${details}`
             if (window.__forceExecuteFailure) {
               result = { success: false, error: "forced_failure" };
             } else {
-              result = await executeAction(actionResponse.action, resolveToken);
+              const perceivedElement = payload.dom_summary?.elements?.find((el) => el.element_id === actionResponse.action.target_element_id) || null;
+              result = await executeAction(actionResponse.action, resolveToken, perceivedElement);
             }
             if (result.success) {
               stepSuccess = true;
@@ -1255,7 +1335,7 @@ ${details}`
       throw fatalError;
     }
   }
-  if (typeof process !== "undefined" && process.env && true) {
+  if (IS_TEST_MODE) {
     window.__runTaskLoop = runTaskLoop;
   }
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
