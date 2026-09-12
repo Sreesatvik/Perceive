@@ -81,6 +81,7 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
         typeof tokenVault.hasToken === 'function' &&
         tokenVault.hasToken(semantic_token)
       );
+      const has_value = Boolean(rawValue && String(rawValue).trim() !== '');
 
       summaryElements.push({
         element_id,
@@ -92,6 +93,7 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
         sensitivity_type,
         semantic_token,
         has_stable_token,
+        has_value,
         bounding_box
       });
 

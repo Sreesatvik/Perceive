@@ -32,14 +32,19 @@ class DOMElement(BaseModel):
     sensitivity_tier: Optional[SensitivityTier] = None
     sensitivity_type: Optional[SensitivityType] = None
     semantic_token: Optional[str] = None
+    has_value: bool = False
     bounding_box: BoundingBox
 
     @model_validator(mode='after')
     def check_sensitive_has_token(self):
-        # Fail-closed invariant: The server must NEVER receive a real sensitive value.
-        # Sensitive elements must always use a semantic token rather than blind blackout or raw values.
-        if self.is_sensitive and (self.semantic_token is None or self.semantic_token == ""):
-            raise ValueError('Sensitive DOM element must include a semantic_token')
+        # Fail-closed invariant: the server must never receive a real
+        # sensitive value. A sensitive element with actual content
+        # must carry a semantic token. A sensitive element with no
+        # value yet (has_value=False) is allowed to have a null
+        # token, since there's nothing to leak and no real value to
+        # back a vault entry with.
+        if self.is_sensitive and self.has_value and (self.semantic_token is None or self.semantic_token == ""):
+            raise ValueError('Sensitive DOM element with a value must include a semantic_token')
         return self
 
 class DOMSummary(BaseModel):

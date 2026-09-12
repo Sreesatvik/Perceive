@@ -1040,6 +1040,7 @@ ${details}`
         const has_stable_token = Boolean(
           semantic_token && tokenVault && typeof tokenVault.hasToken === "function" && tokenVault.hasToken(semantic_token)
         );
+        const has_value = Boolean(rawValue && String(rawValue).trim() !== "");
         summaryElements.push({
           element_id,
           tag: elementClassification.tag,
@@ -1050,6 +1051,7 @@ ${details}`
           sensitivity_type,
           semantic_token,
           has_stable_token,
+          has_value,
           bounding_box
         });
         let confidence = 0.92;
