@@ -1,0 +1,202 @@
+{
+  "generated_at": "2026-09-13T14:20:36.076Z",
+  "method": "Real tesseract.js WASM OCR engine (same version as production, Node-native worker path — ocrPipeline.js's own runOcr() hardcodes browser-only worker asset paths that do not run under Node, so this harness calls createWorker() directly instead; the line-extraction/filtering logic that follows is copied verbatim from runOcr(), see this file's header comment) -> real detectPII() from dev2/pii-patterns.js against the extracted text. Ground truth text/PII-type expectations were hand-verified against each rendered fixture before running.",
+  "fixture_count": 4,
+  "total_expected_pii_types": 1,
+  "total_detected_pii_types": 1,
+  "true_positive_pii_types": 1,
+  "recall_pii_type_level": 1,
+  "precision_pii_type_level": 1,
+  "average_latency_ms": 118.75,
+  "per_fixture": [
+    {
+      "file": "clean_text_1.png",
+      "ground_truth_text": "The quick brown fox jumps over the lazy dog. This is a plain paragraph of ordinary reading text, styled the way a typical article or blog post might render in a browser tab. It contains no personal information of any kind, only common English words.",
+      "extracted_text": "The quick brown fox jumps over the lazy dog. This is a plain paragraph of ordinary reading text, styled the way a typical article or blog post might render in a browser tab. It contains no personal information of any kind, only common English words.",
+      "raw_ocr_lines": [
+        {
+          "text": "The quick brown fox jumps over the lazy dog. This is a plain",
+          "bounding_box": {
+            "x": 30,
+            "y": 45,
+            "w": 530,
+            "h": 19
+          },
+          "confidence": 0.96
+        },
+        {
+          "text": "paragraph of ordinary reading text, styled the way a typical",
+          "bounding_box": {
+            "x": 31,
+            "y": 79,
+            "w": 521,
+            "h": 19
+          },
+          "confidence": 0.96
+        },
+        {
+          "text": "article or blog post might render in a browser tab. It contains",
+          "bounding_box": {
+            "x": 31,
+            "y": 113,
+            "w": 540,
+            "h": 19
+          },
+          "confidence": 0.96
+        },
+        {
+          "text": "no personal information of any kind, only common English words.",
+          "bounding_box": {
+            "x": 31,
+            "y": 147,
+            "w": 576,
+            "h": 19
+          },
+          "confidence": 0.96
+        }
+      ],
+      "expected_pii_types": [],
+      "detected_pii_types": [],
+      "detected_pii_matches": [],
+      "true_positive_types": [],
+      "false_negative_types": [],
+      "false_positive_types": [],
+      "latency_ms": 235
+    },
+    {
+      "file": "canvas_dashboard_1.png",
+      "ground_truth_text": "ACCOUNT DASHBOARD Account Balance $12,345.67 Account No: 4111-1111-1111-1111",
+      "extracted_text": "ACCOUNT DASHBOARD Account Balance $12,345.67 Account No: 4111-1111-1111-1111",
+      "raw_ocr_lines": [
+        {
+          "text": "ACCOUNT DASHBOARD",
+          "bounding_box": {
+            "x": 30,
+            "y": 27,
+            "w": 187,
+            "h": 13
+          },
+          "confidence": 0.95
+        },
+        {
+          "text": "Account Balance",
+          "bounding_box": {
+            "x": 30,
+            "y": 88,
+            "w": 116,
+            "h": 12
+          },
+          "confidence": 0.96
+        },
+        {
+          "text": "$12,345.67",
+          "bounding_box": {
+            "x": 32,
+            "y": 119,
+            "w": 191,
+            "h": 32
+          },
+          "confidence": 0.96
+        },
+        {
+          "text": "Account No: 4111-1111-1111-1111",
+          "bounding_box": {
+            "x": 30,
+            "y": 173,
+            "w": 247,
+            "h": 12
+          },
+          "confidence": 0.93
+        }
+      ],
+      "expected_pii_types": [
+        "CARD_NUMBER"
+      ],
+      "detected_pii_types": [
+        "CARD_NUMBER"
+      ],
+      "detected_pii_matches": [
+        {
+          "type": "CARD_NUMBER",
+          "match": "4111-1111-1111-1111",
+          "startIndex": 57,
+          "endIndex": 76
+        }
+      ],
+      "true_positive_types": [
+        "CARD_NUMBER"
+      ],
+      "false_negative_types": [],
+      "false_positive_types": [],
+      "latency_ms": 124
+    },
+    {
+      "file": "low_contrast_small_1.png",
+      "ground_truth_text": "Reference number: A17-B294-CX01. Please retain this for your records. This line is intentionally faint and small to test OCR robustness.",
+      "extracted_text": "Reference number: A17-B294-CXOL. Please retain this for your records. “This ne is intentionally faint and small to test OCR robustness.",
+      "raw_ocr_lines": [
+        {
+          "text": "Reference number: A17-B294-CXOL. Please retain this for your records.",
+          "bounding_box": {
+            "x": 21,
+            "y": 51,
+            "w": 342,
+            "h": 11
+          },
+          "confidence": 0.82
+        },
+        {
+          "text": "“This ne is intentionally faint and small to test OCR robustness.",
+          "bounding_box": {
+            "x": 20,
+            "y": 77,
+            "w": 306,
+            "h": 10
+          },
+          "confidence": 0.81
+        }
+      ],
+      "expected_pii_types": [],
+      "detected_pii_types": [],
+      "detected_pii_matches": [],
+      "true_positive_types": [],
+      "false_negative_types": [],
+      "false_positive_types": [],
+      "latency_ms": 56
+    },
+    {
+      "file": "rotated_skewed_1.png",
+      "ground_truth_text": "Rotated text sample for OCR testing Order ID: 998-2201-4471",
+      "extracted_text": "Rotate tex Sample for Ocr testing Orqg, ID; 998-220, “4;",
+      "raw_ocr_lines": [
+        {
+          "text": "Rotate tex Sample for Ocr testing",
+          "bounding_box": {
+            "x": 43,
+            "y": 166,
+            "w": 363,
+            "h": 137
+          },
+          "confidence": 0.53
+        },
+        {
+          "text": "Orqg, ID; 998-220, “4;",
+          "bounding_box": {
+            "x": 31,
+            "y": 205,
+            "w": 255,
+            "h": 98
+          },
+          "confidence": 0.3
+        }
+      ],
+      "expected_pii_types": [],
+      "detected_pii_types": [],
+      "detected_pii_matches": [],
+      "true_positive_types": [],
+      "false_negative_types": [],
+      "false_positive_types": [],
+      "latency_ms": 60
+    }
+  ]
+}

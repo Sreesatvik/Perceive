@@ -12,7 +12,7 @@ Perceive is a privacy-first web automation agent backend. It processes webpage i
 - **Server-Side Policy Enforcement**: `evaluate_action_risk()` re-derives the risk tier for every action server-side — the LLM's own risk assessment is never trusted directly.
 - **API Key Auth & CORS Allowlist**: `/analyze` and `/session/{id}/end` require an `X-API-Key` header; CORS origins are read from `ALLOWED_ORIGINS`, no wildcard.
 - **Strict Audit Logging**: Records sanitized request metadata and agent actions to `audit.jsonl` without exposing sensitive user inputs.
-- **On-Device Multimodal Perception**: Face detection (`@mediapipe/tasks-vision`) and OCR (`tesseract.js`) run entirely in-browser, feeding the same PII-tokenization pipeline as DOM-detected text — raw pixels never leave the browser.
+- **On-Device Multimodal Perception**: Face detection (`@mediapipe/tasks-vision`) and OCR (`tesseract.js`) run entirely in-browser, feeding the same PII-tokenization pipeline as DOM-detected text — raw pixels never leave the browser. OCR is accuracy-measured against a real fixture set (100% recall/precision on PII-pattern matches, incl. the canvas-rendered "zero DOM cooperation" case — see `docs/vision-accuracy/ocr-results.json`); face detection's pipeline is confirmed working end-to-end in live Chrome, but its detection accuracy has not yet been measured (see `docs/vision-engine-decision.md`).
 
 ---
 

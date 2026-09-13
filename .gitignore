@@ -47,6 +47,11 @@ artifacts/
 extension/node_modules/
 extension/dist/
 
+# tesseract.js caches its trained-data download in the process cwd when run
+# outside the extension's own asset pipeline (e.g. the Phase B.3 OCR
+# accuracy test harness) — a ~5-15MB runtime cache file, not source.
+extension/*.traineddata
+
 # Isolated agent worktrees (transient, per-task copies) — never committed.
 .claude/worktrees/
 

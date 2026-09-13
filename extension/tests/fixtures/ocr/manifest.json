@@ -1,0 +1,29 @@
+[
+  {
+    "file": "clean_text_1.png",
+    "category": "clean_printed_text",
+    "note": "Approximates 'a screenshot of a normal webpage paragraph' via direct canvas rendering, not a literal browser screenshot — disclosed explicitly, see README.",
+    "ground_truth_text": "The quick brown fox jumps over the lazy dog. This is a plain paragraph of ordinary reading text, styled the way a typical article or blog post might render in a browser tab. It contains no personal information of any kind, only common English words.",
+    "expected_pii_types": []
+  },
+  {
+    "file": "canvas_dashboard_1.png",
+    "category": "canvas_dashboard",
+    "note": "The central 'zero DOM cooperation' case: a PII-shaped string (a card-number-looking account number) that exists only as canvas pixels, never as real DOM text.",
+    "ground_truth_text": "ACCOUNT DASHBOARD Account Balance $12,345.67 Account No: 4111-1111-1111-1111",
+    "expected_pii_types": ["CARD_NUMBER"]
+  },
+  {
+    "file": "low_contrast_small_1.png",
+    "category": "low_contrast_small",
+    "ground_truth_text": "Reference number: A17-B294-CX01. Please retain this for your records. This line is intentionally faint and small to test OCR robustness.",
+    "expected_pii_types": []
+  },
+  {
+    "file": "rotated_skewed_1.png",
+    "category": "rotated_skewed",
+    "note": "Text rotated ~18 degrees.",
+    "ground_truth_text": "Rotated text sample for OCR testing Order ID: 998-2201-4471",
+    "expected_pii_types": []
+  }
+]

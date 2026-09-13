@@ -1,0 +1,91 @@
+{
+  "generated_at": "2026-09-13T14:15:24.402Z",
+  "method": "Attempted: real extension/dist/faceDetectionWorker.bundle.js (unmodified) executed in a Node vm sandbox shaped as a classic Worker scope, backed by a local static server standing in for the chrome-extension:// origin. See this file's header comment for the full chain of environment gaps found and fixed, and the one that could not be: MediaPipe's WASM graph requires a real WebGL context (even for its \"CPU\" delegate) for image-texture ingestion, which requires a native GL binding for Node (e.g. `gl`/headless-gl) — confirmed unavailable in this environment (`npm install gl` fails: no C++ build toolchain / Visual Studio present).",
+  "environment_limitation": true,
+  "fixtures_attempted": 15,
+  "fixtures_succeeded": 0,
+  "fixtures_failed": 15,
+  "iou_match_threshold": 0.3,
+  "total_ground_truth_faces_in_succeeded_fixtures": 0,
+  "total_detections": 0,
+  "true_positives": 0,
+  "recall": null,
+  "precision": null,
+  "per_fixture": [
+    {
+      "file": "frontal_1.jpg",
+      "category": "frontal",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "frontal_2.jpg",
+      "category": "frontal",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "frontal_3.jpg",
+      "category": "frontal",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "frontal_4.jpg",
+      "category": "frontal",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "angled_1.jpg",
+      "category": "angled",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "angled_2.jpg",
+      "category": "angled",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "angled_3.jpg",
+      "category": "angled",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "small_distant_1.jpg",
+      "category": "small_distant",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "multiple_faces_1.jpg",
+      "category": "multiple_faces",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "multiple_faces_2.jpg",
+      "category": "multiple_faces",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "occluded_1.jpg",
+      "category": "occluded",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "id_card_1.jpg",
+      "category": "id_card",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "zero_face_1.jpg",
+      "category": "zero_face",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "zero_face_2.jpg",
+      "category": "zero_face",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    },
+    {
+      "file": "zero_face_3.jpg",
+      "category": "zero_face",
+      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+    }
+  ]
+}
