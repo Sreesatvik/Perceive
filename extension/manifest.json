@@ -27,18 +27,25 @@
       "run_at": "document_idle"
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "dist/faceDetectionWorker.bundle.js",
+        "dist/faceDetectionWorker.bundle.js.map",
+        "dist/vendor/*",
+        "dist/vendor/**/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "action": {
     "default_popup": "src/popup/popup.html"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
-  "web_accessible_resources": [
-    {
-      "resources": ["dist/vendor/*", "dist/vendor/**/*"],
-      "matches": ["<all_urls>"]
-    }
-  ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

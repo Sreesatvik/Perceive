@@ -64,6 +64,13 @@ class ClientPayload(BaseModel):
     redacted_image_base64: Optional[str] = Field(default=None, max_length=8_000_000)
     detection_confidence_notes: List[DetectionConfidenceNote] = Field(default_factory=list, max_length=500)
     redacted_regions: Optional[List[dict]] = None
+    # Set by the client when the PREVIOUS action for this session failed to
+    # execute (a stale/missing DOM target, a rejected task_complete
+    # postcondition, etc.) — without this, the LLM has no way to know why
+    # the page looks unchanged from the last step and may blindly repeat
+    # the same failing action or give up prematurely. See
+    # llm_client.py's EXECUTION FEEDBACK prompt block.
+    last_action_error: Optional[str] = Field(default=None, max_length=1000)
 
 # -------------------------------------------------------------------
 # Server -> Client Action Response Models

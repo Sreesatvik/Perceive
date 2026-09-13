@@ -30,6 +30,48 @@ async def test_generate_action_success(mock_groq, mock_payload, monkeypatch):
     assert action.type == "wait"
     assert action.risk_tier == "safe"
 
+
+@pytest.mark.asyncio
+@patch('app.llm_client.AsyncGroq')
+async def test_prompt_omits_execution_feedback_when_no_prior_error(mock_groq, mock_payload, monkeypatch):
+    monkeypatch.setenv("GROQ_API_KEY", "test-key")
+    mock_client = mock_groq.return_value
+    mock_response = AsyncMock()
+    mock_response.choices = [
+        AsyncMock(message=AsyncMock(content='{"type": "wait", "risk_tier": "safe", "reasoning_short": "wait"}'))
+    ]
+    mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
+
+    await generate_action(mock_payload)
+
+    user_message = mock_client.chat.completions.create.call_args.kwargs["messages"][1]["content"]
+    assert "EXECUTION FEEDBACK" not in user_message
+
+
+@pytest.mark.asyncio
+@patch('app.llm_client.AsyncGroq')
+async def test_prompt_includes_execution_feedback_when_previous_action_failed(mock_groq, monkeypatch):
+    monkeypatch.setenv("GROQ_API_KEY", "test-key")
+    payload = ClientPayload(
+        session_id="test-session-retry",
+        task_instruction="log in",
+        step_number=2,
+        dom_summary=DOMSummary(url="http://test.com", elements=[]),
+        last_action_error="Previous action (click on login-submit) failed to execute: target_element_not_found",
+    )
+    mock_client = mock_groq.return_value
+    mock_response = AsyncMock()
+    mock_response.choices = [
+        AsyncMock(message=AsyncMock(content='{"type": "wait", "risk_tier": "safe", "reasoning_short": "wait"}'))
+    ]
+    mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
+
+    await generate_action(payload)
+
+    user_message = mock_client.chat.completions.create.call_args.kwargs["messages"][1]["content"]
+    assert "EXECUTION FEEDBACK" in user_message
+    assert "target_element_not_found" in user_message
+
 @pytest.mark.asyncio
 @patch('app.llm_client.AsyncGroq')
 async def test_generate_action_validation_error(mock_groq, mock_payload, monkeypatch):

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Raw CDN worker test</title></head>
+<body>
+<pre id="log"></pre>
+<script type="module">
+const log = document.getElementById('log');
+function print(m){ log.textContent += m + '\n'; console.log(m); }
+
+const workerSrc = `
+import { FaceDetector, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.mjs';
+self.onmessage = async () => {
+  try {
+    const fileset = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm');
+    let delegate = 'GPU';
+    let detector;
+    try {
+      detector = await FaceDetector.createFromOptions(fileset, {
+        baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite', delegate: 'GPU' },
+        runningMode: 'IMAGE', minDetectionConfidence: 0.3,
+      });
+    } catch (e) {
+      self.postMessage({ type: 'log', message: 'GPU failed: ' + e.message });
+      delegate = 'CPU';
+      detector = await FaceDetector.createFromOptions(fileset, {
+        baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite', delegate: 'CPU' },
+        runningMode: 'IMAGE', minDetectionConfidence: 0.3,
+      });
+    }
+    self.postMessage({ type: 'done', delegate, ok: true });
+  } catch (e) {
+    self.postMessage({ type: 'done', ok: false, error: e.message });
+  }
+};
+`;
+const blob = new Blob([workerSrc], { type: 'text/javascript' });
+const url = URL.createObjectURL(blob);
+print('Spawning worker with pure CDN MediaPipe import, no esbuild bundling involved...');
+const worker = new Worker(url, { type: 'module' });
+worker.onmessage = (e) => {
+  print('MSG: ' + JSON.stringify(e.data));
+};
+worker.onerror = (e) => print('WORKER ERROR: ' + e.message);
+worker.postMessage('go');
+</script>
+</body></html>

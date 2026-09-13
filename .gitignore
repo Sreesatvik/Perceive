@@ -44,3 +44,6 @@ server/venv/
 extension/node_modules/
 extension/dist/
 
+# Isolated agent worktrees (transient, per-task copies) — never committed.
+.claude/worktrees/
+

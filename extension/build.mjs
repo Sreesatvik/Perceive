@@ -76,10 +76,46 @@ const buildOptions = {
   logLevel: 'info',
 };
 
+// --- Bundle the face-detection Web Worker as its own, SEPARATE bundle ---
+// This must not be inlined into orchestrator.bundle.js: it needs to run in
+// its own worker global scope (new Worker(...)) — see faceDetectionWorker.js's
+// header comment for why a worker is used at all.
+//
+// format: 'iife' (a classic script), NOT 'esm' — this matters a lot more
+// than it looks. Empirically verified (see extension/tests/vision/raw-worker-test*.html):
+// MediaPipe's internal WASM glue loader ($h in the minified vision_bundle)
+// does `if (typeof importScripts !== 'function') { <inject a <script> tag
+// via document, which doesn't exist in a worker> } else { try { importScripts(url) }
+// catch (TypeError) { await import(url) } }`. A `type: 'module'` WORKER
+// throws when `importScripts` is called (it's disallowed in module workers),
+// so it falls into the `import(url)` branch — and that dynamic import of a
+// non-ESM classic glue script does NOT end up setting `self.ModuleFactory`,
+// reproducing "ModuleFactory not set" on BOTH the GPU and CPU delegate
+// attempts, in ANY module worker (verified with a plain page's own worker,
+// nothing to do with extension isolated worlds — that was the original,
+// incorrect hypothesis). A CLASSIC worker's `importScripts` works exactly
+// as MediaPipe's glue loader expects and sets self.ModuleFactory correctly,
+// confirmed empirically with a real GPU-delegate detection succeeding.
+// esbuild bundles our ESM `import` source into a plain IIFE at build time,
+// so the worker file itself needs no runtime ESM support — only the
+// `new Worker(url)` call (no `{ type: 'module' }`) matters at runtime.
+const workerBuildOptions = {
+  entryPoints: [path.join(__dirname, 'src', 'vision', 'faceDetectionWorker.js')],
+  bundle: true,
+  outfile: path.join(distDir, 'faceDetectionWorker.bundle.js'),
+  format: 'iife',
+  platform: 'browser',
+  target: 'chrome109',
+  sourcemap: true,
+  logLevel: 'info',
+};
+
 if (watch) {
   const ctx = await esbuild.context(buildOptions);
-  await ctx.watch();
+  const workerCtx = await esbuild.context(workerBuildOptions);
+  await Promise.all([ctx.watch(), workerCtx.watch()]);
   console.log('Watching for changes...');
 } else {
   await esbuild.build(buildOptions);
+  await esbuild.build(workerBuildOptions);
 }

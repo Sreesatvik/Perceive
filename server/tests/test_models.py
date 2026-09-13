@@ -32,6 +32,33 @@ def test_valid_client_payload():
     assert payload.session_id == "test-uuid-1234"
     assert len(payload.dom_summary.elements) == 1
     assert payload.dom_summary.elements[0].semantic_token == "[CARD_NUMBER]"
+    # New field is optional and defaults to None when the client omits it
+    # (e.g. the very first step of a task, or a step that succeeded).
+    assert payload.last_action_error is None
+
+
+def test_client_payload_accepts_last_action_error():
+    payload_data = {
+        "session_id": "test-uuid-5678",
+        "task_instruction": "log in",
+        "step_number": 2,
+        "dom_summary": {"url": "https://example.com/login", "elements": []},
+        "last_action_error": "Previous action (click on login-submit) failed to execute: target_element_not_found",
+    }
+    payload = ClientPayload(**payload_data)
+    assert "target_element_not_found" in payload.last_action_error
+
+
+def test_client_payload_rejects_oversized_last_action_error():
+    payload_data = {
+        "session_id": "test-uuid-9999",
+        "task_instruction": "log in",
+        "step_number": 2,
+        "dom_summary": {"url": "https://example.com/login", "elements": []},
+        "last_action_error": "x" * 1001,
+    }
+    with pytest.raises(ValidationError):
+        ClientPayload(**payload_data)
 
 def test_missing_required_fields_payload():
     with pytest.raises(ValidationError):

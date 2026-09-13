@@ -67,7 +67,7 @@ function measure(name, start, end) {
   }
 }
 
-async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepNumber) {
+async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepNumber, lastActionError = null) {
   // ASSUMPTION: snapshot has shape { elements: HTMLElement[], canvas: HTMLCanvasElement }
   // TODO: confirm this matches Dev 1's real capture module output once available
   const vault = getVaultForSession(sessionId);
@@ -120,6 +120,19 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
       session_id: sessionId,
       task_instruction: sanitizedInstruction,
       step_number: stepNumber,
+      // Real bug found in live testing: the server's Session.add_step()
+      // requires strict step_number == last_step + 1 sequencing. If a
+      // step's /analyze call succeeds (server advances its history) but
+      // the CLIENT's subsequent DOM execution then fails (e.g. a stale
+      // element on a re-rendering SPA), the old retry loop resent the
+      // SAME step_number — which the server correctly rejects with a
+      // ValueError, surfacing as a generic 500 that has nothing to do
+      // with the LLM's judgment. Fixed below by tracking a separate
+      // server-facing counter (backendStepNumber) that only advances
+      // after a successful /analyze call, independent of execution
+      // outcome. last_action_error tells the LLM the previous attempt's
+      // execution failed, so it doesn't blindly repeat it.
+      last_action_error: lastActionError || undefined,
       ...result
     },
     originalImageBase64,
@@ -273,7 +286,22 @@ function verifyTaskCompletion() {
 export async function runTaskLoop(taskInstruction, captureOverride = null) {
     const sessionId = crypto.randomUUID();
     let stepNumber = 0;
-    
+    // Tracks what the SERVER's session history actually expects next
+    // (Session.add_step() requires strict last_step+1 sequencing). This is
+    // deliberately separate from `stepNumber` (which bounds MAX_STEPS and
+    // drives logging/UI): stepNumber counts logical steps including
+    // execution-retry attempts, but a retry after a successful /analyze
+    // call whose EXECUTION then failed must NOT resend the same
+    // step_number — the server already advanced past it. Only advanced
+    // once, right after a successful /analyze call, regardless of whether
+    // the action's execution afterward succeeds or fails.
+    let backendStepNumber = 0;
+    // Set whenever a step's execution fails (or an exception occurs, or a
+    // task_complete's postcondition check fails) so the NEXT /analyze call
+    // can tell the LLM its previous action didn't work, instead of it
+    // seeing an unchanged DOM with no explanation. Cleared on success.
+    let lastActionError = null;
+
     // Track active vaults for E2E testing
     if (IS_TEST_MODE) {
         if (window.__activeVaults === undefined) window.__activeVaults = 0;
@@ -300,15 +328,19 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                     // 1. Capture
                     const snapshot = captureOverride ? await captureOverride() : await mockDev1.captureCurrentState();
 
-                    // 2. Redact + build payload
-                    const { payload, originalImageBase64 } = await buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepNumber);
+                    // 2. Redact + build payload. Requests the NEXT server-side
+                    // step number (not the logical/retry-attempt stepNumber)
+                    // and includes feedback about the previous attempt's
+                    // execution failure, if any.
+                    const requestStepNumber = backendStepNumber + 1;
+                    const { payload, originalImageBase64 } = await buildSanitizedPayload(snapshot, sessionId, taskInstruction, requestStepNumber, lastActionError);
 
                     // 3. Send to backend via background worker to avoid CORS issues in content script context
                     let actionResponse = null;
-                    
+
                     // --- MOCK BACKEND RESPONSES FOR E2E ---
                     if (window.__mockBackendResponse) {
-                        actionResponse = window.__mockBackendResponse(stepNumber, payload);
+                        actionResponse = window.__mockBackendResponse(requestStepNumber, payload);
                     } else {
                         const bgResponse = await sendMessageAsync({ type: 'SEND_PAYLOAD', payload });
                         if (bgResponse === null) {
@@ -323,6 +355,12 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                     }
                     // --------------------------------------
 
+                    // The /analyze call itself succeeded — the server's
+                    // session history has now advanced to requestStepNumber
+                    // regardless of what happens with execution below, so
+                    // commit it here, not after execution.
+                    backendStepNumber = requestStepNumber;
+
                     // Phase 4.1/4.2: broadcast this step's full audit data to
                     // the dashboard (if open) BEFORE the terminal/confirmation
                     // branches below, so task_complete/task_failed steps are
@@ -334,6 +372,7 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                         const verification = verifyTaskCompletion();
                         if (!verification.verified) {
                             console.warn('[Orchestrator] task_complete rejected — postcondition check failed:', verification.reason);
+                            lastActionError = `Previous task_complete was rejected: ${verification.reason}`;
                             retriesLeft--;
                             if (retriesLeft === 0) {
                                 await finalizeTask(sessionId, 'max_retries_exceeded');
@@ -345,6 +384,10 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                         return { success: true, steps: stepNumber };
                     }
                     if (actionResponse.action.type === 'task_failed') {
+                        // Full action object, not just the reason string, so
+                        // DevTools alone (no dashboard needed) shows exactly
+                        // what the LLM decided and why after the fact.
+                        console.error(`[Orchestrator] task_failed at step ${stepNumber} (session ${sessionId}):`, actionResponse.action);
                         await finalizeTask(sessionId, 'failed_by_server');
                         return { success: false, reason: actionResponse.action.reasoning_short, steps: stepNumber };
                     }
@@ -384,9 +427,11 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
 
                     if (result.success) {
                         stepSuccess = true;
+                        lastActionError = null;
                         await delay(RETRY_CONFIG.POST_ACTION_DELAY_MS);
                     } else {
                         console.warn(`[Orchestrator] Step ${stepNumber} execution failed:`, result.error);
+                        lastActionError = `Previous action (${actionResponse.action.type}${actionResponse.action.target_element_id ? ` on ${actionResponse.action.target_element_id}` : ''}) failed to execute: ${result.error}`;
                         retriesLeft--;
                     }
                 } catch (err) {
@@ -404,6 +449,7 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                         };
                     }
                     console.error(`[Orchestrator] Error during step ${stepNumber}:`, err);
+                    lastActionError = `Previous attempt raised an error before completing: ${err.message}`;
                     retriesLeft--;
                     if (retriesLeft === 0) {
                         await finalizeTask(sessionId, 'max_retries_exceeded');

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Perceive — Face Detection Worker Isolation Test</title>
+</head>
+<body>
+<h1>Face Detection Worker Test (real built bundle, via new Worker)</h1>
+<img id="face-img" crossorigin="anonymous" style="display:block; max-width:300px;" />
+<canvas id="scratch" style="display:none;"></canvas>
+<pre id="log" style="white-space:pre-wrap; background:#f4f4f4; padding:8px;"></pre>
+
+<script type="module">
+const log = document.getElementById('log');
+function print(msg) {
+  log.textContent += msg + '\n';
+  console.log(msg);
+}
+
+(async () => {
+  try {
+    print('--- Loading test image ---');
+    const img = document.getElementById('face-img');
+    img.src = 'https://storage.googleapis.com/mediapipe-assets/portrait.jpg';
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error('test image failed to load'));
+    });
+    print('Test image loaded: ' + img.naturalWidth + 'x' + img.naturalHeight);
+
+    const canvas = document.getElementById('scratch');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const buffer = imageData.data.buffer.slice(0);
+
+    print('--- Spawning REAL built dist/faceDetectionWorker.bundle.js as a module Worker ---');
+    // This is the exact same bundle + Worker construction pattern
+    // visionPipeline.js uses in the real extension (dist/faceDetectionWorker.bundle.js,
+    // type: 'module'). The point of this test: prove that this worker,
+    // loading MediaPipe's WASM glue INSIDE ITS OWN global scope (self),
+    // does NOT hit "ModuleFactory not set" — the failure mode that occurs
+    // specifically when the loading code's JS realm differs from the realm
+    // the glue's injected <script> tag executes in (content-script isolated
+    // world vs. page main world). A worker's `self` is a single, unified
+    // global regardless of what context spawned it, so there is no second
+    // realm for the glue script to write into.
+    const worker = new Worker('/dist/faceDetectionWorker.bundle.js');
+
+    const result = await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('worker timed out (20s)')), 20000);
+      worker.onmessage = (event) => {
+        const msg = event.data || {};
+        if (msg.type === 'log') {
+          print('[worker log] ' + msg.message);
+          return;
+        }
+        clearTimeout(timeout);
+        if (msg.type === 'result') resolve(msg);
+        else if (msg.type === 'error') reject(new Error(msg.message));
+      };
+      worker.onerror = (e) => {
+        clearTimeout(timeout);
+        reject(new Error('worker onerror: ' + e.message));
+      };
+      worker.postMessage(
+        { type: 'detect', requestId: 1, width: canvas.width, height: canvas.height, pixels: buffer },
+        [buffer]
+      );
+    });
+
+    print('Faces detected: ' + result.faces.length);
+    print(JSON.stringify(result.faces));
+    window.__PERCEIVE_WORKER_TEST_RESULT__ = { ok: true, faces: result.faces };
+    print('--- DONE: worker-hosted MediaPipe detection succeeded, no ModuleFactory error ---');
+  } catch (e) {
+    print('WORKER TEST FAILED: ' + e.message);
+    window.__PERCEIVE_WORKER_TEST_RESULT__ = { ok: false, error: e.message };
+  }
+})();
+</script>
+</body>
+</html>
