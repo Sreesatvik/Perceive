@@ -110,12 +110,32 @@ const workerBuildOptions = {
   logLevel: 'info',
 };
 
+// --- Bundle the offscreen-document script as its own bundle too ---
+// Loaded via a plain <script src="..."> tag from src/background/offscreen.html
+// (a real window/DOM context, not a worker or service worker) — see
+// offscreenFaceDetection.js's header comment for why this document exists:
+// Chrome cannot spawn a Worker from within a Service Worker at all, so the
+// background service worker (transport.js) relays DETECT_FACES requests
+// here instead of owning the face-detection worker itself.
+const offscreenBuildOptions = {
+  entryPoints: [path.join(__dirname, 'src', 'background', 'offscreenFaceDetection.js')],
+  bundle: true,
+  outfile: path.join(distDir, 'offscreenFaceDetection.bundle.js'),
+  format: 'iife',
+  platform: 'browser',
+  target: 'chrome109',
+  sourcemap: true,
+  logLevel: 'info',
+};
+
 if (watch) {
   const ctx = await esbuild.context(buildOptions);
   const workerCtx = await esbuild.context(workerBuildOptions);
-  await Promise.all([ctx.watch(), workerCtx.watch()]);
+  const offscreenCtx = await esbuild.context(offscreenBuildOptions);
+  await Promise.all([ctx.watch(), workerCtx.watch(), offscreenCtx.watch()]);
   console.log('Watching for changes...');
 } else {
   await esbuild.build(buildOptions);
   await esbuild.build(workerBuildOptions);
+  await esbuild.build(offscreenBuildOptions);
 }

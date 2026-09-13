@@ -41,6 +41,35 @@ document.getElementById('save-key-btn').addEventListener('click', async () => {
   keyStatus.style.color = '#7fd77f';
 });
 
+// Chrome never injects content scripts into these pages at all (chrome://,
+// the Web Store, PDF viewer, etc.), so chrome.tabs.sendMessage below fails
+// with the SAME generic "Could not establish connection. Receiving end does
+// not exist." error Chrome also produces for an ordinary, supported page
+// whose content script just isn't there yet (a real, separate gotcha: the
+// tab was open before the extension was installed/reloaded). That error
+// string alone can't tell the two apart — but tab.url can: <all_urls> is
+// already a persistent host_permission in manifest.json, so tab.url is
+// always populated here, letting us check the URL scheme itself rather
+// than guess from Chrome's identical wording for both cases.
+const RESTRICTED_URL_PATTERNS = [
+  /^chrome:\/\//i,
+  /^chrome-extension:\/\//i,
+  /^edge:\/\//i,
+  /^about:/i,
+  /^https:\/\/chrome\.google\.com\/webstore/i,
+  /^https:\/\/chromewebstore\.google\.com/i,
+  /\.pdf(\?|#|$)/i,
+];
+
+function isKnownRestrictedUrl(url) {
+  if (!url) return true; // no URL at all (e.g. a not-yet-loaded tab) — treat conservatively as unsupported
+  return RESTRICTED_URL_PATTERNS.some((re) => re.test(url));
+}
+
+function isNoContentScriptError(message) {
+  return /Receiving end does not exist|Could not establish connection/i.test(message || '');
+}
+
 document.getElementById('run-btn').addEventListener('click', async () => {
   const status = document.getElementById('status');
   const taskInput = document.getElementById('task-input');
@@ -62,7 +91,17 @@ document.getElementById('run-btn').addEventListener('click', async () => {
     },
     (response) => {
       if (chrome.runtime.lastError) {
-        status.textContent = '⚠ ' + chrome.runtime.lastError.message;
+        const errorMessage = chrome.runtime.lastError.message;
+        if (isNoContentScriptError(errorMessage) && isKnownRestrictedUrl(tab.url)) {
+          status.textContent = "⚠ Perceive can't run on this page (browser internal pages, the Chrome Web Store, and PDF viewers are not supported).";
+        } else if (isNoContentScriptError(errorMessage)) {
+          status.textContent = '⚠ Perceive couldn\'t start on this tab — try refreshing the page and running the task again.';
+        } else {
+          // Not a "no content script" failure — an unrelated connection
+          // error should still surface verbatim, not be swallowed or
+          // misdiagnosed as one of the two cases above.
+          status.textContent = '⚠ ' + errorMessage;
+        }
         return;
       }
       status.textContent = response && response.started ? '● Task started' : '⚠ Failed to start';

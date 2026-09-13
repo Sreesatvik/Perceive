@@ -9,6 +9,8 @@ import { canvasToBase64 } from '../../dev2/redaction-renderer.js';
 import { detectPII } from '../../dev2/pii-patterns.js';
 import {
   resolveCredentialTokens,
+  isCredentialFree,
+  impliesCredentialNeed,
   UnresolvedSensitiveReferenceError,
 } from '../../dev2/task-entity-extractor.js';
 import { detectFaces } from '../vision/visionPipeline.js';
@@ -21,10 +23,93 @@ import {
 
 const IS_TEST_MODE = typeof window !== 'undefined' && window.__PERCEIVE_TEST_MODE__ === true;
 
-// TODO: replace with Dev 1's real capture module once available
+const USE_MOCK_CAPTURE = false; // set true only for local headless testing
+
+// TEST-ONLY MOCK CAPTURE PATH. Kept for two narrow, legitimate cases: (a) the
+// USE_MOCK_CAPTURE flag below, for local headless testing, and (b) the
+// automatic fallback in captureOnce() when no chrome extension runtime
+// exists at all (the plain-webpage/e2e test harness — see
+// extension/tests/e2e/e2eRunner.js). It must never fire in a real demo or
+// real Chrome session; the loud console.warn below (not just this comment)
+// is what makes that operationally impossible to miss if it ever does.
 const mockDev1 = {
-    captureCurrentState: async () => ({ dom: {}, screenshot: "mock_screenshot_data" })
+    captureCurrentState: async () => {
+        console.warn('[Orchestrator] TEST-MODE MOCK CAPTURE ACTIVE — this must never run in a real demo');
+        return { dom: {}, screenshot: "mock_screenshot_data" };
+    }
 };
+
+function loadImage(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Failed to load captured screenshot image'));
+    img.src = dataUrl;
+  });
+}
+
+const CAPTURE_DOM_SKEW_THRESHOLD_MS = 150;
+
+/**
+ * One capture attempt: sends CAPTURE_TAB_STATE, draws the screenshot onto a
+ * canvas, then runs the existing DOM traversal — timestamped on both ends so
+ * the caller can detect a stale pairing (screenshot and DOM snapshot taken
+ * too far apart, e.g. because of a slow background worker or a re-rendering
+ * SPA in between).
+ *
+ * sessionId/stepNumber are passed through to the background worker so it
+ * can key an optional demo-mode screenshot save (see demoCapture.js) —
+ * they have no effect on the capture itself.
+ */
+async function captureOnce(sessionId, stepNumber) {
+  const captureStartTime = Date.now();
+  const bgResponse = await sendMessageAsync({ type: 'CAPTURE_TAB_STATE', sessionId, stepNumber });
+
+  if (bgResponse === null) {
+    // Fallback: plain-webpage test harness — no background worker available
+    return { snapshot: await mockDev1.captureCurrentState(), captureStartTime, domSnapshotTime: Date.now() };
+  }
+
+  if (!bgResponse.success) {
+    return { snapshot: { success: false, error: bgResponse.error }, captureStartTime, domSnapshotTime: Date.now() };
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  try {
+    const img = await loadImage(bgResponse.screenshotDataUrl);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  } catch (err) {
+    return { snapshot: { success: false, error: err.message }, captureStartTime, domSnapshotTime: Date.now() };
+  }
+
+  // Existing DOM traversal.
+  const elements = Array.from(document.querySelectorAll('input, button, select, textarea'));
+  const domSnapshotTime = Date.now();
+
+  return { snapshot: { elements, canvas }, captureStartTime, domSnapshotTime };
+}
+
+/**
+ * Real screen + DOM capture. Screenshotting must happen in the background
+ * service worker (content scripts cannot call chrome.tabs.captureVisibleTab
+ * directly), so this relays the request via CAPTURE_TAB_STATE and draws the
+ * returned data URL onto a canvas, preserving the { elements, canvas } shape
+ * buildSanitizedPayload() expects.
+ */
+async function captureRealTabState(sessionId, stepNumber) {
+  let { snapshot, captureStartTime, domSnapshotTime } = await captureOnce(sessionId, stepNumber);
+
+  const skewMs = domSnapshotTime - captureStartTime;
+  if (Math.abs(skewMs) > CAPTURE_DOM_SKEW_THRESHOLD_MS) {
+    console.warn('[Orchestrator] Screenshot/DOM timing skew:', skewMs, 'ms — recapturing');
+    ({ snapshot, captureStartTime, domSnapshotTime } = await captureOnce(sessionId, stepNumber));
+  }
+
+  return snapshot;
+}
 
 /**
  * Finds credential-like values in the raw task instruction (e.g. username 'X',
@@ -325,15 +410,75 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
 
             while (retriesLeft > 0 && !stepSuccess) {
                 try {
+                    // Computed here (moved ahead of capture) so it can be
+                    // passed through to CAPTURE_TAB_STATE for demo-mode
+                    // artifact naming — same value used for the backend
+                    // request in step 2 below.
+                    const requestStepNumber = backendStepNumber + 1;
+
                     // 1. Capture
-                    const snapshot = captureOverride ? await captureOverride() : await mockDev1.captureCurrentState();
+                    const snapshot = captureOverride
+                        ? await captureOverride(sessionId, requestStepNumber)
+                        : (USE_MOCK_CAPTURE ? await mockDev1.captureCurrentState() : await captureRealTabState(sessionId, requestStepNumber));
+
+                    if (snapshot && snapshot.success === false) {
+                        console.error(`[Orchestrator] Screenshot capture failed: ${snapshot.error}`);
+                        await finalizeTask(sessionId, 'capture_failed');
+                        return { success: false, reason: 'capture_failed', message: snapshot.error };
+                    }
 
                     // 2. Redact + build payload. Requests the NEXT server-side
                     // step number (not the logical/retry-attempt stepNumber)
                     // and includes feedback about the previous attempt's
                     // execution failure, if any.
-                    const requestStepNumber = backendStepNumber + 1;
                     const { payload, originalImageBase64 } = await buildSanitizedPayload(snapshot, sessionId, taskInstruction, requestStepNumber, lastActionError);
+
+                    // 2.5. Client-side missing-credential check, using the raw
+                    // taskInstruction (not the sanitized/tokenized one) so a
+                    // credential that was already tokenized above doesn't
+                    // look "missing" here.
+                    const credentialsMissing = isCredentialFree(taskInstruction);
+                    const domHasSensitiveField = payload.dom_summary?.elements?.some(el => el.is_sensitive) ?? false;
+
+                    // The extra !impliesCredentialNeed(taskInstruction) guard
+                    // is deliberate, not from the original spec: when a login
+                    // IS implied by the wording but no value was found,
+                    // buildSanitizedPayload's tokenizeCredentialsInInstruction
+                    // call above already threw UnresolvedSensitiveReferenceError
+                    // (caught below, fail-closed) before we ever reach this
+                    // line. Without this guard, an instruction like "Log in
+                    // and complete checkout" that supplies credentials via a
+                    // pre-seeded vault instead of instruction text would be
+                    // wrongly treated as missing credentials here. This check
+                    // is for the complementary case: no login wording at all,
+                    // yet the page still shows a sensitive field (e.g. "check
+                    // my most recent transaction" after a session timeout
+                    // re-shows a login form).
+                    if (credentialsMissing && domHasSensitiveField && !impliesCredentialNeed(taskInstruction)) {
+                        // Reuses requestConfirmation() from confirmationUI.js —
+                        // the same native window.confirm()-based prompt already
+                        // used below for risky-action confirmation — passing it
+                        // an action-shaped object of type 'ask_user_confirmation'
+                        // (extension/src/shared/constants.js:
+                        // ACTION_TYPES.ASK_USER_CONFIRMATION) so its message
+                        // formatting logic works unchanged.
+                        const proceedAnyway = await requestConfirmation({
+                            type: 'ask_user_confirmation',
+                            reasoning_short: 'This task needs a username/password but none was found in your instruction — please provide it and try again.',
+                        });
+                        if (!proceedAnyway) {
+                            // Matches the existing early-exit pattern used
+                            // elsewhere in this loop (e.g. 'denied_by_user'):
+                            // finalizeTask() then return without ever calling
+                            // sendMessageAsync({ type: 'SEND_PAYLOAD', ... }).
+                            await finalizeTask(sessionId, 'missing_credentials');
+                            return {
+                                success: false,
+                                reason: 'MISSING_CREDENTIALS',
+                                message: 'This task needs a username/password but none was found in your instruction — please provide it and try again.',
+                            };
+                        }
+                    }
 
                     // 3. Send to backend via background worker to avoid CORS issues in content script context
                     let actionResponse = null;
@@ -481,17 +626,11 @@ if (IS_TEST_MODE) {
     window.__runTaskLoop = runTaskLoop;
 }
 
+console.log(`[Orchestrator] Capture mode: ${USE_MOCK_CAPTURE ? 'MOCK' : 'REAL'}`);
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'RUN_TASK') {
-    const capture = async () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      return {
-        elements: Array.from(document.querySelectorAll('input, button, select, textarea')),
-        canvas
-      };
-    };
+    const capture = USE_MOCK_CAPTURE ? () => mockDev1.captureCurrentState() : captureRealTabState;
     runTaskLoop(message.taskInstruction, capture).then((result) => {
       // Best-effort notification to the popup (if still open) so the user
       // learns why a task stopped rather than being left guessing —

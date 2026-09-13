@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Perceive — offscreen face detection host</title>
+</head>
+<body>
+  <!--
+    This page is never shown to the user (chrome.offscreen documents have no
+    visible UI). It exists solely because Chrome does not support spawning a
+    dedicated Worker from within a Service Worker context — see
+    transport.js's ensureOffscreenDocument()/OFFSCREEN_DETECT_FACES relay and
+    offscreenFaceDetection.js for the full explanation. A real window/DOM
+    context (this one) CAN spawn the classic faceDetectionWorker.bundle.js
+    worker exactly as the content script used to before that hit a
+    cross-origin CSP SecurityError on some sites.
+  -->
+  <script src="../../dist/offscreenFaceDetection.bundle.js"></script>
+</body>
+</html>

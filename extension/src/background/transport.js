@@ -179,67 +179,85 @@ export async function sendToBackendWithRetry(payload, taskBudget) {
   }
 }
 
-// --- Face detection: worker owned by the BACKGROUND service worker ---
+// --- Face detection: worker owned by an OFFSCREEN DOCUMENT ---
 //
-// Spawning `new Worker(chrome-extension://.../faceDetectionWorker.bundle.js)`
-// directly from a content script broke on a real, security-conscious site
-// (observed live on leetcode.com):
-//   SecurityError: Failed to construct 'Worker': Script at
-//   'chrome-extension://.../faceDetectionWorker.bundle.js' cannot be
-//   accessed from origin 'https://leetcode.com'.
-// This is the HOST PAGE's own CSP (worker-src) rejecting a cross-origin
-// worker script — independent of manifest.json's web_accessible_resources,
-// which only controls whether the extension PERMITS the resource to be
-// fetched, not whether the page's own CSP allows constructing a Worker
-// from it. The background service worker's execution context has its own
-// chrome-extension:// origin and is never subject to any web page's CSP,
-// so it owns the worker instead; extension/src/vision/visionPipeline.js
-// relays detection requests here via chrome.runtime.sendMessage (mirrors
-// the SEND_PAYLOAD pattern above).
-let faceWorker = null;
-let nextFaceRequestId = 1;
-const facePending = new Map();
+// Two real, empirically-found bugs shaped this, in order:
+//
+// 1. Spawning `new Worker(chrome-extension://.../faceDetectionWorker.bundle.js)`
+//    directly from a content script broke on a real, security-conscious site
+//    (observed live on leetcode.com):
+//      SecurityError: Failed to construct 'Worker': Script at
+//      'chrome-extension://.../faceDetectionWorker.bundle.js' cannot be
+//      accessed from origin 'https://leetcode.com'.
+//    This is the HOST PAGE's own CSP (worker-src) rejecting a cross-origin
+//    worker script — independent of manifest.json's web_accessible_resources,
+//    which only controls whether the extension PERMITS the resource to be
+//    fetched, not whether the page's own CSP allows constructing a Worker
+//    from it. This is what motivated moving worker ownership OUT of the
+//    content script.
+//
+// 2. Moving it into THIS file (the background service worker) instead was
+//    also wrong, found in later live Chrome testing: Chrome does not support
+//    creating a dedicated Worker from within a Service Worker context AT
+//    ALL — `new Worker(...)` here throws `ReferenceError: Worker is not
+//    defined` synchronously. (manifest.json declares this service worker as
+//    `"type": "module"`, but the restriction is on Service Workers spawning
+//    Workers in general, not specific to module-type ones.) That failure was
+//    silently swallowed by detectFaces()'s own fail-open catch in
+//    visionPipeline.js, so face detection ran with zero faces detected on
+//    every single page, with no visible error apart from a console log in
+//    the CONTENT SCRIPT's console (where that catch block executes) reading
+//    "Worker is not defined" — which is easy to misread as a content-script
+//    bug when the actual throw happened here.
+//
+// The fix: a chrome.offscreen document (src/background/offscreen.html +
+// offscreenFaceDetection.js) is a real window/DOM context — unlike a
+// service worker, it CAN spawn a classic Worker — and it lives at the
+// extension's own chrome-extension:// origin, so it is never subject to any
+// host page's CSP like a content script is. This file's job shrinks to:
+// ensure that document exists, then relay the request to it and forward its
+// response back exactly as it did when it owned the worker directly, so
+// visionPipeline.js's DETECT_FACES contract is unchanged.
+const OFFSCREEN_DOCUMENT_URL = 'src/background/offscreen.html';
+let creatingOffscreenDocument = null;
 
-function getFaceWorker() {
-    if (faceWorker) return faceWorker;
+async function ensureOffscreenDocument() {
+    if (await chrome.offscreen.hasDocument()) return;
 
-    faceWorker = new Worker(chrome.runtime.getURL('dist/faceDetectionWorker.bundle.js'));
+    if (creatingOffscreenDocument) {
+        await creatingOffscreenDocument;
+        return;
+    }
 
-    faceWorker.onmessage = (event) => {
-        const msg = event.data || {};
-        if (msg.type === 'log') {
-            const level = msg.level === 'warn' ? console.warn : console.log;
-            level(msg.message);
-            return;
-        }
-        const entry = facePending.get(msg.requestId);
-        if (!entry) return;
-        facePending.delete(msg.requestId);
-        if (msg.type === 'result') {
-            entry.resolve(msg.faces || []);
-        } else if (msg.type === 'error') {
-            entry.reject(new Error(msg.message || 'Face detection worker error'));
-        }
-    };
-
-    faceWorker.onerror = (event) => {
-        const err = new Error((event && event.message) || 'Face detection worker crashed');
-        for (const { reject } of facePending.values()) reject(err);
-        facePending.clear();
-        try { faceWorker.terminate(); } catch (_e) { /* noop */ }
-        faceWorker = null;
-    };
-
-    return faceWorker;
+    creatingOffscreenDocument = chrome.offscreen.createDocument({
+        url: OFFSCREEN_DOCUMENT_URL,
+        reasons: ['WORKERS'],
+        justification: 'Service workers cannot spawn a dedicated Worker; MediaPipe face detection needs a real window/DOM context to run its classic Worker.',
+    });
+    try {
+        await creatingOffscreenDocument;
+    } finally {
+        creatingOffscreenDocument = null;
+    }
 }
 
-function detectFacesInBackground(width, height, pixels) {
+async function detectFacesInBackground(width, height, pixels) {
+    await ensureOffscreenDocument();
+
     return new Promise((resolve, reject) => {
-        const requestId = nextFaceRequestId++;
-        facePending.set(requestId, { resolve, reject });
-        getFaceWorker().postMessage(
-            { type: 'detect', requestId, width, height, pixels },
-            [pixels]
+        chrome.runtime.sendMessage(
+            { type: 'OFFSCREEN_DETECT_FACES', width, height, pixels },
+            (response) => {
+                if (chrome.runtime.lastError) {
+                    reject(new Error(chrome.runtime.lastError.message));
+                    return;
+                }
+                if (!response || !response.success) {
+                    reject(new Error((response && response.error) || 'Offscreen face detection failed'));
+                    return;
+                }
+                resolve(response.faces || []);
+            }
         );
     });
 }
