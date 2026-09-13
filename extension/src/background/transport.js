@@ -177,6 +177,71 @@ export async function sendToBackendWithRetry(payload, taskBudget) {
   }
 }
 
+// --- Face detection: worker owned by the BACKGROUND service worker ---
+//
+// Spawning `new Worker(chrome-extension://.../faceDetectionWorker.bundle.js)`
+// directly from a content script broke on a real, security-conscious site
+// (observed live on leetcode.com):
+//   SecurityError: Failed to construct 'Worker': Script at
+//   'chrome-extension://.../faceDetectionWorker.bundle.js' cannot be
+//   accessed from origin 'https://leetcode.com'.
+// This is the HOST PAGE's own CSP (worker-src) rejecting a cross-origin
+// worker script — independent of manifest.json's web_accessible_resources,
+// which only controls whether the extension PERMITS the resource to be
+// fetched, not whether the page's own CSP allows constructing a Worker
+// from it. The background service worker's execution context has its own
+// chrome-extension:// origin and is never subject to any web page's CSP,
+// so it owns the worker instead; extension/src/vision/visionPipeline.js
+// relays detection requests here via chrome.runtime.sendMessage (mirrors
+// the SEND_PAYLOAD pattern above).
+let faceWorker = null;
+let nextFaceRequestId = 1;
+const facePending = new Map();
+
+function getFaceWorker() {
+    if (faceWorker) return faceWorker;
+
+    faceWorker = new Worker(chrome.runtime.getURL('dist/faceDetectionWorker.bundle.js'));
+
+    faceWorker.onmessage = (event) => {
+        const msg = event.data || {};
+        if (msg.type === 'log') {
+            const level = msg.level === 'warn' ? console.warn : console.log;
+            level(msg.message);
+            return;
+        }
+        const entry = facePending.get(msg.requestId);
+        if (!entry) return;
+        facePending.delete(msg.requestId);
+        if (msg.type === 'result') {
+            entry.resolve(msg.faces || []);
+        } else if (msg.type === 'error') {
+            entry.reject(new Error(msg.message || 'Face detection worker error'));
+        }
+    };
+
+    faceWorker.onerror = (event) => {
+        const err = new Error((event && event.message) || 'Face detection worker crashed');
+        for (const { reject } of facePending.values()) reject(err);
+        facePending.clear();
+        try { faceWorker.terminate(); } catch (_e) { /* noop */ }
+        faceWorker = null;
+    };
+
+    return faceWorker;
+}
+
+function detectFacesInBackground(width, height, pixels) {
+    return new Promise((resolve, reject) => {
+        const requestId = nextFaceRequestId++;
+        facePending.set(requestId, { resolve, reject });
+        getFaceWorker().postMessage(
+            { type: 'detect', requestId, width, height, pixels },
+            [pixels]
+        );
+    });
+}
+
 /**
  * Sends a fire-and-forget POST to /session/{sessionId}/end in the background.
  */
@@ -223,6 +288,17 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
               })
               .catch(error => {
                   sendResponse({ success: false, error: error.message, errorType: error.name });
+              });
+          return true; // Keep message channel open for async response
+      }
+
+      if (message.type === 'DETECT_FACES') {
+          detectFacesInBackground(message.width, message.height, message.pixels)
+              .then(faces => {
+                  sendResponse({ success: true, faces });
+              })
+              .catch(error => {
+                  sendResponse({ success: false, error: error.message });
               });
           return true; // Keep message channel open for async response
       }

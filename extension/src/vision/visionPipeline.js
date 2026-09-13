@@ -1,23 +1,44 @@
 /**
- * Face detection now runs inside a dedicated, CLASSIC (non-module) Web
- * Worker (faceDetectionWorker.js) rather than in this content-script module
- * directly. See faceDetectionWorker.js's header comment for the full,
- * empirically-verified root-cause explanation: MediaPipe's WASM glue loader
- * relies on the classic-worker `importScripts()` API to set a global
- * (`self.ModuleFactory`) after loading its Emscripten glue script; a
- * `type: 'module'` worker's `importScripts()` throws (disallowed by spec),
- * which sends the loader down a fallback path that never sets that global —
- * reproducing "ModuleFactory not set" on both the GPU and CPU delegate. A
- * classic worker's real `importScripts()` sets it correctly. (This is NOT
- * about Chrome extension isolated-world semantics, despite an earlier
- * hypothesis to that effect — the same failure reproduces in a plain
- * webpage's own module worker.) This mirrors why tesseract.js (used for
- * OCR) already works: it loads its worker as a classic script too.
+ * Face detection runs inside a dedicated, CLASSIC (non-module) Web Worker
+ * (faceDetectionWorker.js). See that file's header comment for the full,
+ * empirically-verified explanation of why a classic worker is required at
+ * all (MediaPipe's WASM glue loader relies on classic-worker
+ * importScripts() to set a global; a module worker's importScripts()
+ * throws, breaking it).
+ *
+ * WHERE the worker is spawned matters too, and changed after real-world
+ * testing surfaced a second issue: spawning `new Worker(chrome-extension://...)`
+ * directly from a content script running on a real, security-conscious
+ * site (observed live on leetcode.com) throws:
+ *   SecurityError: Failed to construct 'Worker': Script at
+ *   'chrome-extension://.../faceDetectionWorker.bundle.js' cannot be
+ *   accessed from origin 'https://leetcode.com'.
+ * This is the HOST PAGE's own Content-Security-Policy (worker-src)
+ * rejecting a cross-origin worker script, independent of this extension's
+ * own manifest.json web_accessible_resources declaration — a page's CSP
+ * can block this regardless of what the extension permits.
+ *
+ * Fix: the worker is now spawned from the BACKGROUND SERVICE WORKER
+ * (extension/src/background/transport.js) instead of the content script.
+ * The background service worker's own execution context has a
+ * chrome-extension:// origin and is never subject to any web page's CSP,
+ * so it can construct the worker unconditionally. The content script
+ * relays detection requests to it via chrome.runtime.sendMessage (mirrors
+ * the existing SEND_PAYLOAD pattern already used for network calls).
+ *
+ * A direct-worker fallback is kept for non-extension contexts (the
+ * sandbox/plain-webpage test harness, where chrome.runtime doesn't exist
+ * and the cross-origin CSP issue above doesn't apply anyway, since nothing
+ * is loaded from a chrome-extension:// URL in that context).
  *
  * This module's external contract is unchanged: detectFaces(imageSource)
  * still returns Promise<Array<{ bounding_box, confidence }>> and fails open
  * (never throws / never blocks the rest of the pipeline).
  */
+
+function hasExtensionRuntime() {
+  return typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage;
+}
 
 function extensionUrl(relativePath) {
   if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
@@ -26,36 +47,28 @@ function extensionUrl(relativePath) {
   return relativePath;
 }
 
-let worker = null;
-let nextRequestId = 1;
-const pending = new Map(); // requestId -> { resolve, reject }
+// --- Direct-worker fallback path (non-extension contexts only: sandbox /
+// plain-webpage test harness. Real extension usage always goes through
+// detectViaBackground() below instead.) ---
+let localWorker = null;
+let nextLocalRequestId = 1;
+const localPending = new Map();
 
-function getWorker() {
-  if (worker) return worker;
+function getLocalWorker() {
+  if (localWorker) return localWorker;
 
-  // IMPORTANT: no `{ type: 'module' }` here. MediaPipe's internal WASM glue
-  // loader relies on the classic-worker `importScripts()` to set a global
-  // (`self.ModuleFactory`) after loading its Emscripten glue script. A
-  // module worker throws on `importScripts()` (disallowed by spec), which
-  // sends the loader down a fallback `import()` path that does not end up
-  // setting that global — reproducing "ModuleFactory not set" on both the
-  // GPU and CPU delegate, empirically confirmed independent of extension
-  // isolated-world semantics. See build.mjs's workerBuildOptions comment and
-  // faceDetectionWorker.js's header for the full story. The bundle itself is
-  // plain ES5/ES2017-ish JS (esbuild resolves our `import` source into an
-  // IIFE at build time), so it runs fine as a classic worker script.
-  worker = new Worker(extensionUrl('dist/faceDetectionWorker.bundle.js'));
+  localWorker = new Worker(extensionUrl('dist/faceDetectionWorker.bundle.js'));
 
-  worker.onmessage = (event) => {
+  localWorker.onmessage = (event) => {
     const msg = event.data || {};
     if (msg.type === 'log') {
       const level = msg.level === 'warn' ? console.warn : console.log;
       level(msg.message);
       return;
     }
-    const entry = pending.get(msg.requestId);
+    const entry = localPending.get(msg.requestId);
     if (!entry) return;
-    pending.delete(msg.requestId);
+    localPending.delete(msg.requestId);
     if (msg.type === 'result') {
       entry.resolve(msg.faces || []);
     } else if (msg.type === 'error') {
@@ -63,18 +76,46 @@ function getWorker() {
     }
   };
 
-  worker.onerror = (event) => {
-    // A worker-level error (e.g. failed to load the bundle) can't be tied to
-    // a specific requestId — fail every in-flight request open rather than
-    // hanging them forever, then drop the worker so the next call retries.
+  localWorker.onerror = (event) => {
     const err = new Error((event && event.message) || 'Face detection worker crashed');
-    for (const { reject } of pending.values()) reject(err);
-    pending.clear();
-    try { worker.terminate(); } catch (_e) { /* noop */ }
-    worker = null;
+    for (const { reject } of localPending.values()) reject(err);
+    localPending.clear();
+    try { localWorker.terminate(); } catch (_e) { /* noop */ }
+    localWorker = null;
   };
 
-  return worker;
+  return localWorker;
+}
+
+function detectViaLocalWorker(width, height, buffer) {
+  return new Promise((resolve, reject) => {
+    const requestId = nextLocalRequestId++;
+    localPending.set(requestId, { resolve, reject });
+    getLocalWorker().postMessage(
+      { type: 'detect', requestId, width, height, pixels: buffer },
+      [buffer]
+    );
+  });
+}
+
+// --- Background-relay path (real extension content-script context) ---
+function detectViaBackground(width, height, buffer) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'DETECT_FACES', width, height, pixels: buffer },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        if (!response || !response.success) {
+          reject(new Error((response && response.error) || 'DETECT_FACES failed'));
+          return;
+        }
+        resolve(response.faces || []);
+      }
+    );
+  });
 }
 
 /**
@@ -144,14 +185,9 @@ export async function detectFaces(imageSource) {
       // it from this thread, which is fine — we don't need it afterwards).
       const buffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
 
-      faces = await new Promise((resolve, reject) => {
-        const requestId = nextRequestId++;
-        pending.set(requestId, { resolve, reject });
-        getWorker().postMessage(
-          { type: 'detect', requestId, width, height, pixels: buffer },
-          [buffer]
-        );
-      });
+      faces = hasExtensionRuntime()
+        ? await detectViaBackground(width, height, buffer)
+        : await detectViaLocalWorker(width, height, buffer);
     }
   } catch (err) {
     // Fail-closed on the DETECTION channel itself would mean blocking the
@@ -172,12 +208,12 @@ export async function detectFaces(imageSource) {
   return faces;
 }
 
-/** Test/teardown helper — releases the cached worker instance. */
+/** Test/teardown helper — releases the cached local-fallback worker instance. */
 export function unloadFaceDetectionWorker() {
-  if (worker) {
-    try { worker.terminate(); } catch (_e) { /* noop */ }
-    worker = null;
+  if (localWorker) {
+    try { localWorker.terminate(); } catch (_e) { /* noop */ }
+    localWorker = null;
   }
-  for (const { reject } of pending.values()) reject(new Error('Face detection worker torn down'));
-  pending.clear();
+  for (const { reject } of localPending.values()) reject(new Error('Face detection worker torn down'));
+  localPending.clear();
 }
