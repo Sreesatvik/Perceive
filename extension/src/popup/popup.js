@@ -1,3 +1,7 @@
+document.getElementById('dashboard-btn').addEventListener('click', () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('src/panel/auditDashboard.html') });
+});
+
 document.getElementById('run-btn').addEventListener('click', async () => {
   const status = document.getElementById('status');
   const taskInput = document.getElementById('task-input');

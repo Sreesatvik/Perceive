@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Dashboard visual verification (standalone, outside extension runtime)</title>
+</head>
+<body>
+<iframe id="dash-frame" src="../../src/panel/auditDashboard.html" style="width:100%; height:1000px; border:none;"></iframe>
+<script>
+  const frame = document.getElementById('dash-frame');
+  frame.addEventListener('load', () => {
+    const win = frame.contentWindow;
+    const tinyPngDataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+    // Step 1: a plain form, DOM channel only.
+    win.__renderStepForTest({
+      sessionId: 'demo-session-1234',
+      stepNumber: 1,
+      timestamp: Date.now(),
+      originalImageBase64: tinyPngDataUrl,
+      redactedImageBase64: tinyPngDataUrl,
+      domSummary: { url: 'https://example.com/login', elements: [] },
+      redactedRegions: [
+        { element_id: 'pwd-1', sensitivity_type: 'PASSWORD', detection_source: 'dom_heuristic', reason: "labelled 'Password' by nearby DOM text", semantic_token: '[PASSWORD_a1b2c3d4e5]' }
+      ],
+      confidenceNotes: [{ element_id: 'pwd-1', confidence: 0.92, method: 'dom_heuristic' }],
+      action: { type: 'type', target_element_id: 'pwd-1', risk_tier: 'risky', reasoning_short: 'Typing password into the login field' },
+      metrics: [
+        { name: 'perceive:step:vision-total', durationMs: 145.3 },
+        { name: 'perceive:step:dom-and-redaction', durationMs: 8.1 },
+        { name: 'perceive:step:total', durationMs: 162.7 },
+      ],
+    });
+
+    // Step 2: face + OCR (vision channel), no DOM sensitivity at all.
+    win.__renderStepForTest({
+      sessionId: 'demo-session-1234',
+      stepNumber: 2,
+      timestamp: Date.now(),
+      originalImageBase64: tinyPngDataUrl,
+      redactedImageBase64: tinyPngDataUrl,
+      domSummary: { url: 'https://example.com/dashboard', elements: [] },
+      redactedRegions: [
+        { element_id: 'vision-face-1', sensitivity_type: 'FACE', detection_source: 'vision_model', reason: 'detected as face by vision model', semantic_token: null },
+        { element_id: 'vision-ocr-1', sensitivity_type: 'CARD_NUMBER', detection_source: 'ocr_regex', reason: 'matched CARD_NUMBER pattern in on-screen text (OCR)', semantic_token: '[CARD_NUMBER_f9e8d7c6b5]' },
+      ],
+      confidenceNotes: [
+        { element_id: 'vision-face-1', confidence: 0.91, method: 'vision_model' },
+        { element_id: 'vision-ocr-1', confidence: 0.8, method: 'ocr_regex' },
+      ],
+      action: { type: 'scroll', target_element_id: null, risk_tier: 'safe', reasoning_short: 'Scrolling to view more content' },
+      metrics: [
+        { name: 'perceive:step:vision-total', durationMs: 310.5 },
+        { name: 'perceive:step:dom-and-redaction', durationMs: 5.2 },
+        { name: 'perceive:step:total', durationMs: 318.9 },
+      ],
+    });
+
+    // Step 3: nothing sensitive found this step.
+    win.__renderStepForTest({
+      sessionId: 'demo-session-1234',
+      stepNumber: 3,
+      timestamp: Date.now(),
+      originalImageBase64: tinyPngDataUrl,
+      redactedImageBase64: tinyPngDataUrl,
+      domSummary: { url: 'https://example.com/dashboard', elements: [] },
+      redactedRegions: [],
+      confidenceNotes: [],
+      action: { type: 'task_complete', target_element_id: null, risk_tier: 'safe', reasoning_short: 'Task completed successfully' },
+      metrics: [{ name: 'perceive:step:total', durationMs: 12.1 }],
+    });
+
+    document.title = 'Dashboard visual verification — 3 steps rendered';
+  });
+</script>
+</body>
+</html>

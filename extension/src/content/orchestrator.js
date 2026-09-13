@@ -4,6 +4,7 @@ import { RETRY_CONFIG } from '../shared/constants.js';
 
 import { getVaultForSession, endSession } from '../../dev2/session-vault-manager.js';
 import { processPageForRedaction } from '../../dev2/redaction-engine.js';
+import { canvasToBase64 } from '../../dev2/redaction-renderer.js';
 import { detectPII } from '../../dev2/pii-patterns.js';
 import {
   resolveCredentialTokens,
@@ -106,12 +107,66 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
   mark('perceive:step:total:end');
   measure('perceive:step:total', 'perceive:step:total:start', 'perceive:step:total:end');
 
+  // originalImageBase64 is for the Phase 4 audit dashboard ONLY — it is the
+  // pre-redaction screenshot and must NEVER be included in the payload sent
+  // to the backend (that would defeat the entire on-device redaction
+  // architecture). Kept as a separate return value specifically so it can
+  // never accidentally get merged into the network payload object below.
+  const originalImageBase64 = canvasToBase64(snapshot.canvas);
+
   return {
-    session_id: sessionId,
-    task_instruction: sanitizedInstruction,
-    step_number: stepNumber,
-    ...result
+    payload: {
+      session_id: sessionId,
+      task_instruction: sanitizedInstruction,
+      step_number: stepNumber,
+      ...result
+    },
+    originalImageBase64,
   };
+}
+
+/**
+ * Phase 4.1/4.2 — best-effort broadcast of one step's full audit data (both
+ * screenshots, every redacted region with its reason, the LLM's action and
+ * server-assigned risk_tier, and this step's latency marks) to the audit
+ * dashboard page, if one is open. Never throws — a missing listener (no
+ * dashboard tab open) is the normal case, not an error.
+ */
+function broadcastAuditUpdate(sessionId, stepNumber, payload, originalImageBase64, action) {
+  if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) return;
+
+  const metrics = (typeof performance !== 'undefined' && performance.getEntriesByType)
+    ? performance.getEntriesByType('measure')
+        .filter(m => m.name.startsWith('perceive:step:'))
+        .map(m => ({ name: m.name, durationMs: Math.round(m.duration * 100) / 100 }))
+    : [];
+
+  try {
+    chrome.runtime.sendMessage({
+      type: 'AUDIT_STEP_UPDATE',
+      data: {
+        sessionId,
+        stepNumber,
+        originalImageBase64,
+        redactedImageBase64: payload.redacted_image_base64,
+        domSummary: payload.dom_summary,
+        redactedRegions: payload.redacted_regions,
+        confidenceNotes: payload.detection_confidence_notes,
+        action,
+        metrics,
+        timestamp: Date.now(),
+      },
+    }, () => { void chrome.runtime.lastError; });
+  } catch (_e) {
+    // No dashboard listener open — non-fatal, expected the common case.
+  }
+
+  // Clear this step's marks so a long-running task doesn't accumulate an
+  // unbounded performance timeline.
+  if (typeof performance !== 'undefined' && performance.clearMarks && performance.clearMeasures) {
+    performance.clearMarks();
+    performance.clearMeasures();
+  }
 }
 
 // Fallback BACKEND_URL used only outside the extension runtime (plain-webpage test harness)
@@ -239,7 +294,7 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                     const snapshot = captureOverride ? await captureOverride() : await mockDev1.captureCurrentState();
 
                     // 2. Redact + build payload
-                    const payload = await buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepNumber);
+                    const { payload, originalImageBase64 } = await buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepNumber);
 
                     // 3. Send to backend via background worker to avoid CORS issues in content script context
                     let actionResponse = null;
@@ -260,6 +315,12 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                         }
                     }
                     // --------------------------------------
+
+                    // Phase 4.1/4.2: broadcast this step's full audit data to
+                    // the dashboard (if open) BEFORE the terminal/confirmation
+                    // branches below, so task_complete/task_failed steps are
+                    // logged too, not just successful intermediate ones.
+                    broadcastAuditUpdate(sessionId, stepNumber, payload, originalImageBase64, actionResponse.action);
 
                     // 4. Check for terminal actions
                     if (actionResponse.action.type === 'task_complete') {

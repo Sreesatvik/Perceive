@@ -103,12 +103,25 @@ export function classifyElement(el) {
   // from the tag/type so this NEVER returns null (backend requires a string).
   const role = el.getAttribute('role') || getDefaultRole(el, tag, typeAttr);
 
-  // Hard exclusion for buttons
+  // Hard exclusion for buttons.
+  //
+  // Security-relevant: aria-label MUST take priority over the visible
+  // caption here, exactly as getNearbyLabelText() already does for every
+  // other element type below. A button's visible text is author-controlled
+  // and can be made to say anything ("Continue") while its real
+  // accessible label says what it actually does ("Delete Account
+  // Permanently") — a real, known dark-pattern/phishing technique. The
+  // server's policy engine (evaluate_action_risk) relies on label_text
+  // reflecting DOM ground truth, not a possibly-deceptive visible caption.
+  // Found and fixed during Phase 4 red-team testing — see
+  // extension/tests/redteam/redteam-page.html and
+  // server/tests/test_redteam_policy.py.
   if (tag === 'button' || typeAttr === 'submit' || typeAttr === 'button' || role === 'button') {
+    const ariaLabel = el.getAttribute('aria-label');
     return {
       tag: 'button',
       role: 'button',
-      label_text: el.innerText || el.textContent || null,
+      label_text: (ariaLabel && ariaLabel.trim()) || el.innerText || el.textContent || null,
       is_sensitive: false,
       sensitivity_type: null
     };

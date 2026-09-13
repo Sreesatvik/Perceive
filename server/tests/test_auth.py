@@ -36,9 +36,18 @@ def test_analyze_correct_api_key_proceeds_past_auth(client):
     assert response.status_code != 401
 
 
-def test_missing_backend_api_key_fails_app_boot(monkeypatch):
+def test_missing_backend_api_key_fails_app_boot(monkeypatch, tmp_path):
     """Regression test: config.py must fail fast at import/boot time if
-    BACKEND_API_KEY is not set, rather than silently disabling auth."""
+    BACKEND_API_KEY is not set, rather than silently disabling auth.
+
+    pydantic-settings' precedence is env vars > .env file > defaults, so
+    deleting the env var alone isn't enough to prove this when a real local
+    server/.env exists (as it does for real development) — it would just
+    fall through to that file's value. chdir to an empty tmp_path so
+    Settings' relative env_file=".env" resolves to nowhere, truly isolating
+    this test from whatever .env the developer happens to have configured.
+    """
+    monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("LLM_PROVIDER", "offline")
     monkeypatch.setenv("MODEL_NAME", "test-model")
     monkeypatch.setenv("OFFLINE_API_BASE", "http://localhost:11434/v1")

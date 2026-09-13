@@ -37,6 +37,8 @@
       font-size: 13px;
     }
     button:hover { background: #218838; }
+    #dashboard-btn { background: #2a2d33; margin-top: 6px; font-size: 11px; padding: 6px; }
+    #dashboard-btn:hover { background: #34373d; }
     .status {
       font-size: 11px;
       padding: 6px 8px;
@@ -52,6 +54,7 @@
   <p>Privacy-preserving on-device redaction for AI browser agents.</p>
   <textarea id="task-input" placeholder="e.g. Log in with username 'tomsmith' and password 'SuperSecretPassword!'"></textarea>
   <button id="run-btn">Run Task</button>
+  <button id="dashboard-btn">Open audit dashboard</button>
   <div class="status" id="status">● Extension active</div>
   <script src="popup.js"></script>
 </body>

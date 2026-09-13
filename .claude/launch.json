@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["--yes", "serve", "-l", "5321", "extension/tests/vision"],
       "port": 5321
+    },
+    {
+      "name": "extension-root",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "serve", "-l", "5322", "extension"],
+      "port": 5322
     }
   ]
 }

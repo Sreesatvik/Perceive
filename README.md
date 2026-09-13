@@ -8,7 +8,7 @@ Perceive is a privacy-first web automation agent backend. It processes webpage i
 
 - **DOM Privacy Sanitization**: Evaluates DOM nodes, sensitivity tiers (Tier 1-3), and sensitive types (passwords, card numbers, emails, names, amounts).
 - **Semantic Tokenization**: Replaces sensitive values with tokens (e.g., `[CARD_NUMBER]`, `[AMOUNT]`) before inference.
-- **LLM-Driven Action Generation**: Uses Groq-hosted `llama-3.3-70b-versatile` (or an offline-compatible provider) to decide the next action (`click`, `type`, `scroll`, `wait`, `ask_user_confirmation`, `task_complete`, `task_failed`).
+- **LLM-Driven Action Generation**: Uses a Groq-hosted model (or an offline-compatible provider) to decide the next action (`click`, `type`, `scroll`, `wait`, `ask_user_confirmation`, `task_complete`, `task_failed`).
 - **Server-Side Policy Enforcement**: `evaluate_action_risk()` re-derives the risk tier for every action server-side — the LLM's own risk assessment is never trusted directly.
 - **API Key Auth & CORS Allowlist**: `/analyze` and `/session/{id}/end` require an `X-API-Key` header; CORS origins are read from `ALLOWED_ORIGINS`, no wildcard.
 - **Strict Audit Logging**: Records sanitized request metadata and agent actions to `audit.jsonl` without exposing sensitive user inputs.
@@ -69,12 +69,20 @@ pip install -r requirements.txt
 Create `server/.env`:
 ```env
 LLM_PROVIDER=groq
-MODEL_NAME=llama-3.3-70b-versatile
+MODEL_NAME=openai/gpt-oss-120b
 GROQ_API_KEY=gsk_your_groq_api_key_here
 BACKEND_API_KEY=choose_a_strong_shared_secret
 ALLOWED_ORIGINS=http://localhost:3000
 ```
 `config.py` fails fast at boot if any required variable is missing.
+
+Groq's model catalog changes over time — models get deprecated/renamed
+(e.g. `llama-3.3-70b-versatile`, previously documented here, returns a 404
+`model_not_found` as of this writing). Check currently available models
+with your key via:
+```bash
+curl -s https://api.groq.com/openai/v1/models -H "Authorization: Bearer $GROQ_API_KEY" | python -m json.tool
+```
 
 ### 4. Run the Backend Server
 Using the quick-start script:
