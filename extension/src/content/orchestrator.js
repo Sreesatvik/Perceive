@@ -9,6 +9,9 @@ import {
   resolveCredentialTokens,
   UnresolvedSensitiveReferenceError,
 } from '../../dev2/task-entity-extractor.js';
+import { detectFaces } from '../vision/visionPipeline.js';
+import { runOcr } from '../vision/ocrPipeline.js';
+import { getVisionResultCached, clearVisionCache } from '../vision/visionCache.js';
 
 const IS_TEST_MODE = typeof window !== 'undefined' && window.__PERCEIVE_TEST_MODE__ === true;
 
@@ -49,10 +52,21 @@ function tokenizeCredentialsInInstruction(taskInstruction, vault) {
   return sanitizedInstruction;
 }
 
+function mark(name) {
+  if (typeof performance !== 'undefined' && performance.mark) performance.mark(name);
+}
+function measure(name, start, end) {
+  if (typeof performance !== 'undefined' && performance.measure) {
+    try { performance.measure(name, start, end); } catch (_e) { /* noop */ }
+  }
+}
+
 async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepNumber) {
   // ASSUMPTION: snapshot has shape { elements: HTMLElement[], canvas: HTMLCanvasElement }
   // TODO: confirm this matches Dev 1's real capture module output once available
   const vault = getVaultForSession(sessionId);
+
+  mark('perceive:step:total:start');
 
   // Tokenize any credentials embedded in the task instruction BEFORE sending
   // it anywhere, so raw values never reach the LLM. The LLM will see the
@@ -60,7 +74,29 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
   // tokens in its "type" actions instead of raw values.
   const sanitizedInstruction = tokenizeCredentialsInInstruction(taskInstruction, vault);
 
-  const result = await processPageForRedaction(snapshot.elements, snapshot.canvas, vault);
+  // Phase 2.3: one capture feeds both channels — face detection and OCR run
+  // concurrently via Promise.all since they're independent of each other and
+  // of the (synchronous, near-instant) DOM heuristics pass below. Phase 2.7:
+  // skip re-running them if the captured frame is unchanged since last step.
+  mark('perceive:step:vision-total:start');
+  const { faces, ocrLines } = await getVisionResultCached(sessionId, snapshot.canvas, async () => {
+    const [faceResults, ocrResults] = await Promise.all([
+      detectFaces(snapshot.canvas),
+      runOcr(snapshot.canvas),
+    ]);
+    return { faces: faceResults, ocrLines: ocrResults };
+  });
+  mark('perceive:step:vision-total:end');
+  measure('perceive:step:vision-total', 'perceive:step:vision-total:start', 'perceive:step:vision-total:end');
+
+  mark('perceive:step:dom-and-redaction:start');
+  const result = processPageForRedaction(snapshot.elements, snapshot.canvas, vault, { faces, ocrLines });
+  mark('perceive:step:dom-and-redaction:end');
+  measure('perceive:step:dom-and-redaction', 'perceive:step:dom-and-redaction:start', 'perceive:step:dom-and-redaction:end');
+
+  mark('perceive:step:total:end');
+  measure('perceive:step:total', 'perceive:step:total:start', 'perceive:step:total:end');
+
   return {
     session_id: sessionId,
     task_instruction: sanitizedInstruction,
@@ -115,6 +151,7 @@ async function finalizeTask(sessionId, reason) {
     
     // Step 1: Clear Dev 2's vault
     endSession(sessionId);
+    clearVisionCache(sessionId);
 
     // Step 2: Notify backend via background worker (avoids CORS in content script context)
     try {

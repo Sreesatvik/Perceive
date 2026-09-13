@@ -10,9 +10,19 @@ export function setRedactTier2(flag) {
 }
 
 /**
- * Redacts sensitive regions on an image or canvas by drawing solid black standardized boxes.
+ * Redacts sensitive regions on an image or canvas by drawing solid black boxes.
+ *
+ * Two rendering modes, selected per-region via `render` (default 'pill'):
+ *   - 'pill': the original fixed-size category boxes (80/160/260 x 24),
+ *     centered on the region — correct for DOM form-field text where the
+ *     actual value shape is irrelevant to how it should look redacted.
+ *   - 'box': a solid fill sized to the region's *actual* bounding box
+ *     (Phase 2) — used for vision-detected regions (faces, OCR text) whose
+ *     real extent varies far more than a form field's, where a fixed pill
+ *     could under-cover a face or a long line of OCR'd text.
+ *
  * @param {HTMLCanvasElement | HTMLImageElement} sourceCanvasOrImage
- * @param {Array<{bounding_box: {x: number, y: number, w: number, h: number}, sensitivity_tier: 1|2|3}>} sensitiveRegions
+ * @param {Array<{bounding_box: {x: number, y: number, w: number, h: number}, sensitivity_tier: 1|2|3, render?: 'pill'|'box'}>} sensitiveRegions
  * @returns {HTMLCanvasElement} A new canvas containing the redacted image.
  */
 export function redactImage(sourceCanvasOrImage, sensitiveRegions = []) {
@@ -56,28 +66,39 @@ export function redactImage(sourceCanvasOrImage, sensitiveRegions = []) {
       if (tier === 1 || (tier === 2 && REDACT_TIER_2)) {
         const { x, y, w, h } = region.bounding_box;
 
-        let catW = 260;
-        let catH = 24;
-
-        if (w <= 80 && h <= 24) {
-          catW = 80;
-          catH = 24;
-        } else if (w <= 160 && h <= 24) {
-          catW = 160;
-          catH = 24;
+        if (region.render === 'box') {
+          // Exact-extent fill with a small padding margin so anti-aliased
+          // detection edges (a face's hairline, an OCR bbox's tight crop)
+          // don't leave a sliver of the original content visible.
+          const pad = 4;
+          if (ctx && typeof ctx.fillRect === 'function') {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(x - pad, y - pad, w + pad * 2, h + pad * 2);
+          }
         } else {
-          catW = 260;
-          catH = 24;
-        }
+          let catW = 260;
+          let catH = 24;
 
-        const centerX = x + w / 2;
-        const centerY = y + h / 2;
-        const drawX = centerX - catW / 2;
-        const drawY = centerY - catH / 2;
+          if (w <= 80 && h <= 24) {
+            catW = 80;
+            catH = 24;
+          } else if (w <= 160 && h <= 24) {
+            catW = 160;
+            catH = 24;
+          } else {
+            catW = 260;
+            catH = 24;
+          }
 
-        if (ctx && typeof ctx.fillRect === 'function') {
-          ctx.fillStyle = '#000000';
-          ctx.fillRect(drawX, drawY, catW, catH);
+          const centerX = x + w / 2;
+          const centerY = y + h / 2;
+          const drawX = centerX - catW / 2;
+          const drawY = centerY - catH / 2;
+
+          if (ctx && typeof ctx.fillRect === 'function') {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(drawX, drawY, catW, catH);
+          }
         }
       }
     }

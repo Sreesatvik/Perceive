@@ -37,3 +37,10 @@ audit.jsonl
 shipready_results/
 test-logs/
 server/venv/
+
+# Extension: build output + deps are reproducible via `npm install && npm
+# run build` (see extension/README section) — not committed, same repo-
+# hygiene reasoning as everything else above.
+extension/node_modules/
+extension/dist/
+

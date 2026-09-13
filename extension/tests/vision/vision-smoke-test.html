@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Perceive Phase 2 — Vision Smoke Test</title>
+</head>
+<body>
+<h1>Perceive Phase 2 Vision Smoke Test</h1>
+<canvas id="ocr-canvas" width="400" height="80" style="border:1px solid #ccc"></canvas>
+<img id="face-img" crossorigin="anonymous" style="display:block; max-width:300px;" />
+<pre id="log" style="white-space:pre-wrap; background:#f4f4f4; padding:8px;"></pre>
+
+<script type="module">
+import { FaceDetector, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.mjs';
+import Tesseract from 'https://cdn.jsdelivr.net/npm/tesseract.js@7.0.0/dist/tesseract.esm.min.js';
+
+const log = document.getElementById('log');
+function print(msg) {
+  log.textContent += msg + '\n';
+  console.log(msg);
+}
+
+async function runOcrTest() {
+  print('--- OCR test (Tesseract.js) ---');
+  const canvas = document.getElementById('ocr-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#000';
+  ctx.font = '24px sans-serif';
+  ctx.fillText('Card on file: 4111 1111 1111 1111', 10, 45);
+
+  const worker = await Tesseract.createWorker('eng');
+  const { data } = await worker.recognize(canvas, {}, { blocks: true });
+  print('data.text: ' + JSON.stringify(data.text));
+  print('data.blocks shape (first block, truncated): ' + JSON.stringify(data.blocks && data.blocks[0]).slice(0, 800));
+
+  // Flatten blocks -> paragraphs -> lines
+  const lines = [];
+  for (const block of (data.blocks || [])) {
+    for (const para of (block.paragraphs || [])) {
+      for (const line of (para.lines || [])) {
+        if (line.text && line.text.trim()) lines.push(line.text.trim());
+      }
+    }
+  }
+  print('OCR recognized lines (flattened): ' + JSON.stringify(lines));
+  const pii = /(?:\d[ -]?){15}\d/.test(lines.join(' '));
+  print('Card-number-shaped text found in OCR output: ' + pii);
+  await worker.terminate();
+  return { lines, piiFound: pii };
+}
+
+async function runFaceTest() {
+  print('--- Face detection test (MediaPipe Tasks Vision) ---');
+  const img = document.getElementById('face-img');
+  img.src = 'https://storage.googleapis.com/mediapipe-assets/portrait.jpg';
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = () => reject(new Error('test image failed to load'));
+  });
+  print('Test image loaded: ' + img.naturalWidth + 'x' + img.naturalHeight);
+
+  const filesetResolver = await FilesetResolver.forVisionTasks(
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm'
+  );
+
+  let delegate = 'GPU';
+  let detector;
+  try {
+    detector = await FaceDetector.createFromOptions(filesetResolver, {
+      baseOptions: {
+        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
+        delegate: 'GPU',
+      },
+      runningMode: 'IMAGE',
+      minDetectionConfidence: 0.3,
+    });
+  } catch (e) {
+    print('GPU delegate failed (' + e.message + '), falling back to CPU');
+    delegate = 'CPU';
+    detector = await FaceDetector.createFromOptions(filesetResolver, {
+      baseOptions: {
+        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
+        delegate: 'CPU',
+      },
+      runningMode: 'IMAGE',
+      minDetectionConfidence: 0.3,
+    });
+  }
+
+  const result = detector.detect(img);
+  print('Delegate used: ' + delegate);
+  print('Faces detected: ' + result.detections.length);
+  for (const d of result.detections) {
+    print('  bbox: ' + JSON.stringify(d.boundingBox) + ' score: ' + d.categories[0].score.toFixed(3));
+  }
+  return { delegate, faceCount: result.detections.length };
+}
+
+(async () => {
+  const results = { ocr: null, face: null, error: null };
+  try {
+    results.ocr = await runOcrTest();
+  } catch (e) {
+    print('OCR TEST FAILED: ' + e.message);
+    results.error = 'ocr: ' + e.message;
+  }
+  try {
+    results.face = await runFaceTest();
+  } catch (e) {
+    print('FACE TEST FAILED: ' + e.message);
+    results.error = (results.error ? results.error + '; ' : '') + 'face: ' + e.message;
+  }
+  window.__PERCEIVE_VISION_SMOKE_RESULT__ = results;
+  print('--- DONE ---');
+  print(JSON.stringify(results));
+})();
+</script>
+</body>
+</html>

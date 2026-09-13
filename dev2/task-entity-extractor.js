@@ -32,14 +32,21 @@ export function impliesCredentialNeed(taskInstruction) {
 // whitespace-free tokens separated by a slash/comma/"and", anchored to a
 // nearby credential-referring word so we don't accidentally grab unrelated
 // text out of an ordinary sentence.
+// 'd' flag (match.indices) lets the caller splice out exactly the matched
+// span by position rather than searching for the matched text again later —
+// important because a naive second search for e.g. a single-character
+// password like "x" could accidentally hit an unrelated "x" that happens to
+// land inside a PREVIOUSLY-inserted token's own random suffix (tokens are
+// CSPRNG-random lowercase alphanumeric per Phase 1.3, so this is a real,
+// not theoretical, collision risk once more than one value is tokenized).
 const INFORMAL_DELIMITER_PATTERN =
-  /\b(?:account|credentials|creds|login|log ?in)\b[,:]?\s+([^\s,/]+)\s*(?:\/|,|\band\b)\s*([^\s,/.!?]+)/i;
+  /\b(?:account|credentials|creds|login|log ?in)\b[,:]?\s+([^\s,/]+)\s*(?:\/|,|\band\b)\s*([^\s,/.!?]+)/id;
 
 /**
  * Best-effort extraction of a (username, password)-shaped pair from
  * informally-phrased text, e.g. "log in with my usual account, tom / x".
  * @param {string} taskInstruction
- * @returns {{ username: string, password: string } | null}
+ * @returns {{ username: string, password: string, usernameSpan: [number,number], passwordSpan: [number,number] } | null}
  */
 export function extractInformalCredentials(taskInstruction) {
   if (typeof taskInstruction !== 'string' || !taskInstruction) return null;
@@ -50,7 +57,12 @@ export function extractInformalCredentials(taskInstruction) {
   const [, first, second] = match;
   if (!first || !second) return null;
 
-  return { username: first, password: second };
+  return {
+    username: first,
+    password: second,
+    usernameSpan: match.indices[1],
+    passwordSpan: match.indices[2],
+  };
 }
 
 /**
@@ -92,9 +104,20 @@ export function resolveCredentialTokens(taskInstruction, vault) {
     if (informal) {
       const usernameToken = vault.getOrCreateToken(informal.username, 'NAME');
       const passwordToken = vault.getOrCreateToken(informal.password, 'PASSWORD');
-      sanitizedInstruction = sanitizedInstruction
-        .replace(informal.username, usernameToken)
-        .replace(informal.password, passwordToken);
+
+      // Splice by exact index, later span first, so replacing one span
+      // never shifts the offsets of the other.
+      const [uStart, uEnd] = informal.usernameSpan;
+      const [pStart, pEnd] = informal.passwordSpan;
+      const spans = [
+        { start: uStart, end: uEnd, token: usernameToken },
+        { start: pStart, end: pEnd, token: passwordToken },
+      ].sort((a, b) => b.start - a.start);
+
+      for (const { start, end, token } of spans) {
+        sanitizedInstruction =
+          sanitizedInstruction.slice(0, start) + token + sanitizedInstruction.slice(end);
+      }
     } else {
       throw new UnresolvedSensitiveReferenceError(
         'Task implies a login is required, but no credential value could be found in the instruction. ' +

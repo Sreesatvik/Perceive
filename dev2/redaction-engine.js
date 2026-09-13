@@ -2,12 +2,20 @@ import { classifyElement, getElementId } from './dom-heuristics.js';
 import { detectPII } from './pii-patterns.js';
 import { classifySensitivity } from './sensitivity-tiers.js';
 import { redactImage, canvasToBase64 } from './redaction-renderer.js';
+import { mergeSensitivityChannels } from './channel-consistency-check.js';
 
 /**
  * Top-level orchestrator function to process page elements and source canvas/image for redaction.
  * @param {HTMLElement[]} elements - List of DOM elements to classify and inspect.
  * @param {HTMLCanvasElement | HTMLImageElement} sourceCanvasOrImage - Canvas or image element to redact.
  * @param {object} tokenVault - Session-scoped Token Vault instance (REQUIRED).
+ * @param {{
+ *   faces?: Array<{ bounding_box: {x:number,y:number,w:number,h:number}, confidence: number }>,
+ *   ocrLines?: Array<{ text: string, bounding_box: {x:number,y:number,w:number,h:number}, confidence: number }>
+ * }} [visionData] - Phase 2: on-device vision-channel detections. Faces are
+ *   always redacted (no PII pattern applies to a face); OCR lines are run
+ *   through the SAME detectPII()/classifySensitivity() pipeline used for DOM
+ *   text, so PII-pattern and tiering logic is never duplicated across channels.
  * @returns {{
  *   dom_summary: {
  *     url: string,
@@ -29,14 +37,14 @@ import { redactImage, canvasToBase64 } from './redaction-renderer.js';
  *   redacted_regions: Array<{element_id: string, bounding_box: {x: number, y: number, w: number, h: number}, sensitivity_tier: 1 | 2 | 3, semantic_token: string | null}>
  * }}
  */
-export function processPageForRedaction(elements = [], sourceCanvasOrImage, tokenVault) {
+export function processPageForRedaction(elements = [], sourceCanvasOrImage, tokenVault, visionData = null) {
   const currentUrl = typeof window !== 'undefined' && window.location ? window.location.href : '';
 
   const summaryElements = [];
   const confidenceNotes = [];
-  const sensitiveRegions = [];
   const sensitiveRawValues = [];
   const redactedRegionsList = [];
+  const domRegionsForMerge = [];
 
   if (Array.isArray(elements)) {
     for (const el of elements) {
@@ -113,9 +121,16 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
       });
 
       if (sensitivity_tier === 1 || sensitivity_tier === 2) {
-        sensitiveRegions.push({
+        domRegionsForMerge.push({
+          box: bounding_box,
           bounding_box,
-          sensitivity_tier
+          sensitivity_tier,
+          sensitivity_type,
+          semantic_token,
+          element_id,
+          source: 'dom',
+          detection_method: method,
+          is_sensitive: true
         });
 
         redactedRegionsList.push({
@@ -137,7 +152,103 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
     }
   }
 
-  const redactedCanvas = redactImage(sourceCanvasOrImage, sensitiveRegions);
+  // --- Phase 2: vision-channel detections (faces, OCR-caught PII in
+  // non-DOM regions like <canvas>). Faces have no PII pattern to match —
+  // they're always treated as tier-1/hard-redact. OCR lines are run
+  // through the exact same detectPII()/classifySensitivity() calls used
+  // above for DOM text, so there is only ever one PII-pattern/tiering
+  // implementation, never two that could drift apart.
+  const visionRegionsForMerge = [];
+  let visionCounter = 0;
+
+  if (visionData && Array.isArray(visionData.faces)) {
+    for (const face of visionData.faces) {
+      if (!face || !face.bounding_box) continue;
+      visionCounter++;
+      const syntheticId = `vision-face-${visionCounter}`;
+
+      visionRegionsForMerge.push({
+        box: face.bounding_box,
+        bounding_box: face.bounding_box,
+        sensitivity_tier: 1,
+        sensitivity_type: 'FACE',
+        semantic_token: null,
+        element_id: syntheticId,
+        source: 'vision',
+        detection_method: 'vision_model',
+        confidence: typeof face.confidence === 'number' ? face.confidence : 0.5,
+        render: 'box'
+      });
+    }
+  }
+
+  if (visionData && Array.isArray(visionData.ocrLines)) {
+    for (const line of visionData.ocrLines) {
+      if (!line || !line.text) continue;
+      const piiMatches = detectPII(line.text);
+      if (piiMatches.length === 0) continue;
+
+      const sensitivity = classifySensitivity(null, piiMatches, line.text, tokenVault);
+      if (sensitivity.sensitivity_tier !== 1 && sensitivity.sensitivity_tier !== 2) continue;
+
+      visionCounter++;
+      const syntheticId = `vision-ocr-${visionCounter}`;
+
+      visionRegionsForMerge.push({
+        box: line.bounding_box,
+        bounding_box: line.bounding_box,
+        sensitivity_tier: sensitivity.sensitivity_tier,
+        sensitivity_type: sensitivity.sensitivity_type,
+        semantic_token: sensitivity.semantic_token,
+        element_id: syntheticId,
+        source: 'vision',
+        detection_method: 'ocr_regex',
+        confidence: typeof line.confidence === 'number' ? line.confidence : 0.5,
+        render: 'box'
+      });
+
+      sensitiveRawValues.push(line.text.trim());
+      for (const m of piiMatches) {
+        if (m && m.match && m.match.trim()) {
+          sensitiveRawValues.push(m.match.trim());
+        }
+      }
+    }
+  }
+
+  const mergedRegions = mergeSensitivityChannels(domRegionsForMerge, visionRegionsForMerge);
+
+  // Reflect vision confirmation back onto the existing DOM-sourced audit
+  // entries, and append new entries (+ confidence notes) for vision-only
+  // detections that had no DOM counterpart to merge into.
+  for (const region of mergedRegions) {
+    if (region.source === 'vision') {
+      redactedRegionsList.push({
+        element_id: region.element_id,
+        bounding_box: region.bounding_box,
+        sensitivity_tier: region.sensitivity_tier,
+        semantic_token: region.semantic_token,
+        sensitivity_type: region.sensitivity_type,
+        detection_source: region.detection_method
+      });
+      confidenceNotes.push({
+        element_id: region.element_id,
+        confidence: region.confidence,
+        method: region.detection_method
+      });
+    } else if (region.visionConfirmed) {
+      const existing = redactedRegionsList.find(r => r.element_id === region.element_id);
+      if (existing) existing.vision_confirmed = true;
+    }
+  }
+
+  const renderRegions = mergedRegions.map(r => ({
+    bounding_box: r.bounding_box,
+    sensitivity_tier: r.sensitivity_tier,
+    render: r.render || 'pill'
+  }));
+
+  const redactedCanvas = redactImage(sourceCanvasOrImage, renderRegions);
   const redacted_image_base64 = canvasToBase64(redactedCanvas);
 
   const output = {

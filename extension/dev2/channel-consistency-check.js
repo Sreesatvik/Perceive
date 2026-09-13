@@ -87,3 +87,69 @@ export function assertChannelsConsistent(payload, redactedRegions) {
     );
   }
 }
+
+/**
+ * Intersection-over-union of two {x,y,w,h} boxes, in [0,1].
+ * @param {{x:number,y:number,w:number,h:number}} a
+ * @param {{x:number,y:number,w:number,h:number}} b
+ * @returns {number}
+ */
+function iou(a, b) {
+  if (!a || !b) return 0;
+  const ax2 = a.x + a.w;
+  const ay2 = a.y + a.h;
+  const bx2 = b.x + b.w;
+  const by2 = b.y + b.h;
+
+  const interX1 = Math.max(a.x, b.x);
+  const interY1 = Math.max(a.y, b.y);
+  const interX2 = Math.min(ax2, bx2);
+  const interY2 = Math.min(ay2, by2);
+
+  const interW = Math.max(0, interX2 - interX1);
+  const interH = Math.max(0, interY2 - interY1);
+  const interArea = interW * interH;
+
+  const unionArea = a.w * a.h + b.w * b.h - interArea;
+  if (unionArea <= 0) return 0;
+
+  return interArea / unionArea;
+}
+
+/**
+ * Phase 2.4 — Channel fusion. Union-based merge of DOM-derived and
+ * vision-derived sensitive regions: whichever channel says "sensitive"
+ * wins, and redaction coverage only ever grows when a new channel is
+ * added, never shrinks. A vision region that overlaps an existing DOM
+ * region (IoU > 0.3) is treated as confirming that region rather than
+ * added as a duplicate; a vision region with no DOM counterpart (e.g. a
+ * face, or PII text in a <canvas> with no backing DOM node) is added
+ * outright.
+ *
+ * This is separate from checkChannelConsistency()/assertChannelsConsistent()
+ * above, which specifically cross-checks dom_summary.elements against
+ * structural redaction claims by element_id — vision-only regions have no
+ * element_id to check against, so they go through this union merge instead.
+ *
+ * @param {Array<{box: {x:number,y:number,w:number,h:number}, [key: string]: any}>} domRegions
+ * @param {Array<{box: {x:number,y:number,w:number,h:number}, [key: string]: any}>} visionRegions
+ * @returns {Array<object>} merged region list
+ */
+export function mergeSensitivityChannels(domRegions, visionRegions) {
+  const dom = Array.isArray(domRegions) ? domRegions : [];
+  const vision = Array.isArray(visionRegions) ? visionRegions : [];
+
+  const merged = dom.map(r => ({ ...r }));
+
+  for (const vr of vision) {
+    const overlapsExisting = merged.some(dr => iou(dr.box, vr.box) > 0.3);
+    if (!overlapsExisting) {
+      merged.push({ ...vr, source: 'vision', is_sensitive: true });
+    } else {
+      const match = merged.find(dr => iou(dr.box, vr.box) > 0.3);
+      if (match) match.visionConfirmed = true;
+    }
+  }
+
+  return merged;
+}

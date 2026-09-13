@@ -12,6 +12,7 @@ Perceive is a privacy-first web automation agent backend. It processes webpage i
 - **Server-Side Policy Enforcement**: `evaluate_action_risk()` re-derives the risk tier for every action server-side — the LLM's own risk assessment is never trusted directly.
 - **API Key Auth & CORS Allowlist**: `/analyze` and `/session/{id}/end` require an `X-API-Key` header; CORS origins are read from `ALLOWED_ORIGINS`, no wildcard.
 - **Strict Audit Logging**: Records sanitized request metadata and agent actions to `audit.jsonl` without exposing sensitive user inputs.
+- **On-Device Multimodal Perception**: Face detection (`@mediapipe/tasks-vision`) and OCR (`tesseract.js`) run entirely in-browser, feeding the same PII-tokenization pipeline as DOM-detected text — raw pixels never leave the browser.
 
 ---
 
@@ -32,7 +33,13 @@ Perceive/
 │   ├── tests/                    # pytest suite (see Testing below)
 │   └── requirements.txt
 ├── extension/                     # Browser extension (content scripts, popup, orchestrator)
-├── dev2/                          # DOM heuristics, redaction, token vault, PII patterns
+│   ├── src/vision/                # On-device face detection (Phase 2) + OCR pipelines
+│   ├── dev2/                      # Synced copy of dev2/ (Chrome extensions can only load
+│   │                              #   resources from within their own manifest directory —
+│   │                              #   run dev2/sync-to-extension.sh after editing dev2/*.js)
+│   ├── build.mjs                  # esbuild bundler — run before loading the unpacked extension
+│   └── package.json
+├── dev2/                          # DOM heuristics, redaction, token vault, PII patterns (canonical source)
 ├── run_server.bat                 # Quick-start script for Windows
 └── README.md
 ```
@@ -81,6 +88,29 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 The API will be available at `http://127.0.0.1:8000`. Interactive documentation is available at `http://127.0.0.1:8000/docs`.
+
+---
+
+## Building & Loading the Browser Extension
+
+```powershell
+cd extension
+npm install
+npm run build
+```
+
+This bundles `src/content/orchestrator.js` into `dist/orchestrator.bundle.js`
+and copies the MediaPipe/Tesseract WASM runtime assets into `dist/vendor/`
+(both required for on-device face detection and OCR). Neither
+`node_modules/` nor `dist/` is committed — they're fully reproducible via the
+above and regenerated on every build.
+
+Then load `extension/` as an unpacked extension via
+`chrome://extensions` → Developer mode → **Load unpacked**.
+
+If you change anything under `dev2/`, run `dev2/sync-to-extension.sh`
+afterwards — the extension loads its own copy under `extension/dev2/` (a
+Chrome-extension packaging requirement), and the two must stay identical.
 
 ---
 
