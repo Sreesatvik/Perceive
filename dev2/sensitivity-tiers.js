@@ -92,6 +92,10 @@ export function classifySensitivity(elementClassification, piiMatches = [], rawV
   const validPiiMatches = Array.isArray(piiMatches) ? piiMatches.filter(m => m && m.type) : [];
 
   let chosenType = null;
+  // Phase 3.1: tracks WHICH signal actually determined chosenType, so a
+  // human-readable reason can be built from the real decision path instead
+  // of guessed after the fact.
+  let reasonSource = null; // 'dom' | 'pii'
 
   if (validPiiMatches.length > 0) {
     // Pick highest sensitivity (lowest tier number) among PII matches
@@ -109,17 +113,22 @@ export function classifySensitivity(elementClassification, piiMatches = [], rawV
 
     if (!domType) {
       chosenType = bestPiiType;
+      reasonSource = 'pii';
     } else if (domType === bestPiiType) {
       chosenType = domType;
+      reasonSource = 'dom';
     } else {
       const domTier = getTierNumber(domType);
 
       if (domTier < bestPiiTier) {
         chosenType = domType;
+        reasonSource = 'dom';
       } else if (bestPiiTier < domTier) {
         chosenType = bestPiiType;
+        reasonSource = 'pii';
       } else {
         chosenType = bestPiiType;
+        reasonSource = 'pii';
       }
 
       console.warn(
@@ -128,13 +137,15 @@ export function classifySensitivity(elementClassification, piiMatches = [], rawV
     }
   } else if (domType) {
     chosenType = domType;
+    reasonSource = 'dom';
   }
 
   if (!chosenType || chosenType === 'UNKNOWN') {
     return {
       sensitivity_tier: 3,
       sensitivity_type: 'UNKNOWN',
-      semantic_token: null
+      semantic_token: null,
+      reason: null
     };
   }
 
@@ -156,11 +167,39 @@ export function classifySensitivity(elementClassification, piiMatches = [], rawV
     }
   }
 
+  const reason = buildReason(reasonSource, chosenType, elementClassification);
+
   return {
     sensitivity_tier: tier,
     sensitivity_type: chosenType,
-    semantic_token
+    semantic_token,
+    reason
   };
+}
+
+/**
+ * Phase 3.1 — builds a short, human-readable explanation of why a value was
+ * classified as sensitive, for the (Phase 4) audit dashboard. Only called
+ * for tier 1/2 results — an UNKNOWN/tier-3 classification has nothing to
+ * explain and returns reason: null upstream instead.
+ * @param {'dom'|'pii'|null} reasonSource
+ * @param {string} chosenType
+ * @param {object|null} elementClassification
+ * @returns {string}
+ */
+function buildReason(reasonSource, chosenType, elementClassification) {
+  const labelText = elementClassification && elementClassification.label_text;
+
+  if (reasonSource === 'dom') {
+    if (labelText) {
+      return `labelled '${labelText}' by nearby DOM text`;
+    }
+    return `matched a DOM attribute for ${chosenType}`;
+  }
+
+  // reasonSource === 'pii' (or a PII match backed the final decision even
+  // when no elementClassification exists at all, e.g. OCR-detected text)
+  return `matched ${chosenType} pattern`;
 }
 
 /**
@@ -189,6 +228,7 @@ export function classifySensitivityWithConfidence(elementClassification, piiMatc
       sensitivity_tier: base.sensitivity_tier,
       sensitivity_type: base.sensitivity_type,
       semantic_token,
+      reason: base.reason,
       confidence,
       action: 'hard_redact'
     };
@@ -200,6 +240,7 @@ export function classifySensitivityWithConfidence(elementClassification, piiMatc
         sensitivity_tier: base.sensitivity_tier,
         sensitivity_type: base.sensitivity_type,
         semantic_token: base.semantic_token,
+        reason: base.reason,
         confidence,
         action: 'hard_redact'
       };
@@ -213,6 +254,7 @@ export function classifySensitivityWithConfidence(elementClassification, piiMatc
       sensitivity_tier: base.sensitivity_tier,
       sensitivity_type: base.sensitivity_type,
       semantic_token,
+      reason: base.reason,
       confidence,
       action: 'soft_redact_flagged'
     };
@@ -222,6 +264,7 @@ export function classifySensitivityWithConfidence(elementClassification, piiMatc
     sensitivity_tier: base.sensitivity_tier,
     sensitivity_type: base.sensitivity_type,
     semantic_token: base.semantic_token,
+    reason: base.reason,
     confidence,
     action: 'no_redact'
   };

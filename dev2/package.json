@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "node test-dev2.js && node test-task-entity-extractor.js && node test-vision-fusion.js"
+    "test": "node test-dev2.js && node test-task-entity-extractor.js && node test-vision-fusion.js && node test-privacy-intelligence.js"
   }
 }
 

@@ -21,6 +21,7 @@ FILES=(
   dom-heuristics.js
   pii-patterns.js
   task-entity-extractor.js
+  origin-sensitivity-profile.js
 )
 
 for f in "${FILES[@]}"; do

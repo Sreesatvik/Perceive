@@ -16,6 +16,12 @@ import { mergeSensitivityChannels } from './channel-consistency-check.js';
  *   always redacted (no PII pattern applies to a face); OCR lines are run
  *   through the SAME detectPII()/classifySensitivity() pipeline used for DOM
  *   text, so PII-pattern and tiering logic is never duplicated across channels.
+ * @param {string[]} [originConfirmedLabels] - Phase 3.2: field labels the
+ *   user previously confirmed sensitive for this origin, earlier in the
+ *   same browser session. Used ONLY as a confidence-score boost on an
+ *   already-independently-detected sensitive field — never changes
+ *   is_sensitive, sensitivity_tier, or whether redaction/tokenization
+ *   happens. Safe to omit, pass empty, or pass a stale/corrupted list.
  * @returns {{
  *   dom_summary: {
  *     url: string,
@@ -37,7 +43,8 @@ import { mergeSensitivityChannels } from './channel-consistency-check.js';
  *   redacted_regions: Array<{element_id: string, bounding_box: {x: number, y: number, w: number, h: number}, sensitivity_tier: 1 | 2 | 3, semantic_token: string | null}>
  * }}
  */
-export function processPageForRedaction(elements = [], sourceCanvasOrImage, tokenVault, visionData = null) {
+export function processPageForRedaction(elements = [], sourceCanvasOrImage, tokenVault, visionData = null, originConfirmedLabels = []) {
+  const confirmedLabelSet = new Set(Array.isArray(originConfirmedLabels) ? originConfirmedLabels : []);
   const currentUrl = typeof window !== 'undefined' && window.location ? window.location.href : '';
 
   const summaryElements = [];
@@ -79,7 +86,7 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
 
       // 2. Classify sensitivity passing rawValue and tokenVault
       const sensitivity = classifySensitivity(elementClassification, piiMatches, rawValue, tokenVault);
-      const { sensitivity_tier, sensitivity_type, semantic_token } = sensitivity;
+      const { sensitivity_tier, sensitivity_type, semantic_token, reason } = sensitivity;
       const is_sensitive = sensitivity_tier !== 3;
 
       // 3. Verify token presence in vault
@@ -100,7 +107,8 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
         sensitivity_type,
         semantic_token,
         has_stable_token,
-        bounding_box
+        bounding_box,
+        reason
       });
 
       let confidence = 0.92;
@@ -114,10 +122,21 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
         method = 'ocr_regex';
       }
 
+      // Phase 3.2: a field the user has previously confirmed sensitive on
+      // this origin gets a confidence BOOST only — is_sensitive,
+      // sensitivity_tier, and redaction below are entirely unaffected by
+      // this, computed the same as if the memory didn't exist at all.
+      let origin_confirmed = false;
+      if (is_sensitive && elementClassification.label_text && confirmedLabelSet.has(elementClassification.label_text)) {
+        confidence = Math.min(confidence + 0.15, 0.99);
+        origin_confirmed = true;
+      }
+
       confidenceNotes.push({
         element_id,
         confidence,
-        method
+        method,
+        origin_confirmed
       });
 
       if (sensitivity_tier === 1 || sensitivity_tier === 2) {
@@ -130,14 +149,16 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
           element_id,
           source: 'dom',
           detection_method: method,
-          is_sensitive: true
+          is_sensitive: true,
+          reason
         });
 
         redactedRegionsList.push({
           element_id,
           bounding_box,
           sensitivity_tier,
-          semantic_token
+          semantic_token,
+          reason
         });
 
         if (rawValue && String(rawValue).trim()) {
@@ -177,7 +198,8 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
         source: 'vision',
         detection_method: 'vision_model',
         confidence: typeof face.confidence === 'number' ? face.confidence : 0.5,
-        render: 'box'
+        render: 'box',
+        reason: 'detected as face by vision model'
       });
     }
   }
@@ -204,7 +226,8 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
         source: 'vision',
         detection_method: 'ocr_regex',
         confidence: typeof line.confidence === 'number' ? line.confidence : 0.5,
-        render: 'box'
+        render: 'box',
+        reason: `${sensitivity.reason} in on-screen text (OCR)`
       });
 
       sensitiveRawValues.push(line.text.trim());
@@ -229,7 +252,8 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
         sensitivity_tier: region.sensitivity_tier,
         semantic_token: region.semantic_token,
         sensitivity_type: region.sensitivity_type,
-        detection_source: region.detection_method
+        detection_source: region.detection_method,
+        reason: region.reason
       });
       confidenceNotes.push({
         element_id: region.element_id,

@@ -12,6 +12,10 @@ import {
 import { detectFaces } from '../vision/visionPipeline.js';
 import { runOcr } from '../vision/ocrPipeline.js';
 import { getVisionResultCached, clearVisionCache } from '../vision/visionCache.js';
+import {
+  getConfirmedSensitiveLabels,
+  recordConfirmedSensitiveLabel,
+} from '../../dev2/origin-sensitivity-profile.js';
 
 const IS_TEST_MODE = typeof window !== 'undefined' && window.__PERCEIVE_TEST_MODE__ === true;
 
@@ -89,8 +93,13 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
   mark('perceive:step:vision-total:end');
   measure('perceive:step:vision-total', 'perceive:step:vision-total:start', 'perceive:step:vision-total:end');
 
+  // Phase 3.2: a confidence boost only, never a bypass — DOM+vision
+  // detection above still runs in full regardless of what this returns.
+  const currentOrigin = typeof window !== 'undefined' && window.location ? window.location.origin : '';
+  const originConfirmedLabels = await getConfirmedSensitiveLabels(currentOrigin);
+
   mark('perceive:step:dom-and-redaction:start');
-  const result = processPageForRedaction(snapshot.elements, snapshot.canvas, vault, { faces, ocrLines });
+  const result = processPageForRedaction(snapshot.elements, snapshot.canvas, vault, { faces, ocrLines }, originConfirmedLabels);
   mark('perceive:step:dom-and-redaction:end');
   measure('perceive:step:dom-and-redaction', 'perceive:step:dom-and-redaction:start', 'perceive:step:dom-and-redaction:end');
 
@@ -278,6 +287,21 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                         if (!approved) {
                             await finalizeTask(sessionId, 'denied_by_user');
                             return { success: false, reason: 'User denied risky action', steps: stepNumber };
+                        }
+
+                        // Phase 3.2: the user just explicitly approved a risky
+                        // action against this field — remember its label for
+                        // this origin as a future confidence boost. Never a
+                        // bypass: detection still runs in full on every visit.
+                        const confirmedEl = payload.dom_summary?.elements?.find(
+                            el => el.element_id === actionResponse.action.target_element_id
+                        );
+                        if (confirmedEl && confirmedEl.is_sensitive && confirmedEl.label_text) {
+                            try {
+                                await recordConfirmedSensitiveLabel(window.location.origin, confirmedEl.label_text);
+                            } catch (_e) {
+                                // non-fatal: memory is an optimization, not a requirement
+                            }
                         }
                     }
 
