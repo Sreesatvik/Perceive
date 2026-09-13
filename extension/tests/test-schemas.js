@@ -77,4 +77,41 @@ runTestCase('Non-object / null response -> rejected', () => {
   assert.throws(() => validateActionResponse('not-an-object', 'session-abc', 1), /Invalid response/);
 });
 
+// Phase C.2(c): a field_mapping response is a structural mapping, not a
+// new action/step — validated via a separate branch that does NOT require
+// `action` and expects step_number UNCHANGED (not +1), since it doesn't
+// advance session history.
+runTestCase('Phase C.2(c): a field_mapping response with no action is accepted, with step_number UNCHANGED', () => {
+  assert.strictEqual(
+    validateActionResponse(
+      { session_id: 'session-abc', step_number: 1, action: null, field_mapping: { SLOT_1: 'username' } },
+      'session-abc',
+      1
+    ),
+    true
+  );
+});
+
+runTestCase('Phase C.2(c): a field_mapping response with the OLD action+1 step_number convention is rejected', () => {
+  assert.throws(
+    () => validateActionResponse(
+      { session_id: 'session-abc', step_number: 2, action: null, field_mapping: { SLOT_1: 'username' } },
+      'session-abc',
+      1
+    ),
+    /Step mismatch \(field_mapping\)/
+  );
+});
+
+runTestCase('Phase C.2(c): a field_mapping response with a non-object field_mapping is rejected', () => {
+  assert.throws(
+    () => validateActionResponse(
+      { session_id: 'session-abc', step_number: 1, action: null, field_mapping: 'not-an-object' },
+      'session-abc',
+      1
+    ),
+    /Invalid field_mapping/
+  );
+});
+
 console.log(`\n--- ALL ${passCount} / ${totalCount} SCHEMA/SESSION-BINDING TESTS PASSED SUCCESSFULLY ---`);

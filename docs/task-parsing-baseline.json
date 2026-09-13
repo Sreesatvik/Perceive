@@ -1,0 +1,351 @@
+[
+  {
+    "index": 1,
+    "input": "log in with username tomsmith and password Password123",
+    "expected": "username=tomsmith, password=Password123",
+    "result": "RETURNED",
+    "sanitized": "log in with username [NAME_1] and password [PASSWORD_2]",
+    "tokens_created": [
+      {
+        "raw": "tomsmith",
+        "type": "NAME",
+        "token": "[NAME_1]"
+      },
+      {
+        "raw": "Password123",
+        "type": "PASSWORD",
+        "token": "[PASSWORD_2]"
+      }
+    ],
+    "impliesCredentialNeed": true,
+    "isCredentialFree": false
+  },
+  {
+    "index": 2,
+    "input": "sign in, my username is tomsmith and password is Password123",
+    "expected": "username=tomsmith, password=Password123",
+    "result": "RETURNED",
+    "sanitized": "sign in, username [NAME_1] and password [PASSWORD_2]",
+    "tokens_created": [
+      {
+        "raw": "tomsmith",
+        "type": "NAME",
+        "token": "[NAME_1]"
+      },
+      {
+        "raw": "Password123",
+        "type": "PASSWORD",
+        "token": "[PASSWORD_2]"
+      }
+    ],
+    "impliesCredentialNeed": true,
+    "isCredentialFree": false
+  },
+  {
+    "index": 3,
+    "input": "use tomsmith / Password123 to log in",
+    "expected": "username=tomsmith, password=Password123",
+    "result": "RETURNED",
+    "sanitized": "use [NAME_1] / [PASSWORD_2] to log in",
+    "tokens_created": [
+      {
+        "raw": "tomsmith",
+        "type": "NAME",
+        "token": "[NAME_1]"
+      },
+      {
+        "raw": "Password123",
+        "type": "PASSWORD",
+        "token": "[PASSWORD_2]"
+      }
+    ],
+    "impliesCredentialNeed": true,
+    "isCredentialFree": false
+  },
+  {
+    "index": 4,
+    "input": "log me in",
+    "expected": "no credentials given — should raise UNRESOLVED (or resolve via vault, if C.3 is implemented)",
+    "result": "THREW",
+    "error_name": "UnresolvedSensitiveReferenceError",
+    "error_message": "Task implies a login is required, but no credential value could be found in the instruction. Please specify it explicitly, e.g. \"username 'yourname' and password 'yourpassword'\".",
+    "impliesCredentialNeed": true,
+    "isCredentialFree": true
+  },
+  {
+    "index": 5,
+    "input": "fill in the form with name Priya Shah, email priya@x.com, phone 9876543210",
+    "expected": "name=Priya Shah, email=priya@x.com, phone=9876543210",
+    "result": "RETURNED",
+    "sanitized": "fill in the form with name Priya Shah, email priya@x.com, phone 9876543210",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 6,
+    "input": "update my phone number to 9876543210",
+    "expected": "phone=9876543210",
+    "result": "RETURNED",
+    "sanitized": "update my phone number to 9876543210",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 7,
+    "input": "check my most recent transaction",
+    "expected": "no fields — read-only, should pass through unchanged, no throw",
+    "result": "RETURNED",
+    "sanitized": "check my most recent transaction",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 8,
+    "input": "click submit",
+    "expected": "no fields — should pass through unchanged, no throw",
+    "result": "RETURNED",
+    "sanitized": "click submit",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 9,
+    "input": "please can you log into my account for me",
+    "expected": "no credentials given — should raise UNRESOLVED",
+    "result": "RETURNED",
+    "sanitized": "please can you log into my account for me",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 10,
+    "input": "could you kindly sign into the site using my email priya@x.com and password Secret!23",
+    "expected": "email-as-username=priya@x.com, password=Secret!23",
+    "result": "RETURNED",
+    "sanitized": "could you kindly sign into the site using my email priya@x.com and password [PASSWORD_1]",
+    "tokens_created": [
+      {
+        "raw": "Secret!23",
+        "type": "PASSWORD",
+        "token": "[PASSWORD_1]"
+      }
+    ],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": false
+  },
+  {
+    "index": 11,
+    "input": "log in using my usr tomsmith and pwd Password123",
+    "expected": "username=tomsmith, password=Password123 (misspelled labels: usr/pwd)",
+    "result": "RETURNED",
+    "sanitized": "log in using my usr tomsmith and password [PASSWORD_1]",
+    "tokens_created": [
+      {
+        "raw": "Password123",
+        "type": "PASSWORD",
+        "token": "[PASSWORD_1]"
+      }
+    ],
+    "impliesCredentialNeed": true,
+    "isCredentialFree": false
+  },
+  {
+    "index": 12,
+    "input": "enter username: tomsmith, password: Password123",
+    "expected": "username=tomsmith, password=Password123 (colon-delimited)",
+    "result": "RETURNED",
+    "sanitized": "enter username: tomsmith, password: Password123",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 13,
+    "input": "sign in with my account tom.smith@example.com / Passw0rd!",
+    "expected": "username=tom.smith@example.com, password=Passw0rd!",
+    "result": "RETURNED",
+    "sanitized": "sign in with my account [NAME_1] / [PASSWORD_2]!",
+    "tokens_created": [
+      {
+        "raw": "tom.smith@example.com",
+        "type": "NAME",
+        "token": "[NAME_1]"
+      },
+      {
+        "raw": "Passw0rd",
+        "type": "PASSWORD",
+        "token": "[PASSWORD_2]"
+      }
+    ],
+    "impliesCredentialNeed": true,
+    "isCredentialFree": false
+  },
+  {
+    "index": 14,
+    "input": "update my email address to newmail@example.com",
+    "expected": "email=newmail@example.com",
+    "result": "RETURNED",
+    "sanitized": "update my email address to newmail@example.com",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 15,
+    "input": "change my name to Priya Shah",
+    "expected": "name=Priya Shah",
+    "result": "RETURNED",
+    "sanitized": "change my name to Priya Shah",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 16,
+    "input": "log in — usename is tomsmith, paswrod is Password123",
+    "expected": "username=tomsmith, password=Password123 (typos: usename/paswrod)",
+    "result": "THREW",
+    "error_name": "UnresolvedSensitiveReferenceError",
+    "error_message": "Task implies a login is required, but no credential value could be found in the instruction. Please specify it explicitly, e.g. \"username 'yourname' and password 'yourpassword'\".",
+    "impliesCredentialNeed": true,
+    "isCredentialFree": true
+  },
+  {
+    "index": 17,
+    "input": "please log me into my saved account",
+    "expected": "no credentials given — should raise UNRESOLVED (or resolve via vault, if C.3 is implemented)",
+    "result": "RETURNED",
+    "sanitized": "please log me into my saved account",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 18,
+    "input": "sign in as tomsmith",
+    "expected": "username=tomsmith, no password given",
+    "result": "THREW",
+    "error_name": "UnresolvedSensitiveReferenceError",
+    "error_message": "Task implies a login is required, but no credential value could be found in the instruction. Please specify it explicitly, e.g. \"username 'yourname' and password 'yourpassword'\".",
+    "impliesCredentialNeed": true,
+    "isCredentialFree": true
+  },
+  {
+    "index": 19,
+    "input": "type Password123 into the password field",
+    "expected": "password=Password123",
+    "result": "RETURNED",
+    "sanitized": "type Password123 into the password [PASSWORD_1]",
+    "tokens_created": [
+      {
+        "raw": "field",
+        "type": "PASSWORD",
+        "token": "[PASSWORD_1]"
+      }
+    ],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": false
+  },
+  {
+    "index": 20,
+    "input": "fill username field with tomsmith",
+    "expected": "username=tomsmith",
+    "result": "RETURNED",
+    "sanitized": "fill username [NAME_1] with tomsmith",
+    "tokens_created": [
+      {
+        "raw": "field",
+        "type": "NAME",
+        "token": "[NAME_1]"
+      }
+    ],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": false
+  },
+  {
+    "index": 21,
+    "input": "log in with my usual credentials",
+    "expected": "no concrete value — should raise UNRESOLVED",
+    "result": "THREW",
+    "error_name": "UnresolvedSensitiveReferenceError",
+    "error_message": "Task implies a login is required, but no credential value could be found in the instruction. Please specify it explicitly, e.g. \"username 'yourname' and password 'yourpassword'\".",
+    "impliesCredentialNeed": true,
+    "isCredentialFree": true
+  },
+  {
+    "index": 22,
+    "input": "sign in using tom and 12345",
+    "expected": "username=tom, password=12345 (no anchor word immediately before the pair)",
+    "result": "THREW",
+    "error_name": "UnresolvedSensitiveReferenceError",
+    "error_message": "Task implies a login is required, but no credential value could be found in the instruction. Please specify it explicitly, e.g. \"username 'yourname' and password 'yourpassword'\".",
+    "impliesCredentialNeed": true,
+    "isCredentialFree": true
+  },
+  {
+    "index": 23,
+    "input": "complete the checkout without logging in",
+    "expected": "explicit negation of login — should NOT raise UNRESOLVED, no fields",
+    "result": "RETURNED",
+    "sanitized": "complete the checkout without logging in",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 24,
+    "input": "view my order history",
+    "expected": "no fields, no login intent — should pass through unchanged",
+    "result": "RETURNED",
+    "sanitized": "view my order history",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 25,
+    "input": "my username's tomsmith, and my password's Password123",
+    "expected": "username=tomsmith, password=Password123 (contractions)",
+    "result": "RETURNED",
+    "sanitized": "my username's tomsmith, and my password's Password123",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 26,
+    "input": "please enter phone number 9876543210 and email priya@x.com to register",
+    "expected": "phone=9876543210, email=priya@x.com",
+    "result": "RETURNED",
+    "sanitized": "please enter phone number 9876543210 and email priya@x.com to register",
+    "tokens_created": [],
+    "impliesCredentialNeed": false,
+    "isCredentialFree": true
+  },
+  {
+    "index": 27,
+    "input": "log in with User ID tomsmith and Pass Password123",
+    "expected": "username=tomsmith, password=Password123 (capitalized synonyms: User ID / Pass)",
+    "result": "RETURNED",
+    "sanitized": "log in with username [NAME_1] and password [PASSWORD_2]",
+    "tokens_created": [
+      {
+        "raw": "tomsmith",
+        "type": "NAME",
+        "token": "[NAME_1]"
+      },
+      {
+        "raw": "Password123",
+        "type": "PASSWORD",
+        "token": "[PASSWORD_2]"
+      }
+    ],
+    "impliesCredentialNeed": true,
+    "isCredentialFree": false
+  }
+]

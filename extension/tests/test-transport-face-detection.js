@@ -72,7 +72,8 @@ await import('../src/background/transport.js');
 assert.ok(registeredMessageListener, 'transport.js must register a chrome.runtime.onMessage listener');
 
 await runTestCase('DETECT_FACES ensures an offscreen document exists before relaying (chrome.offscreen.createDocument called once)', async () => {
-  const promise = invokeListener({ type: 'DETECT_FACES', width: 2, height: 2, pixels: new ArrayBuffer(16) });
+  const config = { model: 'full_range', dedupIouThreshold: 0.5 };
+  const promise = invokeListener({ type: 'DETECT_FACES', width: 2, height: 2, pixels: new ArrayBuffer(16), config });
   await new Promise((r) => setTimeout(r, 0));
 
   assert.strictEqual(createDocumentCalls.length, 1, 'createDocument should be called exactly once');
@@ -83,6 +84,7 @@ await runTestCase('DETECT_FACES ensures an offscreen document exists before rela
   assert.strictEqual(lastSendMessageCall.message.type, 'OFFSCREEN_DETECT_FACES');
   assert.strictEqual(lastSendMessageCall.message.width, 2);
   assert.strictEqual(lastSendMessageCall.message.height, 2);
+  assert.deepStrictEqual(lastSendMessageCall.message.config, config);
 
   // Simulate the offscreen document's response.
   lastSendMessageCall.callback({ success: true, faces: [] });

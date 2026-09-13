@@ -47,8 +47,17 @@ def test_analyze_endpoint_success(mock_log, mock_generate_action, client):
     assert data["action"]["type"] == "click"
     assert data["action"]["target_element_id"] == "btn-submit"
 
-    # Check that audit log was called
-    mock_log.assert_awaited_once()
+    # Phase D.2: the audit log now records the full pipeline (PIPELINE_START,
+    # CAPTURE_COMPLETE, DOM_FINDINGS, VISION_FINDINGS up front, then
+    # LLM_RESPONSE, POLICY_DECISION, and the final action decision) rather
+    # than a single call per request — check it was called multiple times
+    # and that the granular events are actually present, not just count.
+    assert mock_log.await_count >= 6
+    event_types = [c.kwargs["action"].get("event_type") for c in mock_log.await_args_list]
+    assert "PIPELINE_START" in event_types
+    assert "DOM_FINDINGS" in event_types
+    assert "LLM_RESPONSE" in event_types
+    assert "POLICY_DECISION" in event_types
 
 
 @patch('app.main.generate_action')
@@ -95,7 +104,11 @@ def test_analyze_endpoint_rate_limit(mock_generate_action, mock_log, client):
     assert response.status_code == 429
     assert response.headers.get("Retry-After") == "5"
     assert mock_generate_action.call_count == 1  # Does not retry blindly
-    mock_log.assert_awaited_once()
+    # Phase D.2: the 4 unconditional pipeline-start events are logged before
+    # generate_action is even called, plus the final rate-limit error event.
+    assert mock_log.await_count >= 5
+    event_types = [c.kwargs["action"].get("event_type") for c in mock_log.await_args_list]
+    assert "PIPELINE_START" in event_types
 
 
 @patch('app.main.log_audit_event_async', new_callable=AsyncMock)
@@ -110,7 +123,11 @@ def test_analyze_endpoint_session_continuity_fail(mock_log, client):
     response = client.post("/analyze", json=payload)
     assert response.status_code == 400
     assert "no session history found" in response.json()["detail"]
-    mock_log.assert_awaited_once()
+    # Phase D.2: the 4 unconditional pipeline-start events are logged before
+    # the session-continuity check runs, plus the continuity-error event.
+    assert mock_log.await_count >= 5
+    event_types = [c.kwargs["action"].get("event_type") for c in mock_log.await_args_list]
+    assert "PIPELINE_START" in event_types
 
 
 @patch('app.main.generate_action')
@@ -204,12 +221,16 @@ def test_analyze_endpoint_hallucinated_target(mock_generate_action, client):
 @pytest.mark.parametrize("status_path", ["success", "400", "429", "500"])
 @patch('app.main.log_audit_event_async', new_callable=AsyncMock)
 @patch('app.main.generate_action')
-def test_analyze_endpoint_audit_log_awaited_exactly_once(
+def test_analyze_endpoint_audit_log_records_pipeline_start_on_every_path(
     mock_generate_action, mock_log, client, status_path
 ):
     """Locks in the 'no dark spots in the audit trail' guarantee: every
     /analyze code path (success, session-continuity 400, provider 429,
-    unexpected 500) must await the audit logger exactly once."""
+    unexpected 500) must await the audit logger at least once, and the
+    very first thing logged is always PIPELINE_START (Phase D.2: this now
+    fires unconditionally before ANY other processing, including the
+    session-continuity check, so there is truly no code path that reaches
+    /analyze and leaves zero trace)."""
     from app.models import ActionInstruction
     from groq import RateLimitError
     import httpx
@@ -255,4 +276,6 @@ def test_analyze_endpoint_audit_log_awaited_exactly_once(
         }
 
     client.post("/analyze", json=payload)
-    mock_log.assert_awaited_once()
+    assert mock_log.await_count >= 1
+    first_call_action = mock_log.await_args_list[0].kwargs["action"]
+    assert first_call_action.get("event_type") == "PIPELINE_START"

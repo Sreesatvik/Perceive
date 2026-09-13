@@ -69,8 +69,9 @@ await runTestCase('a non-OFFSCREEN_DETECT_FACES message is ignored (listener ret
 });
 
 await runTestCase('OFFSCREEN_DETECT_FACES spawns the worker (via chrome.runtime.getURL) and posts a detect message with a transfer list', async () => {
-  const pixels = new ArrayBuffer(16);
-  const promise = invokeListener({ type: 'OFFSCREEN_DETECT_FACES', width: 2, height: 2, pixels });
+  const pixels = btoa(String.fromCharCode(...new Array(16).fill(128)));
+  const config = { model: 'full_range', dedupIouThreshold: 0.5 };
+  const promise = invokeListener({ type: 'OFFSCREEN_DETECT_FACES', width: 2, height: 2, pixels, config });
   await new Promise((r) => setTimeout(r, 0));
 
   assert.strictEqual(FakeWorker.instances.length, 1);
@@ -81,11 +82,15 @@ await runTestCase('OFFSCREEN_DETECT_FACES spawns the worker (via chrome.runtime.
   assert.strictEqual(msg.type, 'detect');
   assert.strictEqual(msg.width, 2);
   assert.strictEqual(msg.height, 2);
-  assert.deepStrictEqual(transfer, [pixels]);
+  assert.deepStrictEqual(msg.config, config);
+  assert.ok(msg.pixels instanceof ArrayBuffer);
+  assert.deepStrictEqual(new Uint8Array(msg.pixels), new Uint8Array(new Array(16).fill(128)));
+  assert.deepStrictEqual(transfer, [msg.pixels]);
 
-  w.emit({ type: 'result', requestId: msg.requestId, faces: [] });
+  const appliedConfig = { model: 'full_range', models_loaded: ['full_range'] };
+  w.emit({ type: 'result', requestId: msg.requestId, faces: [], config_actually_applied: appliedConfig });
   const res = await promise;
-  assert.deepStrictEqual(res, { success: true, faces: [] });
+  assert.deepStrictEqual(res, { success: true, faces: [], config_actually_applied: appliedConfig });
 });
 
 await runTestCase('OFFSCREEN_DETECT_FACES resolves { success: true, faces } from the worker\'s result message, and reuses the same worker instance', async () => {

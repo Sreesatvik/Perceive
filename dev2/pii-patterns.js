@@ -15,7 +15,18 @@ export function detectPII(text) {
     { type: 'PHONE', regex: /(?<!\d)[6-9]\d{9}(?!\d)/g },
     { type: 'CARD_NUMBER', regex: /(?<!\d[ -]?)(?:\d[ -]?){15}\d(?![ -]?\d)/g },
     { type: 'AADHAAR', regex: /(?<!\d[ -]?)(?:\d[ -]?){11}\d(?![ -]?\d)/g },
-    { type: 'IFSC', regex: /\b[A-Za-z]{4}0[A-Za-z0-9]{6}\b/g }
+    { type: 'IFSC', regex: /\b[A-Za-z]{4}0[A-Za-z0-9]{6}\b/g },
+    // Phase F / Step 6: currency amounts (e.g. a canvas-rendered account
+    // balance) were previously invisible to this function entirely — the
+    // OCR channel (redaction-engine.js) only ever calls detectPII() on
+    // extracted on-screen text, and with no currency pattern here, text
+    // like "Balance: $4,281.50" produced zero PII matches and was silently
+    // never redacted, even though AMOUNT is already a full first-class
+    // tier-2 sensitivity type with its own bucketed-token support in
+    // sensitivity-tiers.js (used by the DOM-heuristic path via
+    // dom-heuristics.js's label/placeholder matching) — this pattern is
+    // what makes the OCR/vision path reach that same, already-built type.
+    { type: 'AMOUNT', regex: /\$\s?\d[\d,]*(?:\.\d{1,2})?/g }
   ];
 
   for (const { type, regex } of patterns) {

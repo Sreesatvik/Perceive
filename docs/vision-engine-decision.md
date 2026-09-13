@@ -19,50 +19,82 @@ passing (47/47). The accuracy measurement below is a separate question from
 whether the pipeline runs at all — it's now confirmed to run; how *well* it
 detects faces is what Phase B measures.
 
-## B.2 — Face detection: measured result
+## B.2 — Face detection: measured result (real Chrome, production path)
 
-**Recall and precision could not be measured in this session's sandboxed
-environment — not due to a shortcut, but a confirmed, evidence-based
-environment limitation, not a code defect.**
+**Overall: 39.1% recall (9/23), 60% precision (9/15). Below the plan's 90%
+recall bar.** Measured for real, via `extension/tests/vision/faceAccuracyTest.html`
+loaded as an actual unpacked Chrome extension page, exercising the real
+production path end-to-end: `transport.js`'s `detectFacesInBackground()` →
+`chrome.offscreen` document → `faceDetectionWorker.bundle.js` → real
+MediaPipe BlazeFace WASM inference. Full numbers:
+`docs/vision-accuracy/face-detection-results.json` (`default_threshold_0.30`
+entry). This supersedes the earlier Node-`vm`-sandbox attempt recorded in a
+prior revision of this document, which hit a real WebGL environment wall
+before ever producing a number — that finding is preserved in git history,
+not deleted, but this real-Chrome run is what the decision below is based on.
 
-15 hand-labeled fixtures were built (`extension/tests/fixtures/faces/`,
-13 real public-domain photos + 2 disclosed synthetic composites — see that
-directory's README). The test harness
-(`extension/tests/vision/faceAccuracyTest.js`) drives the actual,
-unmodified `extension/dist/faceDetectionWorker.bundle.js` — not a mock —
-inside a Node `vm` sandbox shaped as a classic Worker scope. Getting there
-required fixing 8 real, sequential environment gaps in order (Worker
-message plumbing, `ImageData`, `document`, `importScripts` /
-Node-vs-Worker environment detection, static-server MIME types,
-`navigator`, `atob`/`btoa`, and a `WebGLRenderingContext` presence stub) —
-at which point MediaPipe's own compiled WASM graph genuinely initialized
-(`"Graph successfully started running."`, a real log line from MediaPipe's
-C++ code, not this harness). It then failed identically across **all 15**
-fixtures with `Cannot read properties of undefined (reading
-'activeTexture')`: BlazeFace's WASM build requires a real WebGL context for
-image-texture ingestion even on its nominal "CPU" delegate. That requires a
-native OpenGL binding for Node (`gl`/headless-gl); `npm install gl`
-confirmed this sandbox has no C++ build toolchain (Visual Studio) to
-compile it.
+**Per-category breakdown** (15 fixtures, 23 ground-truth faces):
 
-**The bar for this measurement**, had it been possible to run: **≥90%
-recall**, per the plan's own reference point — chosen because a missed
-face (false negative) is strictly worse than an extra false-positive
-redaction under this project's fail-closed principle, so the bar should be
-high, and 90% is a defensible floor for a fixture set this size (15 images,
-~25 labeled faces) without claiming statistical rigor a larger set would
-need.
+| Category | Ground truth | Recall | Note |
+|---|---|---|---|
+| occluded | 1 | **100%** | |
+| id_card | 1 | **100%** | |
+| frontal | 4 | **75%** | |
+| angled | 3 | **67%** | |
+| multiple_faces | 10 | **20%** | Worst category by far |
+| small_distant | 4 | **0%** | Total failure |
 
-**Consequence: face detection accuracy is unmeasured, not "passing" or
-"failing" a bar.** Saying otherwise would be rounding up. The fixture set,
-ground truth, and harness are real and committed — they will produce a
-real number the moment they're run somewhere with either an actual Chrome
-browser (the real production path, via the offscreen document already
-fixed) or a working native GL toolchain for Node. **A fallback/ensemble
-model was considered but not evaluated this session, due to time** — not
-because the measured recall was low (it wasn't measured at all), but
-because the environment blocker above consumed the time that would have
-gone to a second-model comparison.
+**The split is stark and categorical, not a uniform shortfall**: single,
+large faces (frontal/angled/occluded/id_card) are detected reliably.
+Small/distant faces and crowded multi-face frames are not.
+
+### Threshold experiment
+
+Checked the cheap lever first, as instructed: `minDetectionConfidence` in
+`extension/src/vision/faceDetectionWorker.js` was **already 0.3** — already
+below MediaPipe's own SDK default of 0.5, meaning this had already been
+turned down once before this experiment. There was no "lower it to 0.3"
+win available; the only remaining move was to go lower still. Changed to
+**0.15**, rebuilt (`npm run build`) — the artifact is ready to test.
+
+**This session's sandbox cannot load a real Chrome extension or drive a
+browser** (a confirmed, repeated limitation throughout this project, not
+new to this task), so the 0.15-threshold re-measurement could not actually
+be executed here. Recorded as `adjusted_threshold_0.15` in
+`docs/vision-accuracy/face-detection-results.json` with status
+`PREPARED, NOT YET EXECUTED` and exact reproduction steps (~a few minutes
+of human time: reload the unpacked extension, open the harness page, click
+Run, click Copy). An unverified expert expectation is noted there too —
+`small_distant`'s 0/4 is more plausibly explained by BlazeFace
+short_range's fixed low-resolution input (a face under ~10% of frame width
+carries little signal for the model regardless of the confidence cutoff
+applied to its output afterward) than by the threshold itself, while
+`multiple_faces` is more plausibly threshold-sensitive (NMS/confidence
+filtering in a crowded frame can suppress genuine borderline detections)
+— but this is explicitly labeled as an expectation, not a result, and does
+not substitute for actually running the test.
+
+### The explicit B.4 decision for face detection
+
+**Face detection is real-numbers-confirmed to be RELIABLE on single,
+large frontal/angled/occluded faces (67-100% recall across those four
+categories) and UNRELIABLE on small/distant faces and crowded multi-face
+frames (0% and 20% recall respectively).** This is a genuine scope
+limitation of BlazeFace short_range for this hackathon round, not a bug —
+and unlike the ID-card/signature/generic-document decision below, this is
+**not** simply scoped out: face detection is a core, explicitly-required
+PS class, so this document states plainly what IS and is NOT covered
+rather than a blanket "out of scope," since a judge probing this exact
+gap is expected, not a remote possibility.
+
+**An ensemble/fallback model was considered but not implemented this
+session, due to time** — the threshold experiment above was the
+in-scope, cheap lever to check first per this task's own instructions;
+scoping and validating a second (e.g. ONNX) model with its own
+accuracy-measurement discipline is real, separate work this session's
+remaining time does not cover. Per this project's own standard, a
+partial, unvalidated second model would be worse than none, so it was not
+attempted.
 
 ## B.3 — OCR: measured result
 
@@ -109,10 +141,15 @@ accuracy of what exists; it didn't add new detector classes:
   angle, or one whose printed number OCR fails to read cleanly, would not
   be caught. The `id_card_1.jpg` face fixture (a synthetic ID-card-shaped
   composite) exists specifically to test face-detector-on-document overlap
-  for this gap, but — per B.2 above — could not actually be run this
-  session.
+  for this gap — it WAS run as part of B.2's real-Chrome measurement above
+  and scored 100% recall (1/1), though a single fixture is not a claim of
+  general reliability for this scenario.
 
-## The explicit B.4 decision
+## The explicit B.4 decision for ID card / signature / generic document
+
+(Separate from face detection's B.4 decision above, which is a
+reliable/unreliable split, not a scope-out — this section is a genuine
+scope-out.)
 
 **Given today's remaining time, the explicit choice for ID card /
 signature / generic sensitive document is (b): these are scoped out of
@@ -127,13 +164,20 @@ an oversight discovered later.
 
 ## Revisit before further demoing
 
-Two concrete, bounded follow-ups, not a vague "improve accuracy later":
+Concrete, bounded follow-ups, not a vague "improve accuracy later":
 
-1. Run `extension/tests/vision/faceAccuracyTest.js` (already built,
-   committed, ready) on a machine with either a real Chrome browser or a
-   working native GL toolchain for Node, to get the first real face-
-   detection recall/precision numbers against this fixture set.
-2. Add a rotated-text fixture that contains genuine PII-shaped content (not
+1. Run `extension/tests/vision/faceAccuracyTest.html` at the new 0.15
+   threshold (already built, committed, ready — see B.2's threshold
+   experiment above) to get the second real data point and confirm or
+   reject the unverified expectation recorded there.
+2. If the 0.15 threshold doesn't move `small_distant`/`multiple_faces`
+   meaningfully (the more likely outcome per that same expectation), the
+   real next step is either a higher-resolution input crop (detect on a
+   cropped/upscaled region around expected face locations, e.g. from DOM
+   layout hints) or a second detector model scoped and validated with the
+   same B.2 discipline — not attempted this session, per the B.4 decision
+   above.
+3. Add a rotated-text fixture that contains genuine PII-shaped content (not
    just prose) to `extension/tests/fixtures/ocr/`, to directly test whether
    OCR's rotation-induced character errors (observed in B.3 above) actually
    break PII-pattern matching, rather than inferring it from a proxy case.

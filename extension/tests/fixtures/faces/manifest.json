@@ -113,5 +113,75 @@
     "note": "Aerial photo of a Saturn V on its crawler-transporter; a few unavoidable distant human specks near the pad base are present but have zero discernible facial features at this resolution.",
     "source": "NASA image library (nasa_id: 6900846, 'Saturn Apollo Program') — U.S. Government Work, public domain",
     "expected_faces": []
+  },
+  {
+    "file": "occluded_2.jpg",
+    "category": "occluded",
+    "note": "SYNTHETIC MODIFICATION of a real photo: a solid dark bar drawn programmatically over the eyes/brow region. Part of the Step 0 fixture-count expansion (occluded 1 -> 5) — built via a one-off generator script (_build_synthetic_batch2.cjs, not committed, same as the original batch).",
+    "source": "NASA image library (nasa_id: jsc2016e096719, 'Official portrait of JAXA astronaut Soichi Noguchi') — U.S. Government Work, public domain",
+    "expected_faces": [{ "box": [0.381, 0.078, 0.322, 0.25] }]
+  },
+  {
+    "file": "occluded_3.jpg",
+    "category": "occluded",
+    "note": "SYNTHETIC MODIFICATION of a real photo: a solid dark bar drawn programmatically over the eyes/brow region. Part of the Step 0 fixture-count expansion.",
+    "source": "NASA image library (nasa_id: jsc2003e41874, 'Official Portrait of Astronaut Terrence W. Wilcutt') — U.S. Government Work, public domain",
+    "expected_faces": [{ "box": [0.293, 0.117, 0.371, 0.25] }]
+  },
+  {
+    "file": "occluded_4.jpg",
+    "category": "occluded",
+    "note": "SYNTHETIC MODIFICATION of a real photo: a solid dark bar drawn programmatically over the eyes/brow region. Part of the Step 0 fixture-count expansion.",
+    "source": "NASA image library (nasa_id: s94-34935, 'Portrait of Russian cosmonaut and Mir 19 commander Anatoly Solovyov') — U.S. Government Work, public domain",
+    "expected_faces": [{ "box": [0.220, 0.086, 0.470, 0.422] }]
+  },
+  {
+    "file": "occluded_5.jpg",
+    "category": "occluded",
+    "note": "SYNTHETIC MODIFICATION of a real photo: a solid dark bar drawn programmatically over the eyes/brow region. Part of the Step 0 fixture-count expansion.",
+    "source": "NASA image library (nasa_id: s93-40675, 'Official portrait of Cosmonaut Sergei Krikalev') — U.S. Government Work, public domain",
+    "expected_faces": [{ "box": [0.391, 0.078, 0.352, 0.25] }]
+  },
+  {
+    "file": "id_card_2.jpg",
+    "category": "id_card",
+    "note": "FULLY SYNTHETIC composite (card layout + fake placeholder text, no real PII) with a real face crop composited into the photo box. Part of the Step 0 fixture-count expansion (id_card 1 -> 5).",
+    "source": "Derived from NASA image NHQ201907110002 ('Portrait - Retired NASA Flight Director Gene Kranz') — U.S. Government Work, public domain",
+    "expected_faces": [{ "box": [0.07, 0.28, 0.27, 0.50] }]
+  },
+  {
+    "file": "id_card_3.jpg",
+    "category": "id_card",
+    "note": "FULLY SYNTHETIC composite (card layout + fake placeholder text, no real PII) with a real face crop composited into the photo box. Part of the Step 0 fixture-count expansion.",
+    "source": "Derived from NASA image s93-27942 ('Official portrait of Cosmonaut Vladimir Titov') — U.S. Government Work, public domain",
+    "expected_faces": [{ "box": [0.07, 0.28, 0.27, 0.50] }]
+  },
+  {
+    "file": "id_card_4.jpg",
+    "category": "id_card",
+    "note": "FULLY SYNTHETIC composite (card layout + fake placeholder text, no real PII) with a real face crop composited into the photo box. Part of the Step 0 fixture-count expansion.",
+    "source": "Derived from NASA image jsc2025e068207_alt ('Official portrait of NASA astronaut Jack Hathaway') — U.S. Government Work, public domain",
+    "expected_faces": [{ "box": [0.07, 0.28, 0.27, 0.50] }]
+  },
+  {
+    "file": "id_card_5.jpg",
+    "category": "id_card",
+    "note": "FULLY SYNTHETIC composite (card layout + fake placeholder text, no real PII) with a real face crop composited into the photo box. Part of the Step 0 fixture-count expansion.",
+    "source": "Derived from NASA image jsc2025e078605_alt ('Official portrait of NASA astronaut Jessica Meir') — U.S. Government Work, public domain",
+    "expected_faces": [{ "box": [0.07, 0.28, 0.27, 0.50] }]
+  },
+  {
+    "file": "zero_face_4.jpg",
+    "category": "zero_face",
+    "note": "Part of the Step 0 fixture-count expansion (zero_face 3 -> 5). Hubble Space Telescope + Earth limb, view from a shuttle window; a moon crescent is also visible. No faces.",
+    "source": "NASA image library (nasa_id: sts061-57-021, 'Onboard view from STS-61 of the Hubble Space Telescope') — U.S. Government Work, public domain",
+    "expected_faces": []
+  },
+  {
+    "file": "zero_face_5.jpg",
+    "category": "zero_face",
+    "note": "Part of the Step 0 fixture-count expansion. Hubble Space Telescope during pre-launch checkout. No faces. (A different candidate, KSC-2010-1154, was rejected during sourcing — it showed a clearly visible cleanroom technician's face and would have been a mislabeled zero-face fixture.)",
+    "source": "NASA image library (nasa_id: s31-10-018, 'STS-31 pre-deployment checkout of the Hubble Space Telescope') — U.S. Government Work, public domain",
+    "expected_faces": []
   }
 ]

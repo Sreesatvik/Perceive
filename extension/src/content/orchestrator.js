@@ -7,10 +7,13 @@ import { getVaultForSession, endSession } from '../../dev2/session-vault-manager
 import { processPageForRedaction } from '../../dev2/redaction-engine.js';
 import { canvasToBase64 } from '../../dev2/redaction-renderer.js';
 import { detectPII } from '../../dev2/pii-patterns.js';
+import { isRectInViewport } from '../../dev2/dom-heuristics.js';
 import {
   resolveCredentialTokens,
   isCredentialFree,
   impliesCredentialNeed,
+  extractCandidateValueSlots,
+  checkForUnanticipatedOtpField,
   UnresolvedSensitiveReferenceError,
 } from '../../dev2/task-entity-extractor.js';
 import { detectFaces } from '../vision/visionPipeline.js';
@@ -20,6 +23,16 @@ import {
   getConfirmedSensitiveLabels,
   recordConfirmedSensitiveLabel,
 } from '../../dev2/origin-sensitivity-profile.js';
+import { summarizeVisionStatus, countFindings, summarizeRawPiiStatus } from '../panel/dashboardUtils.js';
+
+// Phase D.3: last-known vision engine status, carried forward across steps
+// where getVisionResultCached() skips re-running detection (Phase 2.7 cache
+// hit) — the dashboard should keep showing the last REAL observation, not
+// silently reset to "unknown" just because this particular step reused a
+// cached result. Never touches visionPipeline.js/ocrPipeline.js themselves
+// (out of scope for D.3) — it only observes their known, distinctly-
+// prefixed console.error() failure messages from the outside.
+let lastVisionStatus = { faceDetectionFailed: false, ocrFailed: false };
 
 const IS_TEST_MODE = typeof window !== 'undefined' && window.__PERCEIVE_TEST_MODE__ === true;
 
@@ -85,8 +98,16 @@ async function captureOnce(sessionId, stepNumber) {
     return { snapshot: { success: false, error: err.message }, captureStartTime, domSnapshotTime: Date.now() };
   }
 
-  // Existing DOM traversal.
-  const elements = Array.from(document.querySelectorAll('input, button, select, textarea'));
+  // Existing DOM traversal. Phase E.2: filtered to elements whose bounding
+  // box actually intersects the viewport — previously every matching
+  // element in the whole document was included regardless of scroll
+  // position, so an element far below the fold (never actually rendered in
+  // the captured screenshot) was reported to the server as if it were
+  // visible, with a bounding_box the screenshot canvas never drew anything
+  // at. See dev2/dom-heuristics.js's isRectInViewport for the pure
+  // predicate and extension/tests/test-dom-index.js for its test.
+  const elements = Array.from(document.querySelectorAll('input, button, select, textarea'))
+    .filter((el) => isRectInViewport(el.getBoundingClientRect(), window.innerWidth, window.innerHeight));
   const domSnapshotTime = Date.now();
 
   return { snapshot: { elements, canvas }, captureStartTime, domSnapshotTime };
@@ -171,11 +192,32 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
   // skip re-running them if the captured frame is unchanged since last step.
   mark('perceive:step:vision-total:start');
   const { faces, ocrLines } = await getVisionResultCached(sessionId, snapshot.canvas, async () => {
-    const [faceResults, ocrResults] = await Promise.all([
-      detectFaces(snapshot.canvas),
-      runOcr(snapshot.canvas),
-    ]);
-    return { faces: faceResults, ocrLines: ocrResults };
+    // Phase D.3: observe (without modifying) visionPipeline.js/ocrPipeline.js's
+    // known failure logging to distinguish "engine ran and found nothing"
+    // from "engine crashed and failed open to []" — both currently return
+    // the same empty array, which the dashboard must not conflate. Scoped
+    // strictly to this call and always restored in `finally`.
+    const originalConsoleError = console.error;
+    let faceDetectionFailed = false;
+    let ocrFailed = false;
+    console.error = (...args) => {
+      const first = args[0];
+      if (typeof first === 'string') {
+        if (first.includes('Face detection failed')) faceDetectionFailed = true;
+        if (first.includes('OCR failed')) ocrFailed = true;
+      }
+      originalConsoleError.apply(console, args);
+    };
+    try {
+      const [faceResults, ocrResults] = await Promise.all([
+        detectFaces(snapshot.canvas),
+        runOcr(snapshot.canvas),
+      ]);
+      lastVisionStatus = { faceDetectionFailed, ocrFailed };
+      return { faces: faceResults, ocrLines: ocrResults };
+    } finally {
+      console.error = originalConsoleError;
+    }
   });
   mark('perceive:step:vision-total:end');
   measure('perceive:step:vision-total', 'perceive:step:vision-total:start', 'perceive:step:vision-total:end');
@@ -190,6 +232,18 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
   mark('perceive:step:dom-and-redaction:end');
   measure('perceive:step:dom-and-redaction', 'perceive:step:dom-and-redaction:start', 'perceive:step:dom-and-redaction:end');
 
+  // Phase F / Step 3: an OTP field appearing in THIS step's real DOM
+  // snapshot that wasn't anticipated by the original task instruction
+  // (e.g. clicking "Update" on a profile page reveals a verification-code
+  // field mid-flow) must pause rather than let the LLM guess or fabricate
+  // a code. Checked against the ORIGINAL taskInstruction (not
+  // sanitizedInstruction) since tokenization only replaces credential-like
+  // values already present, not the underlying question of "did the user
+  // anticipate a code at all". Throws UnresolvedSensitiveReferenceError —
+  // caught by the same catch handler as the existing credential-parsing
+  // fail-closed path, in the caller below.
+  checkForUnanticipatedOtpField(taskInstruction, result.dom_summary.elements);
+
   mark('perceive:step:total:end');
   measure('perceive:step:total', 'perceive:step:total:start', 'perceive:step:total:end');
 
@@ -201,6 +255,7 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
   const originalImageBase64 = canvasToBase64(snapshot.canvas);
 
   return {
+    visionStatus: summarizeVisionStatus(lastVisionStatus),
     payload: {
       session_id: sessionId,
       task_instruction: sanitizedInstruction,
@@ -231,7 +286,7 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
  * dashboard page, if one is open. Never throws — a missing listener (no
  * dashboard tab open) is the normal case, not an error.
  */
-function broadcastAuditUpdate(sessionId, stepNumber, payload, originalImageBase64, action) {
+function broadcastAuditUpdate(sessionId, stepNumber, payload, originalImageBase64, action, visionStatus, firewallBlockedThisStep = false) {
   if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) return;
 
   const metrics = (typeof performance !== 'undefined' && performance.getEntriesByType)
@@ -239,6 +294,13 @@ function broadcastAuditUpdate(sessionId, stepNumber, payload, originalImageBase6
         .filter(m => m.name.startsWith('perceive:step:'))
         .map(m => ({ name: m.name, durationMs: Math.round(m.duration * 100) / 100 }))
     : [];
+
+  // Phase D.3: derived, at-a-glance metrics the dashboard renders directly
+  // (see extension/src/panel/dashboardUtils.js for the pure logic, unit
+  // tested in extension/tests/test-dashboard-utils.js).
+  const { domFindings, visionFindings } = countFindings(payload.dom_summary, payload.detection_confidence_notes);
+  const elementsRedacted = Array.isArray(payload.redacted_regions) ? payload.redacted_regions.length : 0;
+  const rawPiiStatus = summarizeRawPiiStatus(firewallBlockedThisStep);
 
   try {
     chrome.runtime.sendMessage({
@@ -253,6 +315,12 @@ function broadcastAuditUpdate(sessionId, stepNumber, payload, originalImageBase6
         confidenceNotes: payload.detection_confidence_notes,
         action,
         metrics,
+        visionStatus,
+        domFindings,
+        visionFindings,
+        elementsRedacted,
+        rawPiiStatus,
+        executed: null, // patched in place once execution actually completes — see AUDIT_STEP_EXECUTION_RESULT below
         timestamp: Date.now(),
       },
     }, () => { void chrome.runtime.lastError; });
@@ -265,6 +333,25 @@ function broadcastAuditUpdate(sessionId, stepNumber, payload, originalImageBase6
   if (typeof performance !== 'undefined' && performance.clearMarks && performance.clearMeasures) {
     performance.clearMarks();
     performance.clearMeasures();
+  }
+}
+
+/**
+ * Phase D.3: fire-and-forget patch of an already-broadcast step card with
+ * the real DOM-execution outcome. Sent as its own message (rather than
+ * delaying broadcastAuditUpdate until after execution) because
+ * broadcastAuditUpdate must still fire for task_complete/task_failed steps,
+ * which never reach actionExecutor.js at all.
+ */
+function broadcastAuditExecutionResult(sessionId, stepNumber, executed) {
+  if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) return;
+  try {
+    chrome.runtime.sendMessage({
+      type: 'AUDIT_STEP_EXECUTION_RESULT',
+      data: { sessionId, stepNumber, executed },
+    }, () => { void chrome.runtime.lastError; });
+  } catch (_e) {
+    // No dashboard listener open — non-fatal, expected the common case.
   }
 }
 
@@ -299,6 +386,73 @@ function sendMessageAsync(message) {
       }
     });
   });
+}
+
+const FIELD_MAPPING_CANDIDATE_PURPOSES = ['username', 'password', 'email', 'phone', 'name'];
+
+/**
+ * Phase C.2(c) — narrow, structural-only server-mediated fallback for task
+ * text the client-side fast path (a+b) couldn't structurally resolve.
+ *
+ * Privacy guarantee: extractCandidateValueSlots() replaces every candidate
+ * raw value with an opaque, per-call placeholder BEFORE this function ever
+ * builds a network payload — the real values (slots.slotValues) are only
+ * ever read back LOCALLY, after the server has returned its structural
+ * mapping, never sent anywhere. Reuses the existing authenticated
+ * SEND_PAYLOAD -> /analyze channel (same auth/rate-limit as every other
+ * request) rather than opening a new, unaudited path — the request is
+ * just a normal ClientPayload with field_mapping_request populated
+ * instead of a real dom_summary/redaction payload.
+ *
+ * @returns {string|null} a patched task instruction with resolved fields
+ *   rewritten as `<purpose> "<value>"` (so the fast path will tokenize
+ *   them correctly on the caller's retry), or null if nothing was
+ *   resolved and the caller should fall through to UNRESOLVED_SENSITIVE_REFERENCE.
+ */
+async function tryServerMediatedFieldMapping(taskInstruction, sessionId, stepNumber) {
+  const slots = extractCandidateValueSlots(taskInstruction);
+  if (!slots) return null;
+
+  const slotIds = Object.keys(slots.slotValues);
+
+  let response;
+  try {
+    response = await sendMessageAsync({
+      type: 'SEND_PAYLOAD',
+      payload: {
+        session_id: sessionId,
+        task_instruction: slots.slotInstruction,
+        step_number: stepNumber,
+        // No real DOM context is needed for a purely structural
+        // slot->field-purpose classification — a minimal, valid
+        // dom_summary satisfies the schema without redoing redaction.
+        dom_summary: { url: (typeof window !== 'undefined' && window.location) ? window.location.href : '', elements: [] },
+        field_mapping_request: {
+          slot_ids: slotIds,
+          candidate_field_purposes: FIELD_MAPPING_CANDIDATE_PURPOSES,
+        },
+      },
+    });
+  } catch (e) {
+    console.warn('[Orchestrator] Field-mapping fallback request failed:', e.message);
+    return null;
+  }
+
+  if (!response || !response.success) return null;
+  const mapping = response.action && response.action.field_mapping;
+  if (!mapping || typeof mapping !== 'object') return null;
+
+  let patched = slots.slotInstruction;
+  let anyResolved = false;
+  for (const slotId of slotIds) {
+    const purpose = mapping[slotId];
+    if (!purpose || !FIELD_MAPPING_CANDIDATE_PURPOSES.includes(purpose)) continue;
+    const rawValue = slots.slotValues[slotId];
+    patched = patched.replace(`<<${slotId}>>`, `${purpose} "${rawValue}"`);
+    anyResolved = true;
+  }
+
+  return anyResolved ? patched : null;
 }
 
 /**
@@ -431,7 +585,7 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                     // step number (not the logical/retry-attempt stepNumber)
                     // and includes feedback about the previous attempt's
                     // execution failure, if any.
-                    const { payload, originalImageBase64 } = await buildSanitizedPayload(snapshot, sessionId, taskInstruction, requestStepNumber, lastActionError);
+                    const { payload, originalImageBase64, visionStatus } = await buildSanitizedPayload(snapshot, sessionId, taskInstruction, requestStepNumber, lastActionError);
 
                     // 2.5. Client-side missing-credential check, using the raw
                     // taskInstruction (not the sanitized/tokenized one) so a
@@ -510,7 +664,7 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                     // the dashboard (if open) BEFORE the terminal/confirmation
                     // branches below, so task_complete/task_failed steps are
                     // logged too, not just successful intermediate ones.
-                    broadcastAuditUpdate(sessionId, stepNumber, payload, originalImageBase64, actionResponse.action);
+                    broadcastAuditUpdate(sessionId, stepNumber, payload, originalImageBase64, actionResponse.action, visionStatus);
 
                     // 4. Check for terminal actions
                     if (actionResponse.action.type === 'task_complete') {
@@ -570,9 +724,30 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                         result = await executeAction(actionResponse.action, resolveToken, perceivedElement);
                     }
 
+                    // Phase D.3: patch the dashboard card already broadcast above
+                    // with the real execution outcome — this is the only point
+                    // in the pipeline where "executed: yes/no" is actually known.
+                    broadcastAuditExecutionResult(sessionId, stepNumber, result.success);
+
                     if (result.success) {
                         stepSuccess = true;
                         lastActionError = null;
+                        // Phase D.2: the only point in the whole pipeline where
+                        // the action has genuinely been executed against the
+                        // real DOM (actionExecutor.js just returned success) —
+                        // report it so the server's audit chain has a record
+                        // of it (see transport.js's REPORT_PIPELINE_EVENT
+                        // relay). Fire-and-forget: never awaited, never
+                        // allowed to affect step timing or control flow.
+                        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+                            chrome.runtime.sendMessage({
+                                type: 'REPORT_PIPELINE_EVENT',
+                                sessionId,
+                                stepNumber,
+                                eventType: 'ACTION_EXECUTED',
+                                details: { action_type: actionResponse.action.type },
+                            }, () => { void chrome.runtime.lastError; });
+                        }
                         await delay(RETRY_CONFIG.POST_ACTION_DELAY_MS);
                     } else {
                         console.warn(`[Orchestrator] Step ${stepNumber} execution failed:`, result.error);
@@ -581,6 +756,26 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                     }
                 } catch (err) {
                     if (err instanceof UnresolvedSensitiveReferenceError) {
+                        // Phase C.2(c): before giving up and prompting the
+                        // user (d), try the narrow server-mediated fallback —
+                        // the fast path (a+b) may have correctly sensed a
+                        // login is needed but couldn't structurally identify
+                        // which part of the instruction is which field (e.g.
+                        // typo'd labels). Every candidate raw value is
+                        // replaced with an opaque, per-request placeholder
+                        // BEFORE this ever reaches the network — see
+                        // extractCandidateValueSlots — so the server only
+                        // ever sees placeholders + surrounding words, never
+                        // real values, regardless of what it resolves.
+                        const resolvedViaFallback = await tryServerMediatedFieldMapping(taskInstruction, sessionId, stepNumber);
+                        if (resolvedViaFallback) {
+                            console.log('[Orchestrator] Resolved via server-mediated field mapping, retrying step');
+                            taskInstruction = resolvedViaFallback;
+                            lastActionError = null;
+                            retriesLeft--;
+                            continue;
+                        }
+
                         // Fail-closed, no retries: an ambiguous credential
                         // reference must never be sent to the LLM. Surface a
                         // distinct reason so the popup can prompt the user

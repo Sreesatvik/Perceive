@@ -43,7 +43,11 @@ function getFaceWorker() {
         if (!entry) return;
         pending.delete(msg.requestId);
         if (msg.type === 'result') {
-            entry.resolve(msg.faces || []);
+            // latency_ms (Phase B.5) is passed through so the accuracy
+            // harness can report real per-fixture timing, e.g. for the
+            // Step 2 union-of-two-models case where it matters for
+            // real-pipeline viability, not just offline benchmarking.
+            entry.resolve({ faces: msg.faces || [], latency_ms: msg.latency_ms, config_actually_applied: msg.config_actually_applied });
         } else if (msg.type === 'error') {
             entry.reject(new Error(msg.message || 'Face detection worker error'));
         }
@@ -60,22 +64,37 @@ function getFaceWorker() {
     return faceWorker;
 }
 
-function detectFacesInWorker(width, height, pixels) {
+function detectFacesInWorker(width, height, pixels, config) {
     return new Promise((resolve, reject) => {
         const requestId = nextRequestId++;
+        const transferablePixels = typeof pixels === 'string' ? decodePixelBuffer(pixels) : pixels;
         pending.set(requestId, { resolve, reject });
         getFaceWorker().postMessage(
-            { type: 'detect', requestId, width, height, pixels },
-            [pixels]
+            { type: 'detect', requestId, width, height, pixels: transferablePixels, config },
+            [transferablePixels]
         );
     });
+}
+
+function decodePixelBuffer(encoded) {
+    const binary = atob(encoded);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+    return bytes.buffer;
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type !== 'OFFSCREEN_DETECT_FACES') return false;
 
-    detectFacesInWorker(message.width, message.height, message.pixels)
-        .then((faces) => sendResponse({ success: true, faces }))
+    detectFacesInWorker(message.width, message.height, message.pixels, message.config)
+        .then(({ faces, latency_ms, config_actually_applied }) => sendResponse(
+            {
+                success: true,
+                faces,
+                ...(latency_ms !== undefined ? { latency_ms } : {}),
+                ...(config_actually_applied !== undefined ? { config_actually_applied } : {}),
+            }
+        ))
         .catch((error) => sendResponse({ success: false, error: error.message }));
     return true; // Keep message channel open for async response
 });

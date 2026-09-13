@@ -1,6 +1,14 @@
-# Face detection accuracy fixtures (Phase B.2)
+# Face detection accuracy fixtures (Phase B.2 / B.5)
 
-15 images, hand-labeled ground truth in `manifest.json`.
+25 images (31 ground-truth faces), hand-labeled ground truth in
+`manifest.json`. Expanded from the original 15 (23 ground-truth faces) in
+Phase B.5's Step 0: `occluded` and `id_card` were each raised from 1 to 5
+fixtures, and `zero_face` from 3 to 5, so single-fixture categories aren't
+over-weighted in the aggregate recall/precision numbers. **Results measured
+against the 15-fixture set and the 25-fixture set are not directly
+comparable** — see `docs/vision-accuracy/face-detection-results.json`,
+which keeps both as separate, clearly-labeled entries rather than treating
+them as one continuous series.
 
 ## Sourcing / licensing decision
 
@@ -18,7 +26,7 @@ what makes the accuracy numbers in `docs/vision-accuracy/` actually
 reproducible by anyone who clones the repo — a gitignored fixture set would
 make the committed results unverifiable.
 
-## Category breakdown (13 real photos + 2 synthetic)
+## Category breakdown (20 real photos + 5 synthetic modifications)
 
 | Category | Files | Real or synthetic |
 |---|---|---|
@@ -26,21 +34,20 @@ make the committed results unverifiable.
 | angled | angled_1..3.jpg | Real (NASA) |
 | small/distant | small_distant_1.jpg | Real (NASA) |
 | multiple faces | multiple_faces_1.jpg (2 faces), multiple_faces_2.jpg (8 faces) | Real (NASA) |
-| zero-face control | zero_face_1..3.jpg | Real (NASA) |
-| occluded | occluded_1.jpg | **Real photo, synthetic occlusion bar** — see manifest note |
-| ID card | id_card_1.jpg | **Fully synthetic composite** — see manifest note |
+| zero-face control | zero_face_1..5.jpg | Real (NASA) |
+| occluded | occluded_1..5.jpg | **Real photos, synthetic occlusion bar** — see manifest notes |
+| ID card | id_card_1..5.jpg | **Fully synthetic composites** — see manifest notes |
 
-The two synthetic images were built with a one-off Node script
-(`_build_synthetic.cjs`, run once and deleted — not committed, since it's
-not reusable test infrastructure, just a generator). To regenerate them:
-the script drew a solid bar over `frontal_2.jpg`'s eye region for
-`occluded_1.jpg`, and composited a face crop from `frontal_3.jpg` onto a
-programmatically-drawn card layout for `id_card_1.jpg` (fake placeholder
-text only — no real PII).
-
-No real face photos were substituted with synthetic ones in this set —
-only the *occlusion bar* and the *card layout* are synthetic additions on
-top of real face photos, which is disclosed per-image in `manifest.json`.
+Every synthetic image is a real, disclosed NASA photo with a synthetic
+*modification* on top (an occlusion bar, or a card layout wrapped around a
+cropped face) — no real face photo was substituted with a synthetic one.
+Built with one-off Node scripts (`_build_synthetic.cjs` for the original
+batch, `_build_synthetic_batch2.cjs` for the Step 0 expansion — both run
+once and deleted, not committed, since they're generators, not reusable
+test infrastructure). `occluded_1..5.jpg` each draw a solid bar over the
+source photo's eye region; `id_card_1..5.jpg` each composite a face crop
+onto a programmatically-drawn card layout (fake placeholder text only — no
+real PII, e.g. `ID NO: 0000-0000-0000`).
 
 ## Ground truth format
 

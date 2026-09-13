@@ -36,12 +36,28 @@
  * classic script too.
  *
  * Protocol (all messages are plain objects via postMessage):
- *   -> { type: 'detect', requestId, width, height, pixels: ArrayBuffer (RGBA, transferred) }
+ *   -> { type: 'detect', requestId, width, height, pixels: ArrayBuffer (RGBA, transferred),
+ *        config?: {
+ *          model?: 'short_range' | 'full_range',       // default: 'short_range' (shipped default)
+ *          minDetectionConfidence?: number,             // default: 0.3
+ *          minSuppressionThreshold?: number,             // default: MediaPipe's own default (0.3)
+ *          dedupIouThreshold?: number,                   // default: none (no post-hoc dedup) — Phase B.5 Step 5
+ *          unionWithModel?: 'short_range' | 'full_range' // default: none (single model) — Phase B.5 Step 2
+ *        } }
  *   <- { type: 'result', requestId, faces: [{ bounding_box, confidence }] }
  *   <- { type: 'error',  requestId, message }
+ *
+ * `config` is entirely optional and additive — omitting it reproduces
+ * today's shipped behavior exactly (single short_range model,
+ * minDetectionConfidence 0.3, MediaPipe's own default suppression
+ * threshold, no dedup, no union). This is what makes it safe for
+ * visionPipeline.js's real production call (detectFaces(canvas), no
+ * config) to stay completely unaffected by this Phase B.5 experimentation
+ * harness.
  */
 
 import { FaceDetector, FilesetResolver } from '@mediapipe/tasks-vision';
+import { dedupFaces } from './faceDedup.js';
 
 // Resolved relative to this worker script's own location (which is served
 // from the extension via chrome.runtime.getURL when bundled) — workers don't
@@ -55,31 +71,55 @@ function vendorUrl(relativePath) {
   }
 }
 
-let cachedDetector = null;
-let loadPromise = null;
+// Phase B.5 Step 1: model variant. short_range is optimized for close-up
+// faces (<2m); full_range claims better coverage for smaller/farther faces
+// (<5m) — the plan's hypothesis for improving small_distant/multiple_faces
+// recall. URLs follow MediaPipe's own documented model-store convention
+// (task/model_name/precision/version/file) — same pattern as short_range's
+// existing URL below — but full_range's exact URL has NOT been verified by
+// an actual successful load in this project (this sandbox cannot run real
+// Chrome); if it 404s, check MediaPipe's face detector model card page for
+// the current exact path.
+const MODEL_URLS = {
+  short_range: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
+  full_range: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_full_range/float16/1/blaze_face_full_range.tflite',
+};
 
-async function loadFaceDetector() {
-  if (cachedDetector) return cachedDetector;
-  if (loadPromise) return loadPromise;
+const DEFAULT_MIN_DETECTION_CONFIDENCE = 0.3;
 
-  loadPromise = (async () => {
+// Cached per model variant (not a single global) so a union run (Step 2)
+// can hold both loaded detectors at once without reloading either between
+// calls.
+const detectorCache = new Map(); // model -> Promise<{ detector, delegate }>
+
+let filesetResolverPromise = null;
+function getFilesetResolver() {
+  if (!filesetResolverPromise) {
     // self.location is .../dist/faceDetectionWorker.bundle.js, so
     // '../vendor/mediapipe-wasm' from the worker's own dist/ directory
     // resolves to dist/vendor/mediapipe-wasm — same assets orchestrator.js
     // already ships, just addressed relative to the worker instead of
     // chrome.runtime.getURL (which is not guaranteed inside a worker global).
-    const filesetResolver = await FilesetResolver.forVisionTasks(
-      vendorUrl('vendor/mediapipe-wasm')
-    );
+    filesetResolverPromise = FilesetResolver.forVisionTasks(vendorUrl('vendor/mediapipe-wasm'));
+  }
+  return filesetResolverPromise;
+}
 
-    const modelAssetPath =
-      'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite';
+async function loadFaceDetector(model, minDetectionConfidence, minSuppressionThreshold) {
+  const cacheKey = `${model}|${minDetectionConfidence}|${minSuppressionThreshold ?? 'default'}`;
+  if (detectorCache.has(cacheKey)) return detectorCache.get(cacheKey);
+
+  const loadPromise = (async () => {
+    const filesetResolver = await getFilesetResolver();
+    const modelAssetPath = MODEL_URLS[model] || MODEL_URLS.short_range;
+
+    const baseOptions = { minDetectionConfidence, ...(minSuppressionThreshold !== undefined ? { minSuppressionThreshold } : {}) };
 
     async function tryCreate(delegate) {
       return FaceDetector.createFromOptions(filesetResolver, {
         baseOptions: { modelAssetPath, delegate },
         runningMode: 'IMAGE',
-        minDetectionConfidence: 0.3,
+        ...baseOptions,
       });
     }
 
@@ -88,15 +128,15 @@ async function loadFaceDetector() {
     try {
       detector = await tryCreate('GPU');
     } catch (gpuErr) {
-      self.postMessage({ type: 'log', level: 'warn', message: `[Vision Worker] GPU delegate unavailable, falling back to CPU/WASM: ${gpuErr.message}` });
+      self.postMessage({ type: 'log', level: 'warn', message: `[Vision Worker] GPU delegate unavailable for ${model}, falling back to CPU/WASM: ${gpuErr.message}` });
       delegate = 'CPU';
       detector = await tryCreate('CPU');
     }
 
-    cachedDetector = { detector, delegate };
-    return cachedDetector;
+    return { detector, delegate };
   })();
 
+  detectorCache.set(cacheKey, loadPromise);
   return loadPromise;
 }
 
@@ -123,6 +163,25 @@ self.onmessage = async (event) => {
   if (msg.type !== 'detect') return;
 
   const { requestId, width, height, pixels } = msg;
+  const config = msg.config || {};
+  const model = config.model || 'short_range';
+  const minDetectionConfidence = config.minDetectionConfidence !== undefined ? config.minDetectionConfidence : DEFAULT_MIN_DETECTION_CONFIDENCE;
+  const minSuppressionThreshold = config.minSuppressionThreshold; // undefined = MediaPipe's own default
+  const dedupIouThreshold = config.dedupIouThreshold;
+  const unionWithModel = config.unionWithModel;
+  const configActuallyApplied = {
+    requested_config: config,
+    model,
+    model_url: MODEL_URLS[model] || MODEL_URLS.short_range,
+    minDetectionConfidence,
+    minSuppressionThreshold: minSuppressionThreshold ?? null,
+    dedupIouThreshold: dedupIouThreshold ?? null,
+    unionWithModel: unionWithModel || null,
+    models_loaded: [],
+  };
+
+  self.postMessage({ type: 'log', level: 'info', message: `[Vision Worker] config_actually_applied ${JSON.stringify(configActuallyApplied)}` });
+
   try {
     if (!width || !height || !pixels) {
       self.postMessage({ type: 'result', requestId, faces: [] });
@@ -133,11 +192,33 @@ self.onmessage = async (event) => {
     // which MediaPipe's detect() accepts directly as an image-like source.
     const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height);
 
-    const { detector } = await loadFaceDetector();
-    const result = detector.detect(imageData);
-    const faces = toFaces(result);
+    const { detector } = await loadFaceDetector(model, minDetectionConfidence, minSuppressionThreshold);
+    configActuallyApplied.models_loaded.push(model);
+    const t0 = Date.now();
+    let faces = toFaces(detector.detect(imageData));
+    const primaryLatencyMs = Date.now() - t0;
+    let secondaryLatencyMs = 0;
 
-    self.postMessage({ type: 'result', requestId, faces });
+    // Phase B.5 Step 2: union of two models' detections for the same
+    // frame — run the second model too, then dedup the combined set.
+    if (unionWithModel && unionWithModel !== model) {
+      const { detector: secondDetector } = await loadFaceDetector(unionWithModel, minDetectionConfidence, minSuppressionThreshold);
+      configActuallyApplied.models_loaded.push(unionWithModel);
+      const t1 = Date.now();
+      const secondFaces = toFaces(secondDetector.detect(imageData));
+      secondaryLatencyMs = Date.now() - t1;
+      faces = dedupFaces([...faces, ...secondFaces], dedupIouThreshold || 0.5);
+    } else if (dedupIouThreshold) {
+      faces = dedupFaces(faces, dedupIouThreshold);
+    }
+
+    self.postMessage({
+      type: 'result',
+      requestId,
+      faces,
+      config_actually_applied: configActuallyApplied,
+      latency_ms: { primary: primaryLatencyMs, secondary: secondaryLatencyMs, total: primaryLatencyMs + secondaryLatencyMs },
+    });
   } catch (err) {
     self.postMessage({ type: 'error', requestId, message: (err && err.message) || String(err) });
   }

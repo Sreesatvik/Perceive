@@ -54,7 +54,8 @@ await runAsyncTestCase('detectFaces routes through chrome.runtime.sendMessage (D
   assert.strictEqual(sentMessage.type, 'DETECT_FACES');
   assert.strictEqual(sentMessage.width, 2);
   assert.strictEqual(sentMessage.height, 2);
-  assert.ok(sentMessage.pixels instanceof ArrayBuffer);
+  assert.strictEqual(typeof sentMessage.pixels, 'string');
+  assert.strictEqual(atob(sentMessage.pixels), String.fromCharCode(...new Array(16).fill(128)));
   assert.deepStrictEqual(faces, [{ bounding_box: { x: 1, y: 2, w: 3, h: 4 }, confidence: 0.8 }]);
 
   delete global.chrome;

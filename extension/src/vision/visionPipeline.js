@@ -102,7 +102,7 @@ function detectViaLocalWorker(width, height, buffer) {
 function detectViaBackground(width, height, buffer) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
-      { type: 'DETECT_FACES', width, height, pixels: buffer },
+      { type: 'DETECT_FACES', width, height, pixels: encodePixelBuffer(buffer) },
       (response) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
@@ -116,6 +116,16 @@ function detectViaBackground(width, height, buffer) {
       }
     );
   });
+}
+
+function encodePixelBuffer(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+  }
+  return btoa(binary);
 }
 
 /**

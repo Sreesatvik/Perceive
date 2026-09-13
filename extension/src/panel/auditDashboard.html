@@ -56,6 +56,12 @@
   .metrics-row { display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; }
   .metric-chip { background: #26292f; padding: 3px 8px; border-radius: 4px; color: #aaa; }
   .metric-chip b { color: #eaeaea; }
+  .status-row { display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; margin-bottom: 10px; }
+  .status-chip { padding: 3px 8px; border-radius: 4px; }
+  .status-chip.ok { background: #1e3a24; color: #7fd77f; }
+  .status-chip.warn { background: #4a3a1f; color: #f0c98a; }
+  .status-chip.bad { background: #4a1f1f; color: #f08a8a; }
+  .status-chip.exec-unknown { background: #2a2d33; color: #999; }
   .payload-toggle { font-size: 11px; color: #7fa8d7; cursor: pointer; margin-top: 6px; display: inline-block; }
   pre.payload {
     display: none; background: #0e1013; padding: 10px; border-radius: 4px;
@@ -70,6 +76,8 @@
   <div class="toolbar">
     <button id="clear-btn">Clear</button>
     <button id="redteam-btn">Open red-team demo page</button>
+    <button id="audit-log-btn">Open audit log chain viewer</button>
+    <button id="before-after-btn">Open before/after screenshot viewer</button>
   </div>
 
   <div id="empty-state">No steps recorded yet. Run a task from the popup, or open the red-team demo page above and run a task against it.</div>

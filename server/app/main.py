@@ -10,7 +10,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel as _BaseModel, ValidationError
 from typing import Optional
 from .models import ClientPayload, ServerResponse, ActionInstruction
-from .llm_client import generate_action
+from .llm_client import generate_action, generate_field_mapping
 from .session import get_or_create_session, clear_session, get_session_lock
 from .logger import log_audit_event_async
 from .artifact_store import save_redacted_image
@@ -71,8 +71,105 @@ async def analyze_step(payload: ClientPayload):
     session = get_or_create_session(payload.session_id)
     session_lock = await get_session_lock(payload.session_id)
 
+    # Phase D.2: pipeline-event audit trail. These four are logged
+    # unconditionally at the top of every /analyze call (including the
+    # field_mapping_request branch below) because they're all real,
+    # server-observable facts about the payload as received — not
+    # after-the-fact guesses about what the client did:
+    #   PIPELINE_START     — this call has begun processing this step.
+    #   CAPTURE_COMPLETE    — as observed server-side: a redacted screenshot
+    #                         arrived in the payload (the capture itself
+    #                         happened client-side; this is the server's
+    #                         only observable proxy for it).
+    #   DOM_FINDINGS        — count of DOM elements the client's detection
+    #                         pipeline reported (real field: dom_summary.elements).
+    #   VISION_FINDINGS     — count of detection_confidence_notes whose
+    #                         method is vision_model/ocr_regex (real field).
+    await log_audit_event_async(
+        session_id=payload.session_id,
+        step_number=payload.step_number,
+        instruction=payload.task_instruction,
+        action={"event_type": "PIPELINE_START"},
+        confidence=0.0,
+        payload_notes=[]
+    )
+    await log_audit_event_async(
+        session_id=payload.session_id,
+        step_number=payload.step_number,
+        instruction=payload.task_instruction,
+        action={"event_type": "CAPTURE_COMPLETE", "image_present": payload.redacted_image_base64 is not None},
+        confidence=0.0,
+        payload_notes=[]
+    )
+    await log_audit_event_async(
+        session_id=payload.session_id,
+        step_number=payload.step_number,
+        instruction=payload.task_instruction,
+        action={"event_type": "DOM_FINDINGS", "count": len(payload.dom_summary.elements)},
+        confidence=0.0,
+        payload_notes=[]
+    )
+    vision_finding_count = sum(
+        1 for note in payload.detection_confidence_notes if note.method in ("vision_model", "ocr_regex")
+    )
+    await log_audit_event_async(
+        session_id=payload.session_id,
+        step_number=payload.step_number,
+        instruction=payload.task_instruction,
+        action={"event_type": "VISION_FINDINGS", "count": vision_finding_count},
+        confidence=0.0,
+        payload_notes=[]
+    )
+
     async with session_lock:
-        
+
+        # Phase C.2(c): narrow, structural-only field-mapping fallback.
+        # Handled as its own early branch, separate from the real
+        # action-generation step sequence below — it does not advance
+        # session history/step numbering, and its result is never an
+        # executable action, so it must never reach evaluate_action_risk()
+        # or value_field_violates_pii_guard() (both are action-shaped
+        # checks; a field mapping has no target_element_id/value/risk_tier
+        # to evaluate in the first place).
+        if payload.field_mapping_request is not None:
+            try:
+                mapping = await generate_field_mapping(payload)
+                await log_audit_event_async(
+                    session_id=payload.session_id,
+                    step_number=payload.step_number,
+                    instruction=payload.task_instruction,
+                    action={"event_type": "LLM_RESPONSE", "call": "generate_field_mapping"},
+                    confidence=0.0,
+                    payload_notes=[]
+                )
+            except Exception as e:
+                logger.error("Field-mapping LLM call failed in analyze_step", exc_info=True)
+                await log_audit_event_async(
+                    session_id=payload.session_id,
+                    step_number=payload.step_number,
+                    instruction=payload.task_instruction,
+                    action={"error": f"field_mapping_request failed: {e}"},
+                    confidence=0.0,
+                    payload_notes=[n.model_dump() for n in payload.detection_confidence_notes]
+                )
+                raise HTTPException(status_code=500, detail="Field-mapping request failed")
+
+            await log_audit_event_async(
+                session_id=payload.session_id,
+                step_number=payload.step_number,
+                instruction=payload.task_instruction,
+                action={"event": "field_mapping_request", "field_mapping": mapping},
+                confidence=0.0,
+                payload_notes=[n.model_dump() for n in payload.detection_confidence_notes]
+            )
+            return ServerResponse(
+                session_id=payload.session_id,
+                step_number=payload.step_number,
+                action=None,
+                field_mapping=mapping,
+                confidence=0.90,
+            )
+
         # Session continuity defense
         if payload.step_number > 1 and not session.history:
             await log_audit_event_async(
@@ -97,7 +194,15 @@ async def analyze_step(payload: ClientPayload):
                 # The LLM client already returns a Pydantic-validated ActionInstruction
                 async with _llm_semaphore:
                     action = await generate_action(payload)
-                
+                await log_audit_event_async(
+                    session_id=payload.session_id,
+                    step_number=payload.step_number,
+                    instruction=payload.task_instruction,
+                    action={"event_type": "LLM_RESPONSE", "call": "generate_action", "attempt": attempt + 1},
+                    confidence=0.0,
+                    payload_notes=[]
+                )
+
                 # Additional semantic validation
                 if action.target_element_id:
                     valid_ids = [el.element_id for el in payload.dom_summary.elements]
@@ -131,7 +236,15 @@ async def analyze_step(payload: ClientPayload):
                     target_el = next((el for el in payload.dom_summary.elements if el.element_id == action.target_element_id), None)
                 
                 action.risk_tier = evaluate_action_risk(action.model_dump(), target_el.model_dump() if target_el else None)
-                
+                await log_audit_event_async(
+                    session_id=payload.session_id,
+                    step_number=payload.step_number,
+                    instruction=payload.task_instruction,
+                    action={"event_type": "POLICY_DECISION", "risk_tier": action.risk_tier, "action_type": action.type},
+                    confidence=0.0,
+                    payload_notes=[]
+                )
+
                 # Record step to session history
                 session.add_step(payload.step_number, payload.task_instruction, action)
 
@@ -155,6 +268,14 @@ async def analyze_step(payload: ClientPayload):
                     saved_path = save_redacted_image(payload.session_id, payload.step_number, payload.redacted_image_base64)
                     if saved_path:
                         logger.info(f"Saved redacted image artifact: {saved_path}")
+                        await log_audit_event_async(
+                            session_id=payload.session_id,
+                            step_number=payload.step_number,
+                            instruction=payload.task_instruction,
+                            action={"event_type": "REDACTION_COMPLETE", "artifact_path": saved_path},
+                            confidence=0.0,
+                            payload_notes=[]
+                        )
                 except Exception:
                     logger.warning("Failed to save redacted image artifact", exc_info=True)
 
@@ -254,6 +375,38 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+# Phase D.2: these two pipeline events genuinely happen entirely
+# client-side and have no other way to reach the server's audit log:
+#   FIREWALL_BLOCK   — dev2/leakage-auditor.js's assertSafeToSend() rejects
+#                      an outgoing payload in transport.js BEFORE the
+#                      /analyze request is ever sent, so /analyze itself can
+#                      never observe this. See transport.js's sendToBackend.
+#   ACTION_EXECUTED  — the DOM click/type actually happens inside the page's
+#                      content script (actionExecutor.js), which the server
+#                      has no visibility into at all. See orchestrator.js.
+# A fixed allow-list keeps this endpoint from becoming a generic arbitrary
+# client-log sink.
+ALLOWED_CLIENT_EVENT_TYPES = {"FIREWALL_BLOCK", "ACTION_EXECUTED"}
+
+class PipelineEventRequest(_BaseModel):
+    step_number: int
+    event_type: str
+    details: Optional[dict] = None
+
+@app.post("/session/{session_id}/event", dependencies=[Depends(require_api_key)])
+async def report_pipeline_event(session_id: str, body: PipelineEventRequest):
+    if body.event_type not in ALLOWED_CLIENT_EVENT_TYPES:
+        raise HTTPException(status_code=400, detail=f"event_type must be one of {sorted(ALLOWED_CLIENT_EVENT_TYPES)}")
+    await log_audit_event_async(
+        session_id=session_id,
+        step_number=body.step_number,
+        instruction="",
+        action={"event_type": body.event_type, **(body.details or {})},
+        confidence=0.0,
+        payload_notes=[]
+    )
+    return {"status": "logged"}
 
 class SessionEndRequest(_BaseModel):
     reason: str = "unspecified"

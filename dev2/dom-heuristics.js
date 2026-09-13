@@ -214,6 +214,33 @@ export function classifyElement(el) {
   };
 }
 
+/**
+ * Phase E.2 — whether a bounding box (as returned by getBoundingClientRect())
+ * intersects the viewport at all, using the standard [0, width] x [0, height]
+ * bounds. Before this existed, orchestrator.js's element collection
+ * (`document.querySelectorAll('input, button, select, textarea')`) had NO
+ * viewport filtering whatsoever — every matching element in the document
+ * was included regardless of scroll position, so an element far below the
+ * fold (never actually visible in the captured screenshot) was reported to
+ * the server as if it were on-screen, with a bounding_box the screenshot
+ * canvas never actually rendered anything at. This is a pure predicate
+ * (no DOM access beyond the passed-in rect) specifically so it's trivial to
+ * unit test without a real browser — see extension/tests/test-dom-index.js.
+ * @param {{ left: number, right: number, top: number, bottom: number }} rect
+ * @param {number} viewportWidth
+ * @param {number} viewportHeight
+ * @returns {boolean}
+ */
+export function isRectInViewport(rect, viewportWidth, viewportHeight) {
+  if (!rect) return false;
+  return (
+    rect.right > 0 &&
+    rect.left < viewportWidth &&
+    rect.bottom > 0 &&
+    rect.top < viewportHeight
+  );
+}
+
 let elementIdCounter = 0;
 
 /**

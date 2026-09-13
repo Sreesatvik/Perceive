@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Perceive — Audit Log Chain Viewer</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #14161a; color: #eaeaea; margin: 0; padding: 20px;
+  }
+  h1 { font-size: 18px; margin: 0 0 4px 0; }
+  .subtitle { font-size: 12px; color: #999; margin: 0 0 16px 0; }
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  input[type=text] {
+    background: #1c1f24; color: #eaeaea; border: 1px solid #3a3d43; border-radius: 6px;
+    padding: 7px 10px; font-size: 13px; min-width: 220px;
+  }
+  button {
+    background: #2a2d33; color: #eaeaea; border: 1px solid #3a3d43;
+    border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+  }
+  button:hover { background: #34373d; }
+  label.file-btn {
+    background: #2a2d33; border: 1px solid #3a3d43; border-radius: 6px;
+    padding: 8px 14px; font-size: 13px; cursor: pointer; display: inline-block;
+  }
+  label.file-btn:hover { background: #34373d; }
+  input[type=file] { display: none; }
+  #chain-status {
+    padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none;
+  }
+  #chain-status.ok { background: #1e3a24; color: #7fd77f; border: 1px solid #2d5a36; }
+  #chain-status.broken { background: #4a1f1f; color: #f08a8a; border: 1px solid #6a2a2a; }
+  #empty-state { color: #777; font-size: 13px; padding: 40px 0; text-align: center; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #26292f; word-break: break-word; vertical-align: top; }
+  th { color: #888; font-weight: 500; position: sticky; top: 0; background: #14161a; }
+  tr.row-broken { background: #2a1414; }
+  .hash-cell { font-family: monospace; font-size: 11px; color: #999; }
+  .event-badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; background: #1e2f3a; color: #7fbfd7; }
+  .row-status-ok { color: #7fd77f; }
+  .row-status-broken { color: #f08a8a; font-weight: 600; }
+</style>
+</head>
+<body>
+  <h1>Perceive — audit log chain viewer</h1>
+  <p class="subtitle">Loads a hash-chained audit log JSONL file (Part 1: server/app/logger.py / audit.jsonl) and verifies it end to end, entirely client-side, using the same algorithm as server/app/verify_audit_chain.py.</p>
+
+  <div class="toolbar">
+    <label class="file-btn" for="log-file-input">Load audit log (.jsonl)</label>
+    <input type="file" id="log-file-input" accept=".jsonl,.json,.log,text/plain">
+    <input type="text" id="session-filter" placeholder="Filter by session_id (optional)">
+    <span id="file-name" style="color:#999;font-size:12px;"></span>
+  </div>
+
+  <div id="chain-status"></div>
+  <div id="empty-state">No log loaded yet. Click "Load audit log" and select your server/audit.jsonl (or AUDIT_LOG_FILE) file.</div>
+  <div id="table-wrap" style="display:none; overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50px;">#</th>
+          <th style="width:70px;">Step</th>
+          <th style="width:110px;">Session</th>
+          <th style="width:90px;">Event</th>
+          <th>Action / details</th>
+          <th class="hash-cell" style="width:140px;">previous_hash</th>
+          <th class="hash-cell" style="width:140px;">entry_hash</th>
+          <th style="width:70px;">Chain</th>
+        </tr>
+      </thead>
+      <tbody id="log-rows"></tbody>
+    </table>
+  </div>
+
+  <script type="module" src="auditLogViewer.js"></script>
+</body>
+</html>

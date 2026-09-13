@@ -33,6 +33,28 @@ class TransportError extends Error {
     }
 }
 
+// Phase D.2: best-effort, fire-and-forget report of a pipeline event that
+// happens purely client-side and would otherwise never reach the server's
+// hash-chained audit log at all (see server/app/main.py's
+// ALLOWED_CLIENT_EVENT_TYPES for why only these two events use this path).
+// Must never throw into the caller and must never block/delay it — a
+// failure to report an audit event is not allowed to affect the real
+// pipeline (same "best-effort, swallow failures" discipline as
+// demoCapture.js and artifact_store.py).
+export async function reportPipelineEvent(sessionId, stepNumber, eventType, details) {
+    try {
+        const apiKey = await getBackendApiKey();
+        if (!apiKey) return;
+        await fetch(`${BACKEND_URL}/session/${sessionId}/event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+            body: JSON.stringify({ step_number: stepNumber, event_type: eventType, details: details || null }),
+        });
+    } catch (e) {
+        console.warn(`[Transport] Failed to report pipeline event ${eventType} (non-fatal):`, e);
+    }
+}
+
 /**
  * Sends sanitized payload to backend and returns action response.
  */
@@ -43,6 +65,10 @@ export async function sendToBackend(payload) {
         assertChannelsConsistent(payload, payload.redacted_regions);
       }
     } catch (err) {
+      // The blocked payload never reaches /analyze, so this is the ONLY
+      // place this violation can ever be recorded — report it (fire and
+      // forget) before throwing so the caller's control flow is unchanged.
+      reportPipelineEvent(payload.session_id, payload.step_number, 'FIREWALL_BLOCK', { reason: err.message });
       throw new PayloadLeakageError(err.message);
     }
 
@@ -241,12 +267,12 @@ async function ensureOffscreenDocument() {
     }
 }
 
-async function detectFacesInBackground(width, height, pixels) {
+async function detectFacesInBackground(width, height, pixels, config) {
     await ensureOffscreenDocument();
 
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(
-            { type: 'OFFSCREEN_DETECT_FACES', width, height, pixels },
+            { type: 'OFFSCREEN_DETECT_FACES', width, height, pixels, config },
             (response) => {
                 if (chrome.runtime.lastError) {
                     reject(new Error(chrome.runtime.lastError.message));
@@ -256,7 +282,14 @@ async function detectFacesInBackground(width, height, pixels) {
                     reject(new Error((response && response.error) || 'Offscreen face detection failed'));
                     return;
                 }
-                resolve(response.faces || []);
+                // Phase B.5: latency_ms (real per-fixture timing, e.g. for
+                // the Step 2 union-of-two-models case) passed through
+                // alongside faces when the caller requested it via config.
+                if (response.latency_ms !== undefined || response.config_actually_applied !== undefined) {
+                    resolve({ faces: response.faces || [], latency_ms: response.latency_ms, config_actually_applied: response.config_actually_applied });
+                } else {
+                    resolve(response.faces || []);
+                }
             }
         );
     });
@@ -312,6 +345,14 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
           return true; // Keep message channel open for async response
       }
 
+      if (message.type === 'REPORT_PIPELINE_EVENT') {
+          // Fire-and-forget from the content script's perspective: don't
+          // keep the message channel open waiting on the network call, and
+          // never let a reporting failure surface to the caller.
+          reportPipelineEvent(message.sessionId, message.stepNumber, message.eventType, message.details);
+          return false;
+      }
+
       if (message.type === 'CAPTURE_TAB_STATE') {
           const tabId = sender && sender.tab ? sender.tab.id : undefined;
           const windowId = sender && sender.tab ? sender.tab.windowId : undefined;
@@ -331,9 +372,14 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
       }
 
       if (message.type === 'DETECT_FACES') {
-          detectFacesInBackground(message.width, message.height, message.pixels)
-              .then(faces => {
-                  sendResponse({ success: true, faces });
+          detectFacesInBackground(message.width, message.height, message.pixels, message.config)
+              .then(result => {
+                  // Phase B.5: detectFacesInBackground() resolves a plain
+                  // faces array normally, or { faces, latency_ms } when
+                  // latency was requested/returned — normalize both shapes
+                  // into one response object rather than double-wrapping.
+                  const isLatencyShape = result && !Array.isArray(result) && 'faces' in result;
+                  sendResponse(isLatencyShape ? { success: true, ...result } : { success: true, faces: result });
               })
               .catch(error => {
                   sendResponse({ success: false, error: error.message });

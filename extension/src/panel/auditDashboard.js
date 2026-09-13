@@ -55,12 +55,32 @@ function toDataUrl(base64) {
   return base64.startsWith('data:') ? base64 : `data:image/png;base64,${base64}`;
 }
 
+function executedBadge(executed) {
+  if (executed === true) return '<span class="status-chip ok">Executed: yes</span>';
+  if (executed === false) return '<span class="status-chip bad">Executed: NO (failed)</span>';
+  return '<span class="status-chip exec-unknown">Executed: pending…</span>';
+}
+
+function visionStatusChips(visionStatus) {
+  if (!visionStatus) return '';
+  const ocrClass = visionStatus.ocr && visionStatus.ocr.includes('unavailable') ? 'bad' : 'ok';
+  const faceClass = visionStatus.faceDetection && visionStatus.faceDetection.includes('unavailable')
+    ? 'bad'
+    : 'warn'; // "active but not yet validated" is deliberately never shown as a clean "ok" green
+  return `
+    <span class="status-chip ${ocrClass}">${escapeHtml(visionStatus.ocr)}</span>
+    <span class="status-chip ${faceClass}">${escapeHtml(visionStatus.faceDetection)}</span>
+  `;
+}
+
 function renderStep(data) {
   emptyState.style.display = 'none';
   stepCount++;
 
   const card = document.createElement('div');
   card.className = 'step-card';
+  card.dataset.sessionId = data.sessionId || '';
+  card.dataset.stepNumber = String(data.stepNumber);
 
   const action = data.action || {};
   const riskClass = action.risk_tier === 'risky' ? 'risk-risky' : 'risk-safe';
@@ -69,11 +89,20 @@ function renderStep(data) {
     null, 2
   );
   const payloadId = `payload-${stepCount}`;
+  const piiClass = (data.rawPiiStatus || '').toUpperCase().startsWith('BLOCKED —') ? 'warn' : 'ok';
 
   card.innerHTML = `
     <div class="step-header">
       <span class="step-num">Step ${escapeHtml(data.stepNumber)} — session ${escapeHtml((data.sessionId || '').slice(0, 8))}</span>
       <span>${new Date(data.timestamp).toLocaleTimeString()}</span>
+    </div>
+    <div class="status-row">
+      <span class="status-chip ok">DOM findings: <b>${escapeHtml(data.domFindings)}</b></span>
+      <span class="status-chip ok">Vision findings: <b>${escapeHtml(data.visionFindings)}</b></span>
+      ${visionStatusChips(data.visionStatus)}
+      <span class="status-chip ok">Elements redacted: <b>${escapeHtml(data.elementsRedacted)}</b></span>
+      <span class="status-chip ${piiClass}">Raw PII transmitted: ${escapeHtml(data.rawPiiStatus || 'unknown')}</span>
+      <span class="exec-badge">${executedBadge(data.executed)}</span>
     </div>
     <div class="images-row">
       <div class="image-col">
@@ -86,7 +115,7 @@ function renderStep(data) {
       </div>
     </div>
     <div class="action-line">
-      Action: <code>${escapeHtml(action.type)}</code>
+      Proposed action: <code>${escapeHtml(action.type)}</code>
       ${action.target_element_id ? ` → <code>${escapeHtml(action.target_element_id)}</code>` : ''}
       &nbsp; <span class="risk-badge ${riskClass}">${escapeHtml(action.risk_tier || 'unknown')}</span>
       ${action.reasoning_short ? `<div style="color:#888;margin-top:4px;">"${escapeHtml(action.reasoning_short)}"</div>` : ''}
@@ -107,11 +136,27 @@ function renderStep(data) {
   });
 }
 
+/**
+ * Phase D.3: patches the "Executed: …" badge on an already-rendered step
+ * card in place, once orchestrator.js's AUDIT_STEP_EXECUTION_RESULT
+ * arrives (execution happens strictly after the initial AUDIT_STEP_UPDATE
+ * broadcast — see orchestrator.js's broadcastAuditExecutionResult).
+ */
+function patchExecutionResult({ sessionId, stepNumber, executed }) {
+  const selector = `.step-card[data-session-id="${CSS.escape(sessionId || '')}"][data-step-number="${CSS.escape(String(stepNumber))}"]`;
+  const card = container.querySelector(selector);
+  if (!card) return; // step card scrolled off/cleared — non-fatal
+  const badgeContainer = card.querySelector('.exec-badge');
+  if (badgeContainer) badgeContainer.innerHTML = executedBadge(executed);
+}
+
 const hasChromeRuntime = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage;
 if (hasChromeRuntime) {
   chrome.runtime.onMessage.addListener((message) => {
     if (message && message.type === 'AUDIT_STEP_UPDATE') {
       renderStep(message.data);
+    } else if (message && message.type === 'AUDIT_STEP_EXECUTION_RESULT') {
+      patchExecutionResult(message.data);
     }
   });
 }
@@ -127,6 +172,22 @@ document.getElementById('redteam-btn').addEventListener('click', () => {
     chrome.tabs.create({ url: chrome.runtime.getURL('tests/redteam/redteam-page.html') });
   } else {
     window.open('../../tests/redteam/redteam-page.html', '_blank');
+  }
+});
+
+document.getElementById('audit-log-btn').addEventListener('click', () => {
+  if (hasChromeRuntime) {
+    chrome.tabs.create({ url: chrome.runtime.getURL('src/panel/auditLogViewer.html') });
+  } else {
+    window.open('auditLogViewer.html', '_blank');
+  }
+});
+
+document.getElementById('before-after-btn').addEventListener('click', () => {
+  if (hasChromeRuntime) {
+    chrome.tabs.create({ url: chrome.runtime.getURL('src/panel/beforeAfterViewer.html') });
+  } else {
+    window.open('beforeAfterViewer.html', '_blank');
   }
 });
 

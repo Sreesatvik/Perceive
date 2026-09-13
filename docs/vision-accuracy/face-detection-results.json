@@ -1,91 +1,46 @@
 {
-  "generated_at": "2026-09-13T14:15:24.402Z",
-  "method": "Attempted: real extension/dist/faceDetectionWorker.bundle.js (unmodified) executed in a Node vm sandbox shaped as a classic Worker scope, backed by a local static server standing in for the chrome-extension:// origin. See this file's header comment for the full chain of environment gaps found and fixed, and the one that could not be: MediaPipe's WASM graph requires a real WebGL context (even for its \"CPU\" delegate) for image-texture ingestion, which requires a native GL binding for Node (e.g. `gl`/headless-gl) — confirmed unavailable in this environment (`npm install gl` fails: no C++ build toolchain / Visual Studio present).",
-  "environment_limitation": true,
-  "fixtures_attempted": 15,
-  "fixtures_succeeded": 0,
-  "fixtures_failed": 15,
-  "iou_match_threshold": 0.3,
-  "total_ground_truth_faces_in_succeeded_fixtures": 0,
-  "total_detections": 0,
-  "true_positives": 0,
-  "recall": null,
-  "precision": null,
-  "per_fixture": [
+  "results": [
     {
-      "file": "frontal_1.jpg",
-      "category": "frontal",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+      "label": "default_threshold_0.30",
+      "generated_at": "2026-09-13T00:00:00.000Z",
+      "generated_by": "human, real loaded Chrome extension, via extension/tests/vision/faceAccuracyTest.html (chrome-extension:// origin) exercising the real production path: transport.js's detectFacesInBackground() -> chrome.offscreen document -> faceDetectionWorker.bundle.js. Supersedes the earlier environment_limitation entry in this file's prior revision, which was a Node-vm sandbox attempt that could not get past a WebGL requirement (see docs/vision-engine-decision.md's B.2 history for that finding) — this is the first entry in this file backed by a real detection run.",
+      "min_detection_confidence": 0.3,
+      "environment_limitation": false,
+      "fixtures_attempted": 15,
+      "fixtures_succeeded": 15,
+      "fixtures_failed": 0,
+      "iou_match_threshold": 0.3,
+      "total_ground_truth_faces": 23,
+      "total_detections": 15,
+      "true_positives": 9,
+      "recall": 0.391,
+      "precision": 0.6,
+      "per_category": {
+        "frontal": { "ground_truth_faces": 4, "true_positives": 3, "recall": 0.75 },
+        "angled": { "ground_truth_faces": 3, "true_positives": 2, "recall": 0.67 },
+        "occluded": { "ground_truth_faces": 1, "true_positives": 1, "recall": 1.0 },
+        "id_card": { "ground_truth_faces": 1, "true_positives": 1, "recall": 1.0 },
+        "small_distant": { "ground_truth_faces": 4, "true_positives": 0, "recall": 0.0 },
+        "multiple_faces": { "ground_truth_faces": 10, "true_positives": 2, "recall": 0.2 },
+        "zero_face": { "ground_truth_faces": 0, "note": "3 fixtures, no recall metric applies; contributes only to precision denominator if any false positives occurred here — not separately itemized in the summary this entry was transcribed from" }
+      },
+      "note": "Aggregate numbers (overall + per-category recall/precision/counts) transcribed exactly as reported from a real run of extension/tests/vision/faceAccuracyTest.html. The raw per-fixture detail (individual bounding boxes, confidences, which specific detections were false positives) was NOT captured in this transcription — only the aggregates were available when this entry was written. For full fidelity, re-run the harness and paste its 'Copy results JSON' output over this entry's per_category block with the actual per_fixture array."
     },
     {
-      "file": "frontal_2.jpg",
-      "category": "frontal",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "frontal_3.jpg",
-      "category": "frontal",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "frontal_4.jpg",
-      "category": "frontal",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "angled_1.jpg",
-      "category": "angled",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "angled_2.jpg",
-      "category": "angled",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "angled_3.jpg",
-      "category": "angled",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "small_distant_1.jpg",
-      "category": "small_distant",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "multiple_faces_1.jpg",
-      "category": "multiple_faces",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "multiple_faces_2.jpg",
-      "category": "multiple_faces",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "occluded_1.jpg",
-      "category": "occluded",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "id_card_1.jpg",
-      "category": "id_card",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "zero_face_1.jpg",
-      "category": "zero_face",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "zero_face_2.jpg",
-      "category": "zero_face",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
-    },
-    {
-      "file": "zero_face_3.jpg",
-      "category": "zero_face",
-      "error": "Cannot read properties of undefined (reading 'activeTexture')"
+      "label": "adjusted_threshold_0.15",
+      "status": "PREPARED, NOT YET EXECUTED",
+      "min_detection_confidence": 0.15,
+      "code_change": "extension/src/vision/faceDetectionWorker.js: minDetectionConfidence lowered from 0.3 to 0.15 (see MIN_DETECTION_CONFIDENCE constant and its comment). extension/dist/faceDetectionWorker.bundle.js has been rebuilt (npm run build) with this change and is ready to test.",
+      "why_not_executed": "This session's sandbox cannot load an unpacked Chrome extension or drive a real browser (confirmed repeatedly this project) — extension/tests/vision/faceAccuracyTest.html requires a real chrome-extension:// origin (window.chrome.runtime.sendMessage to a real service worker + offscreen document), which does not exist here.",
+      "reproduction_steps_for_a_human": [
+        "cd extension && npm run build (already done for this threshold value as of this commit — skip if unchanged)",
+        "Load extension/ as an unpacked extension via chrome://extensions (Developer mode -> Load unpacked), or reload it if already loaded",
+        "Open chrome-extension://<extension-id>/tests/vision/faceAccuracyTest.html",
+        "Click 'Run fixtures', wait for all 15 to complete (~15-30s based on the default-threshold run's per-fixture latency)",
+        "Click 'Copy results JSON' and paste the result to replace this entry"
+      ],
+      "estimated_cost": "A few minutes of human time (build already done); no further code changes needed to collect this data point.",
+      "expected_direction_unverified": "Not measured — stated here only as an unverified expert expectation, not a result: small_distant's 0/4 is more likely explained by BlazeFace short_range's fixed low-resolution input (faces occupying <10% of frame carry little signal regardless of the confidence cutoff applied afterward) than by the confidence threshold itself, so a meaningful recall improvement there specifically would be surprising. multiple_faces (20% recall on 10 GT faces) is more plausibly threshold-sensitive, since NMS/confidence filtering in a crowded frame can suppress genuine borderline-confidence detections. This expectation is explicitly NOT a substitute for running the real test above."
     }
   ]
 }

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, model_validator, field_validator
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Dict
 
 # -------------------------------------------------------------------
 # Enum-like Literals per PDF Section 4 contracts
@@ -56,6 +56,10 @@ class DetectionConfidenceNote(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
     method: DetectionMethod
 
+class FieldMappingRequest(BaseModel):
+    slot_ids: List[str] = Field(min_length=1, max_length=10)
+    candidate_field_purposes: List[str] = Field(min_length=1, max_length=10)
+
 class ClientPayload(BaseModel):
     session_id: str
     task_instruction: str = Field(min_length=1, max_length=2000)
@@ -71,6 +75,16 @@ class ClientPayload(BaseModel):
     # the same failing action or give up prematurely. See
     # llm_client.py's EXECUTION FEEDBACK prompt block.
     last_action_error: Optional[str] = Field(default=None, max_length=1000)
+    # Phase C.2(c): narrow, structural-only fallback for task-instruction
+    # parsing. When present, task_instruction has already had every
+    # candidate raw value replaced client-side with an opaque placeholder
+    # (<<SLOT_1>>, <<SLOT_2>>, ...) BEFORE this payload was ever built — the
+    # real values never leave the browser. The LLM's only job is to map
+    # each slot id to a field purpose based on surrounding wording; see
+    # llm_client.py's generate_field_mapping(). This extends the existing
+    # /analyze contract rather than adding a parallel endpoint, so it
+    # inherits the same auth/rate-limit dependencies unchanged.
+    field_mapping_request: Optional[FieldMappingRequest] = None
 
 # -------------------------------------------------------------------
 # Server -> Client Action Response Models
@@ -105,5 +119,13 @@ class ActionInstruction(BaseModel):
 class ServerResponse(BaseModel):
     session_id: str
     step_number: int
-    action: ActionInstruction
+    # Exactly one of `action` / `field_mapping` is populated: a normal
+    # /analyze call always returns `action` (unchanged from before this
+    # phase); a field_mapping_request call (Phase C.2c) returns
+    # `field_mapping` instead and leaves `action` null, since a structural
+    # slot->field-purpose mapping is not an executable action and must
+    # never be run through the click/type risk-tier or PII value-guard
+    # checks that exist for real actions.
+    action: Optional[ActionInstruction] = None
+    field_mapping: Optional[Dict[str, Optional[str]]] = None
     confidence: float = Field(ge=0.0, le=1.0)
