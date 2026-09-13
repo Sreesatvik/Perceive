@@ -72,6 +72,33 @@ async def test_prompt_includes_execution_feedback_when_previous_action_failed(mo
     assert "EXECUTION FEEDBACK" in user_message
     assert "target_element_not_found" in user_message
 
+
+@pytest.mark.asyncio
+@patch('app.llm_client.AsyncGroq')
+async def test_system_prompt_clarifies_instruction_tokens_are_valid_even_when_dom_token_is_null(mock_groq, mock_payload, monkeypatch):
+    """Regression test for a real bug found in live testing: given a login
+    task like "login with username [NAME_x] and password [PASSWORD_y]"
+    against empty (semantic_token: null) username/password fields, the LLM
+    repeatedly refused with reasoning like "no semantic token provided" —
+    it was checking the DOM element's OWN semantic_token instead of the
+    token already present in the trusted task instruction text. The system
+    prompt must explicitly clarify that an empty field's null semantic_token
+    does not mean no safe value exists; the real value is the bracketed
+    token in the instruction itself."""
+    monkeypatch.setenv("GROQ_API_KEY", "test-key")
+    mock_client = mock_groq.return_value
+    mock_response = AsyncMock()
+    mock_response.choices = [
+        AsyncMock(message=AsyncMock(content='{"type": "wait", "risk_tier": "safe", "reasoning_short": "wait"}'))
+    ]
+    mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
+
+    await generate_action(mock_payload)
+
+    system_message = mock_client.chat.completions.create.call_args.kwargs["messages"][0]["content"]
+    assert "semantic_token" in system_message and "null" in system_message
+    assert "TASK INSTRUCTION" in system_message.upper() or "task instruction" in system_message.lower()
+
 @pytest.mark.asyncio
 @patch('app.llm_client.AsyncGroq')
 async def test_generate_action_validation_error(mock_groq, mock_payload, monkeypatch):
