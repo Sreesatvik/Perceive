@@ -1,3 +1,5 @@
+import { findAgentElementResilient } from './domIndex.js';
+
 /**
  * Executes a validated action on the real DOM.
  * @param {Object} action — validated server response action
@@ -17,27 +19,21 @@ export async function executeAction(action, resolveToken, perceivedElement = nul
         return { success: true, domChanged: false };
     }
 
-    // For click, type, scroll, we need a target element
+    // For click, type, scroll, we need a target element. Phase 5.1: a
+    // direct lookup miss or tag+label mismatch (both signs of an SPA
+    // re-render that dropped our data-ext-id tag) triggers a re-index
+    // attempt before giving up — see domIndex.js.
     let targetElement = null;
     if (action.target_element_id) {
-        targetElement = document.querySelector(`[data-ext-id="${CSS.escape(action.target_element_id)}"]`);
-        if (!targetElement) {
-            targetElement = document.getElementById(action.target_element_id);
+        const lookup = findAgentElementResilient(action.target_element_id, perceivedElement);
+        targetElement = lookup.element;
+        if (lookup.reindexed) {
+            console.log(`[ActionExecutor] Re-indexed stale target '${action.target_element_id}' after DOM mutation`);
         }
     }
 
     if (!targetElement && ['click', 'type', 'scroll'].includes(action.type)) {
         return { success: false, error: 'target_element_not_found' };
-    }
-
-    if (targetElement && perceivedElement != null) {
-        const tagMismatch = targetElement.tagName.toLowerCase() !== (perceivedElement.tag || '').toLowerCase();
-        const currentLabel = (targetElement.getAttribute('aria-label') || targetElement.labels?.[0]?.innerText || targetElement.innerText || targetElement.placeholder || '').trim().toLowerCase();
-        const perceivedLabel = (perceivedElement.label_text || '').trim().toLowerCase();
-        
-        if (tagMismatch && currentLabel !== perceivedLabel) {
-            return { success: false, error: 'stale_target_mismatch' };
-        }
     }
 
     // Visibility check

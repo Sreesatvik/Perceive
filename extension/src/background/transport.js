@@ -91,6 +91,92 @@ export async function sendToBackend(payload) {
     }
 }
 
+// --- Phase 5.2: multi-tab/frame session binding ---
+//
+// Everything reaching this background service worker arrives via
+// chrome.runtime.onMessage, which is global across every tab/frame the
+// content script runs in — nothing previously stopped a message CLAIMING
+// to be for session X from actually being processed regardless of which
+// tab/frame it came from. This binds each session_id to the (tabId,
+// frameId) that first used it, and rejects anything else claiming that
+// session afterwards.
+const sessionContext = new Map(); // session_id -> { tabId, frameId, networkBudget: { remaining } }
+
+const MAX_TASK_NETWORK_RETRIES = 8; // Phase 5.3: task-level ceiling, shared across every step's retries
+
+function bindOrVerifySessionContext(sessionId, sender) {
+  const senderTabId = sender && sender.tab ? sender.tab.id : undefined;
+  const senderFrameId = sender ? sender.frameId : undefined;
+
+  const existing = sessionContext.get(sessionId);
+  if (!existing) {
+    sessionContext.set(sessionId, {
+      tabId: senderTabId,
+      frameId: senderFrameId,
+      networkBudget: { remaining: MAX_TASK_NETWORK_RETRIES },
+    });
+    return { ok: true, budget: sessionContext.get(sessionId).networkBudget };
+  }
+
+  if (existing.tabId !== senderTabId || existing.frameId !== senderFrameId) {
+    return { ok: false };
+  }
+  return { ok: true, budget: existing.networkBudget };
+}
+
+// --- Phase 5.3: network/provider resilience ---
+//
+// Distinct from the server's own hallucination-retry loop (main.py retries
+// malformed LLM JSON up to MAX_RETRIES with no client involvement at all).
+// This handles transient PROVIDER/NETWORK failures the client can see —
+// the server returning 429 (rate limited) or, if ever fronted by a proxy,
+// 502/503/504 — with bounded exponential backoff and jitter, instead of
+// the previous behavior of immediately looping again with zero delay.
+const RETRYABLE_STATUS_CODES = [429, 502, 503, 504];
+const MAX_NETWORK_RETRIES_PER_STEP = 3;
+const BASE_BACKOFF_MS = 500;
+const MAX_BACKOFF_MS = 8000;
+
+function parseStatusCodeFromTransportError(err) {
+  const match = /Server returned (\d+)/.exec(err && err.message || '');
+  return match ? parseInt(match[1], 10) : null;
+}
+
+function backoffDelayMs(attempt) {
+  const exp = Math.min(BASE_BACKOFF_MS * 2 ** attempt, MAX_BACKOFF_MS);
+  return exp + Math.random() * exp * 0.3; // + up to 30% jitter
+}
+
+/**
+ * Wraps sendToBackend with bounded exponential backoff + jitter for
+ * retryable provider errors, gated by a shared per-task budget in addition
+ * to this call's own per-step cap — whichever runs out first stops retrying.
+ * @param {object} payload
+ * @param {{ remaining: number }} [taskBudget] - shared across a session's steps
+ */
+export async function sendToBackendWithRetry(payload, taskBudget) {
+  let attempt = 0;
+  for (;;) {
+    try {
+      return await sendToBackend(payload);
+    } catch (err) {
+      const status = err instanceof TransportError ? parseStatusCodeFromTransportError(err) : null;
+      const retryable = RETRYABLE_STATUS_CODES.includes(status);
+      const taskBudgetLeft = taskBudget ? taskBudget.remaining : 0;
+
+      if (!retryable || attempt >= MAX_NETWORK_RETRIES_PER_STEP || taskBudgetLeft <= 0) {
+        throw err;
+      }
+
+      if (taskBudget) taskBudget.remaining--;
+      const delayMs = backoffDelayMs(attempt);
+      attempt++;
+      console.warn(`[Transport] Retryable provider error (${status}) — backing off ${Math.round(delayMs)}ms (attempt ${attempt}/${MAX_NETWORK_RETRIES_PER_STEP}, task budget ${taskBudgetLeft - 1} left)`);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+}
+
 /**
  * Sends a fire-and-forget POST to /session/{sessionId}/end in the background.
  */
@@ -119,7 +205,19 @@ async function endSessionOnBackend(sessionId, reason) {
 if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.type === 'SEND_PAYLOAD') {
-          sendToBackend(message.payload)
+          const sessionId = message.payload && message.payload.session_id;
+          const binding = bindOrVerifySessionContext(sessionId, sender);
+
+          if (!binding.ok) {
+              // Phase 5.2: a message claiming an existing session_id from a
+              // DIFFERENT tab/frame than the one that started it is rejected
+              // outright — never forwarded to the backend at all.
+              console.error(`[Transport] Rejected SEND_PAYLOAD for session ${sessionId}: sender tab/frame does not match the session's bound context`);
+              sendResponse({ success: false, error: 'session_context_mismatch', errorType: 'SessionContextError' });
+              return true;
+          }
+
+          sendToBackendWithRetry(message.payload, binding.budget)
               .then(action => {
                   sendResponse({ success: true, action });
               })
@@ -130,6 +228,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
       }
 
       if (message.type === 'END_SESSION') {
+          sessionContext.delete(message.sessionId);
           endSessionOnBackend(message.sessionId, message.reason)
               .then(() => {
                   sendResponse({ success: true });
@@ -139,5 +238,25 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
               });
           return true; // Keep message channel open for async response
       }
+  });
+}
+
+// Phase 5.3: teardown-on-tab-destruction. If a tab closes mid-task, its
+// content-script JS realm (and the in-memory token vault living there) is
+// already torn down by the browser automatically — but this background
+// service worker's OWN bookkeeping (the session binding + retry budget
+// above) is not, and would otherwise leak or go stale. Local cleanup here
+// is unconditional and synchronous; the best-effort backend notification
+// is fire-and-forget and never gates it.
+if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.onRemoved) {
+  chrome.tabs.onRemoved.addListener((closedTabId) => {
+    for (const [sessionId, ctx] of sessionContext.entries()) {
+      if (ctx.tabId === closedTabId) {
+        sessionContext.delete(sessionId);
+        endSessionOnBackend(sessionId, 'tab_destroyed').catch(() => {
+          // Local state above is already cleared regardless of this outcome.
+        });
+      }
+    }
   });
 }

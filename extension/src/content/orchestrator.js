@@ -1,5 +1,6 @@
 import { executeAction } from './actionExecutor.js';
 import { requiresConfirmation, requestConfirmation } from './confirmationUI.js';
+import { startMutationTracking, stopMutationTracking } from './domIndex.js';
 import { RETRY_CONFIG } from '../shared/constants.js';
 
 import { getVaultForSession, endSession } from '../../dev2/session-vault-manager.js';
@@ -216,6 +217,7 @@ async function finalizeTask(sessionId, reason) {
     // Step 1: Clear Dev 2's vault
     endSession(sessionId);
     clearVisionCache(sessionId);
+    stopMutationTracking();
 
     // Step 2: Notify backend via background worker (avoids CORS in content script context)
     try {
@@ -281,6 +283,11 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
     // Obtain vault ONCE at task start
     const vault = getVaultForSession(sessionId);
     const resolveToken = vault.resolveToken.bind(vault);
+
+    // Phase 5.1: start observing DOM mutations for this task, so a stale
+    // element lookup during action execution has a real re-indexing path
+    // instead of failing outright on the first SPA re-render.
+    startMutationTracking();
 
     try {
         while (stepNumber < RETRY_CONFIG.MAX_STEPS) {

@@ -1,15 +1,9 @@
 import { RISK_TIERS } from '../shared/constants.js';
+import { findAgentElement } from './domIndex.js';
 
 let confirmationOverlay = null;
 
-export function findAgentElement(elementId) {
-  if (!elementId) return null;
-  const escaped = CSS.escape(elementId);
-  return (
-    document.querySelector(`[data-ext-id="${escaped}"]`) ||
-    document.getElementById(elementId)
-  );
-}
+export { findAgentElement };
 
 function createOverlay() {
     if (confirmationOverlay) return confirmationOverlay;

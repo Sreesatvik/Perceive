@@ -6,13 +6,15 @@
   "description": "Perceive browser extension — content script, popup, and on-device vision pipeline.",
   "scripts": {
     "build": "node build.mjs",
-    "watch": "node build.mjs --watch"
+    "watch": "node build.mjs --watch",
+    "test": "node tests/test-schemas.js && node tests/test-dom-index.js && node tests/test-transport-resilience.js"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "1.0.1",
     "tesseract.js": "7.0.0"
   },
   "devDependencies": {
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "jsdom": "^29.1.1"
   }
 }
