@@ -2,29 +2,21 @@
 # dev2/ is the canonical source for the privacy pipeline modules.
 # extension/dev2/ is a required duplicate (Chrome unpacked extensions can
 # only load resources from within their own manifest directory), but it
-# drifted silently out of sync for several commits (see Phase 1 notes) —
-# has_value tracking, the vault-issued-token check, and the redacted_regions
-# coverage check all existed only in dev2/ while the shipped extension ran
-# an older, less safe version.
+# has drifted silently out of sync more than once — most recently
+# redaction-renderer.js was simply never added to a manually-maintained
+# file list here, so the shipped extension ran a pre-Phase-2 version of it
+# for two full phases without anyone noticing. This now auto-discovers
+# every non-test source file in dev2/ instead of relying on a hand-kept
+# list, so a forgotten entry can't happen again.
 #
 # Run this after any change to dev2/*.js to keep the two copies identical.
 set -euo pipefail
 cd "$(dirname "$0")"
 
-FILES=(
-  token-vault.js
-  session-vault-manager.js
-  leakage-auditor.js
-  sensitivity-tiers.js
-  channel-consistency-check.js
-  redaction-engine.js
-  dom-heuristics.js
-  pii-patterns.js
-  task-entity-extractor.js
-  origin-sensitivity-profile.js
-)
-
-for f in "${FILES[@]}"; do
+for f in *.js; do
+  case "$f" in
+    test-*.js) continue ;;  # test files are dev2/-only, never shipped
+  esac
   if [ -f "$f" ]; then
     cp "$f" "../extension/dev2/$f"
     echo "synced $f -> extension/dev2/$f"

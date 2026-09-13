@@ -47,6 +47,34 @@
       color: #7fd77f;
       margin-top: 8px;
     }
+    details {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #999;
+    }
+    summary {
+      cursor: pointer;
+      user-select: none;
+    }
+    #api-key-input {
+      width: 100%;
+      box-sizing: border-box;
+      background: #262626;
+      color: #eaeaea;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    #save-key-btn {
+      margin-top: 6px;
+      background: #2a2d33;
+      font-size: 11px;
+      padding: 6px;
+    }
+    #save-key-btn:hover { background: #34373d; }
+    #key-status { margin-top: 4px; color: #7fd77f; }
   </style>
 </head>
 <body>
@@ -56,6 +84,12 @@
   <button id="run-btn">Run Task</button>
   <button id="dashboard-btn">Open audit dashboard</button>
   <div class="status" id="status">● Extension active</div>
+  <details id="settings-details">
+    <summary>Backend settings</summary>
+    <input type="password" id="api-key-input" placeholder="Backend API key (X-API-Key)">
+    <button id="save-key-btn">Save key</button>
+    <div id="key-status"></div>
+  </details>
   <script src="popup.js"></script>
 </body>
 </html>

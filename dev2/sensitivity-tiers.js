@@ -156,14 +156,19 @@ export function classifySensitivity(elementClassification, piiMatches = [], rawV
   if (tier === 1 || tier === 2) {
     if (tokenVault && typeof tokenVault.getOrCreateToken === 'function' && rawValue !== null && rawValue !== undefined && rawValue !== '') {
       semantic_token = tokenVault.getOrCreateToken(rawValue, chosenType);
+    } else if (chosenType === 'AMOUNT' && rawValue) {
+      semantic_token = getAmountToken(elementClassification, piiMatches);
     } else {
-      if (tier === 1) {
-        semantic_token = `[${chosenType}]`;
-      } else {
-        semantic_token = chosenType === 'AMOUNT'
-          ? getAmountToken(elementClassification, piiMatches)
-          : `[${chosenType}]`;
-      }
+      // No real value present yet (e.g. an empty input field) — don't emit
+      // a bare, non-vault-backed placeholder like "[PASSWORD]" or "[NAME]".
+      // A token with no vault entry can never be resolved by
+      // resolveToken(), and seeing it in the DOM summary misleads the LLM
+      // into echoing it back verbatim for a "type" action instead of using
+      // the real, resolvable token seeded elsewhere (e.g. from the task
+      // instruction's own credential tokenization) — this is exactly what
+      // caused a real "Failed to resolve token: [NAME]" failure during
+      // live testing on an actual login form before this fix.
+      semantic_token = null;
     }
   }
 

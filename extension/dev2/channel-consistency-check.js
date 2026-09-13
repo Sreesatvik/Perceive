@@ -22,9 +22,18 @@ export function checkChannelConsistency(payload, redactedRegions) {
   const regions = Array.isArray(redactedRegions) ? redactedRegions : [];
 
   // 1. Set of element_ids that SHOULD be redacted
+  //
+  // Redaction should be based on sensitivity, not on whether a token
+  // happened to be assigned. A tier 1/2 field can be legitimately
+  // sensitive with no token yet (e.g. an empty password input, per the
+  // Phase 3.1 fix to sensitivity-tiers.js's semantic_token: null for
+  // unfilled fields) and must still be treated as "should be redacted" —
+  // requiring semantic_token !== null here caused a real, live
+  // "visual redaction present but structural summary shows no
+  // sensitivity" false-positive failure on an actual empty login form.
   const shouldBeRedacted = new Set();
   for (const el of elements) {
-    if (el && el.is_sensitive === true && el.semantic_token !== null) {
+    if (el && el.is_sensitive === true) {
       if (el.element_id) {
         shouldBeRedacted.add(el.element_id);
       }

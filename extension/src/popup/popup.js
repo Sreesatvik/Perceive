@@ -2,6 +2,45 @@ document.getElementById('dashboard-btn').addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('src/panel/auditDashboard.html') });
 });
 
+// Backend API key settings — previously there was no UI for this at all;
+// transport.js/orchestrator.js only ever read it from chrome.storage.local
+// with nothing anywhere to write it, so every real request failed with
+// "No backend API key configured" until it was set manually via the
+// console. This exposes it as a normal settings field instead.
+(async () => {
+  const keyInput = document.getElementById('api-key-input');
+  const keyStatus = document.getElementById('key-status');
+  const settingsDetails = document.getElementById('settings-details');
+  if (!keyInput) return;
+
+  const stored = await chrome.storage.local.get('backendApiKey');
+  if (stored.backendApiKey) {
+    keyInput.value = stored.backendApiKey;
+  } else {
+    // Nudge the user to notice this on first use, since a missing key is
+    // the single most common reason a task silently fails.
+    settingsDetails.open = true;
+    keyStatus.textContent = 'Not set — tasks will fail without this.';
+    keyStatus.style.color = '#f08a8a';
+  }
+})();
+
+document.getElementById('save-key-btn').addEventListener('click', async () => {
+  const keyInput = document.getElementById('api-key-input');
+  const keyStatus = document.getElementById('key-status');
+  const value = keyInput.value.trim();
+
+  if (!value) {
+    keyStatus.textContent = 'Enter a key first';
+    keyStatus.style.color = '#f08a8a';
+    return;
+  }
+
+  await chrome.storage.local.set({ backendApiKey: value });
+  keyStatus.textContent = '✓ Saved';
+  keyStatus.style.color = '#7fd77f';
+});
+
 document.getElementById('run-btn').addEventListener('click', async () => {
   const status = document.getElementById('status');
   const taskInput = document.getElementById('task-input');

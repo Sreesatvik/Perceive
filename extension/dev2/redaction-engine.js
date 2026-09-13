@@ -96,6 +96,13 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
         typeof tokenVault.hasToken === 'function' &&
         tokenVault.hasToken(semantic_token)
       );
+      // Tells the backend whether this field actually contains a real
+      // value right now (server/app/models.py's check_sensitive_has_token
+      // validator requires a semantic_token whenever is_sensitive AND
+      // has_value are both true — this field is how it knows the
+      // difference between "sensitive but empty" and "sensitive with an
+      // unredacted value that must be tokenized").
+      const has_value = Boolean(rawValue && String(rawValue).trim() !== '');
 
       summaryElements.push({
         element_id,
@@ -107,6 +114,7 @@ export function processPageForRedaction(elements = [], sourceCanvasOrImage, toke
         sensitivity_type,
         semantic_token,
         has_stable_token,
+        has_value,
         bounding_box,
         reason
       });

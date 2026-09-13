@@ -1,5 +1,14 @@
 <!DOCTYPE html>
-<html>
+<!--
+  data-perceive-test-fixture="true" marks this as one of Perceive's own
+  bundled test pages — confirmationUI.js checks for this exact attribute
+  and auto-approves risky-action confirmations ONLY here, never on a real
+  external site (see confirmationUI.js's isAutoApproveFixture() for the
+  full explanation). This lets you run a task against this page end-to-end
+  without manually clicking Allow each time, while real sites (LeetCode,
+  your bank, anything else) still always require a human click.
+-->
+<html data-perceive-test-fixture="true">
 <head>
 <meta charset="utf-8">
 <title>Perceive Phase 4 — Red-Team Demo Page</title>

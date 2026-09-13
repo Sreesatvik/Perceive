@@ -460,4 +460,96 @@ runTestCase('E2E Case 12: Final payload inspection -> recursive proof no raw sen
   walkObject(payload);
 });
 
+// Regression test for a real bug found during live testing: an empty
+// sensitive field (no value typed yet) must NOT get a bare, non-vault
+// placeholder token like "[NAME]" — such a token can never be resolved by
+// resolveToken() and misleads the LLM into typing it verbatim, causing a
+// genuine "Failed to resolve token" execution failure. This exact case was
+// accidentally re-introduced when extension/dev2/ was resynced from dev2/
+// during Phase 1 without noticing extension/dev2/ actually had the better
+// fix for this one file — see git history around Phase 5 for the full story.
+runTestCase('E2E Case 13: an empty sensitive field gets semantic_token: null, not a bare unresolvable placeholder', () => {
+  const vault = createTokenVault();
+
+  // A real login username field with no value typed yet (matches
+  // LeetCode's #id_login field: empty, but classified NAME by heuristics).
+  const emptyNameField = { sensitivity_type: 'NAME' };
+  const result = classifySensitivity(emptyNameField, [], null, vault);
+
+  assert.strictEqual(result.sensitivity_tier, 2);
+  assert.strictEqual(result.sensitivity_type, 'NAME');
+  assert.strictEqual(result.semantic_token, null,
+    'An empty field must get semantic_token: null, never a bare "[NAME]" placeholder the LLM could try (and fail) to resolve');
+
+  // Tier-1 case (e.g. an empty password field) must behave the same way.
+  const emptyPasswordField = { sensitivity_type: 'PASSWORD' };
+  const pwdResult = classifySensitivity(emptyPasswordField, [], null, vault);
+  assert.strictEqual(pwdResult.semantic_token, null);
+
+  // Once a real value IS present, the normal vault-backed token still works.
+  const filledNameField = { sensitivity_type: 'NAME' };
+  const filledResult = classifySensitivity(filledNameField, [], 'Shyamanth_3', vault);
+  assert.ok(filledResult.semantic_token, 'A field WITH a real value must still get a real, resolvable token');
+  assert.strictEqual(vault.resolveToken(filledResult.semantic_token), 'Shyamanth_3');
+});
+
+// Regression test for a second real bug found in the same live-testing
+// session: checkChannelConsistency() required semantic_token !== null to
+// consider a field "should be redacted", which — combined with the Case 13
+// fix above (empty fields correctly get semantic_token: null) — caused a
+// real "visual redaction present but structural summary shows no
+// sensitivity" false-positive failure on an actual empty username/password
+// login form. Redaction must be based on is_sensitive alone.
+runTestCase('E2E Case 14: an empty sensitive field (semantic_token: null) is still consistent with its own visual redaction', () => {
+  const payload = {
+    dom_summary: {
+      elements: [
+        { element_id: 'id_login', is_sensitive: true, semantic_token: null },
+        { element_id: 'id_password', is_sensitive: true, semantic_token: null },
+      ]
+    }
+  };
+  const redactedRegions = [
+    { element_id: 'id_login', bounding_box: { x: 0, y: 0, w: 10, h: 10 } },
+    { element_id: 'id_password', bounding_box: { x: 0, y: 20, w: 10, h: 10 } },
+  ];
+
+  const result = checkChannelConsistency(payload, redactedRegions);
+  assert.strictEqual(result.consistent, true,
+    `Expected no mismatches for empty-but-sensitive fields, got: ${JSON.stringify(result.mismatches)}`);
+  assert.doesNotThrow(() => assertChannelsConsistent(payload, redactedRegions));
+});
+
+// Regression test for a third real bug in the same session: has_value was
+// entirely missing from processPageForRedaction()'s dom_summary.elements
+// output — server/app/models.py's check_sensitive_has_token validator
+// depends on it to distinguish "sensitive but empty" (fine, no token
+// needed) from "sensitive with a real unredacted value" (must have a
+// token). Without it, has_value silently defaulted to False server-side
+// for every element, neutering that validator entirely.
+runTestCase('E2E Case 15: has_value correctly reflects whether a real value is present', () => {
+  const vault = createTokenVault();
+
+  const emptyPasswordEl = {
+    id: 'pwd-empty', tagName: 'INPUT', type: 'password', value: '',
+    getAttribute: (attr) => (attr === 'type' ? 'password' : null),
+    getBoundingClientRect: () => ({ x: 0, y: 0, width: 100, height: 20 })
+  };
+  const filledPasswordEl = {
+    id: 'pwd-filled', tagName: 'INPUT', type: 'password', value: 'SuperSecret!',
+    getAttribute: (attr) => (attr === 'type' ? 'password' : null),
+    getBoundingClientRect: () => ({ x: 0, y: 40, width: 100, height: 20 })
+  };
+
+  const payload = processPageForRedaction([emptyPasswordEl, filledPasswordEl], mockCanvas, vault);
+
+  const emptyResult = payload.dom_summary.elements.find(e => e.element_id === 'pwd-empty');
+  const filledResult = payload.dom_summary.elements.find(e => e.element_id === 'pwd-filled');
+
+  assert.strictEqual(emptyResult.has_value, false);
+  assert.strictEqual(emptyResult.semantic_token, null);
+  assert.strictEqual(filledResult.has_value, true);
+  assert.ok(filledResult.semantic_token, 'A filled sensitive field must have a real semantic_token');
+});
+
 console.log(`\n--- ALL ${passCount} / ${totalCount} DEV 2 TESTS PASSED SUCCESSFULLY ---`);

@@ -45,14 +45,21 @@ copyDir(
   path.join(vendorDir, 'mediapipe-wasm')
 );
 
-// Tesseract.js worker + WASM core (simd-lstm: the fast, recommended default).
-// English trained-data is fetched at runtime (~15MB) rather than bundled —
-// same tradeoff tesseract.js itself recommends, and it's cached by the
-// browser after first use.
+// Tesseract.js worker + WASM core. Copy every core variant (plain/simd/
+// relaxedsimd, each with a -lstm pair), not just one — tesseract.js
+// auto-detects which WASM feature set the running browser/CPU actually
+// supports at runtime and picks the matching file itself; shipping only
+// one guessed variant means it 404s (as importScripts NetworkError) on any
+// browser that resolves to a different one. English trained-data is
+// fetched at runtime (~15MB) rather than bundled — same tradeoff
+// tesseract.js itself recommends, and it's cached by the browser after
+// first use.
 copyFile(path.join(nodeModules, 'tesseract.js', 'dist', 'worker.min.js'), path.join(vendorDir, 'tesseract'));
-for (const f of ['tesseract-core-simd-lstm.wasm', 'tesseract-core-simd-lstm.js', 'tesseract-core-simd-lstm.wasm.js']) {
-  const p = path.join(nodeModules, 'tesseract.js-core', f);
-  if (fs.existsSync(p)) copyFile(p, path.join(vendorDir, 'tesseract'));
+const tesseractCoreDir = path.join(nodeModules, 'tesseract.js-core');
+for (const entry of fs.readdirSync(tesseractCoreDir, { withFileTypes: true })) {
+  if (entry.isFile() && /^tesseract-core.*\.(js|wasm)$/.test(entry.name)) {
+    copyFile(path.join(tesseractCoreDir, entry.name), path.join(vendorDir, 'tesseract'));
+  }
 }
 
 console.log('Copied vendor assets to dist/vendor/');
