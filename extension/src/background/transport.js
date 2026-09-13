@@ -4,6 +4,8 @@ import { validateActionResponse } from '../shared/schemas.js';
 import { assertSafeToSend } from '../../dev2/leakage-auditor.js';
 import { assertChannelsConsistent } from '../../dev2/channel-consistency-check.js';
 import { detectPII } from '../../dev2/pii-patterns.js';
+import { captureTabState } from './captureService.js';
+import { maybeSaveDemoScreenshot } from './demoCapture.js';
 
 const BACKEND_URL = 'http://localhost:8000';
 const ANALYZE_ENDPOINT = '/analyze';
@@ -289,6 +291,24 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
               .catch(error => {
                   sendResponse({ success: false, error: error.message, errorType: error.name });
               });
+          return true; // Keep message channel open for async response
+      }
+
+      if (message.type === 'CAPTURE_TAB_STATE') {
+          const tabId = sender && sender.tab ? sender.tab.id : undefined;
+          const windowId = sender && sender.tab ? sender.tab.windowId : undefined;
+          captureTabState(tabId, windowId)
+              .then(result => {
+                  if (result.success) {
+                      // Best-effort, gated by DEMO_MODE_ENABLED (default off)
+                      // inside demoCapture.js — never blocks or affects the
+                      // response either way.
+                      maybeSaveDemoScreenshot(message.sessionId, message.stepNumber, result.screenshotDataUrl)
+                          .catch(() => { /* already logged inside demoCapture.js */ });
+                  }
+                  sendResponse(result);
+              })
+              .catch(error => sendResponse({ success: false, error: error.message }));
           return true; // Keep message channel open for async response
       }
 

@@ -13,6 +13,7 @@ from .models import ClientPayload, ServerResponse, ActionInstruction
 from .llm_client import generate_action
 from .session import get_or_create_session, clear_session, get_session_lock
 from .logger import log_audit_event_async
+from .artifact_store import save_redacted_image
 from .auth import require_api_key
 from .policy import evaluate_action_risk, value_field_violates_pii_guard
 from .config import settings
@@ -89,7 +90,7 @@ async def analyze_step(payload: ClientPayload):
         
         last_exception: Optional[Exception] = None
         
-        from groq import RateLimitError, APIError
+        from groq import RateLimitError, APIError, APIStatusError
         
         for attempt in range(MAX_RETRIES):
             try:
@@ -133,7 +134,7 @@ async def analyze_step(payload: ClientPayload):
                 
                 # Record step to session history
                 session.add_step(payload.step_number, payload.task_instruction, action)
-                
+
                 # Log the event
                 await log_audit_event_async(
                     session_id=payload.session_id,
@@ -143,7 +144,20 @@ async def analyze_step(payload: ClientPayload):
                     confidence=0.90,
                     payload_notes=[n.model_dump() for n in payload.detection_confidence_notes]
                 )
-                
+
+                # Best-effort demo/audit artifact persistence — never allowed
+                # to affect the response, so any failure here is swallowed.
+                # save_redacted_image() already catches its own internal
+                # exceptions and returns None on failure; this try/except is
+                # extra insurance against something unexpected (e.g. a bad
+                # session_id causing an OS-level path error).
+                try:
+                    saved_path = save_redacted_image(payload.session_id, payload.step_number, payload.redacted_image_base64)
+                    if saved_path:
+                        logger.info(f"Saved redacted image artifact: {saved_path}")
+                except Exception:
+                    logger.warning("Failed to save redacted image artifact", exc_info=True)
+
                 response = ServerResponse(
                     session_id=payload.session_id,
                     step_number=payload.step_number + 1,
@@ -177,6 +191,30 @@ async def analyze_step(payload: ClientPayload):
                 # guard) must propagate with their own status code, not be
                 # swallowed into a generic 500 by the catch-all below.
                 raise
+            except APIStatusError as e:
+                if e.status_code == 413:
+                    await log_audit_event_async(
+                        session_id=payload.session_id,
+                        step_number=payload.step_number,
+                        instruction=payload.task_instruction,
+                        action={"error": "Request too large for model token limit"},
+                        confidence=0.0,
+                        payload_notes=[n.model_dump() for n in payload.detection_confidence_notes]
+                    )
+                    return JSONResponse(
+                        status_code=413,
+                        content={"detail": "The page content is too large for the current model's token limit. Try a simpler page or reduce visible elements."},
+                    )
+                logger.error("Groq API status error in analyze_step", exc_info=True)
+                await log_audit_event_async(
+                    session_id=payload.session_id,
+                    step_number=payload.step_number,
+                    instruction=payload.task_instruction,
+                    action={"error": "API Failure"},
+                    confidence=0.0,
+                    payload_notes=[n.model_dump() for n in payload.detection_confidence_notes]
+                )
+                raise HTTPException(status_code=502, detail="Upstream LLM provider error")
             except Exception as e:
                 # Other errors (e.g., API failures)
                 logger.error("API Failure in analyze_step", exc_info=True)

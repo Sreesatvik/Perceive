@@ -15,6 +15,46 @@
 
 const CREDENTIAL_INTENT_PATTERN = /\b(log\s*in|log\s*me\s*in|sign\s*in)\b/i;
 
+// Label-word synonym sets for natural phrasing variants. Longer/more
+// specific phrases are listed first — though JS regex alternation
+// backtracks through subsequent required tokens anyway, listing the most
+// specific variant first keeps the intent readable.
+//
+// Only `username` and `password` are actually wired into extraction below
+// (this module's contract is credential tokenization). `email`/`phone`/
+// `name` are recorded here for the same natural-phrasing coverage, but
+// value-shape detection for those already lives in dev2/pii-patterns.js —
+// kept here as documentation/consistency, not duplicated as extraction.
+export const LABEL_SYNONYMS = {
+  username: ['user id', 'userid', 'user name', 'username', 'user', 'login'],
+  password: ['password', 'pass', 'pwd'],
+  email: ['email address', 'e-mail', 'email'],
+  phone: ['phone number', 'contact number', 'mobile', 'number', 'phone'],
+  name: ['full name', 'name'],
+};
+
+function labelAlternation(field) {
+  return LABEL_SYNONYMS[field]
+    .map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'))
+    .join('|');
+}
+
+// Matches a quoted value next to a label synonym, optionally preceded by
+// "my" and/or followed by "is" — e.g. `username 'tom'`, `my password is
+// "x"`. Quoted values are higher-confidence than the unquoted variant
+// below, so callers try this first.
+function quotedValuePattern(field) {
+  return new RegExp(`(?:my\\s+)?(?:${labelAlternation(field)})\\s+(?:is\\s+)?['"]([^'"]+)['"]`, 'i');
+}
+
+// Unquoted counterpart — e.g. `username tomsmith`, `my username is
+// tomsmith and password is Password123`. Deliberately only tried when the
+// quoted pattern above found nothing, since an unquoted single token is a
+// weaker, more ambiguous signal.
+function unquotedValuePattern(field) {
+  return new RegExp(`(?:my\\s+)?(?:${labelAlternation(field)})\\s+(?:is\\s+)?([^\\s,]+)`, 'i');
+}
+
 /**
  * Returns true if the instruction implies the user wants to authenticate,
  * regardless of whether concrete credential values are present.
@@ -42,6 +82,13 @@ export function impliesCredentialNeed(taskInstruction) {
 const INFORMAL_DELIMITER_PATTERN =
   /\b(?:account|credentials|creds|login|log ?in)\b[,:]?\s+([^\s,/]+)\s*(?:\/|,|\band\b)\s*([^\s,/.!?]+)/id;
 
+// Trailing-anchor variant: the same conservative "X / Y" / "X and Y" pair
+// shape, but for phrasing where the login-intent word comes AFTER the pair
+// instead of before it, e.g. "use tomsmith / Password123 to log in". Tried
+// only if the leading-anchor pattern above finds nothing.
+const INFORMAL_DELIMITER_PATTERN_TRAILING_ANCHOR =
+  /\b([^\s,/]+)\s*(?:\/|,|\band\b)\s*([^\s,/.!?]+?)\s+(?:to\s+)?(?:log\s*in|log\s*me\s*in|sign\s*in)\b/id;
+
 /**
  * Best-effort extraction of a (username, password)-shaped pair from
  * informally-phrased text, e.g. "log in with my usual account, tom / x".
@@ -51,7 +98,9 @@ const INFORMAL_DELIMITER_PATTERN =
 export function extractInformalCredentials(taskInstruction) {
   if (typeof taskInstruction !== 'string' || !taskInstruction) return null;
 
-  const match = INFORMAL_DELIMITER_PATTERN.exec(taskInstruction);
+  const match =
+    INFORMAL_DELIMITER_PATTERN.exec(taskInstruction) ||
+    INFORMAL_DELIMITER_PATTERN_TRAILING_ANCHOR.exec(taskInstruction);
   if (!match) return null;
 
   const [, first, second] = match;
@@ -79,25 +128,48 @@ export function extractInformalCredentials(taskInstruction) {
  */
 export function resolveCredentialTokens(taskInstruction, vault) {
   let sanitizedInstruction = taskInstruction;
-  let fastPathMatched = false;
+  let usernameMatched = false;
+  let passwordMatched = false;
 
   sanitizedInstruction = sanitizedInstruction.replace(
-    /username\s+['"]([^'"]+)['"]/i,
+    quotedValuePattern('username'),
     (match, value) => {
-      fastPathMatched = true;
+      usernameMatched = true;
       const token = vault.getOrCreateToken(value, 'NAME');
       return `username ${token}`;
     }
   );
+  if (!usernameMatched) {
+    sanitizedInstruction = sanitizedInstruction.replace(
+      unquotedValuePattern('username'),
+      (match, value) => {
+        usernameMatched = true;
+        const token = vault.getOrCreateToken(value, 'NAME');
+        return `username ${token}`;
+      }
+    );
+  }
 
   sanitizedInstruction = sanitizedInstruction.replace(
-    /password\s+['"]([^'"]+)['"]/i,
+    quotedValuePattern('password'),
     (match, value) => {
-      fastPathMatched = true;
+      passwordMatched = true;
       const token = vault.getOrCreateToken(value, 'PASSWORD');
       return `password ${token}`;
     }
   );
+  if (!passwordMatched) {
+    sanitizedInstruction = sanitizedInstruction.replace(
+      unquotedValuePattern('password'),
+      (match, value) => {
+        passwordMatched = true;
+        const token = vault.getOrCreateToken(value, 'PASSWORD');
+        return `password ${token}`;
+      }
+    );
+  }
+
+  const fastPathMatched = usernameMatched || passwordMatched;
 
   if (!fastPathMatched && impliesCredentialNeed(sanitizedInstruction)) {
     const informal = extractInformalCredentials(sanitizedInstruction);
@@ -127,6 +199,34 @@ export function resolveCredentialTokens(taskInstruction, vault) {
   }
 
   return sanitizedInstruction;
+}
+
+/**
+ * Returns true if the instruction contains no username/password-shaped
+ * content anywhere — neither a labeled quoted/unquoted value nor an
+ * informal "X / Y" / "X and Y" credential-shaped pair. Covers phrasing
+ * like "log me in" or "check my most recent transaction" where no
+ * concrete credential was given at all.
+ *
+ * This is a separate, weaker signal than impliesCredentialNeed(): it says
+ * nothing about whether the task WANTS credentials, only whether any were
+ * supplied. Callers combine it with page-level context (e.g. a sensitive
+ * input actually present in the DOM) to decide whether to ask the user.
+ * @param {string} taskInstruction
+ * @returns {boolean}
+ */
+export function isCredentialFree(taskInstruction) {
+  if (typeof taskInstruction !== 'string' || !taskInstruction) return true;
+
+  const hasUsername =
+    quotedValuePattern('username').test(taskInstruction) ||
+    unquotedValuePattern('username').test(taskInstruction);
+  const hasPassword =
+    quotedValuePattern('password').test(taskInstruction) ||
+    unquotedValuePattern('password').test(taskInstruction);
+  const hasInformalPair = extractInformalCredentials(taskInstruction) !== null;
+
+  return !(hasUsername || hasPassword || hasInformalPair);
 }
 
 /**
