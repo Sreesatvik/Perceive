@@ -1,11 +1,17 @@
 // Bug found live: "Log in with username 'testuser' and password
 // 'TestPass123!', then go to the profile page and update the phone number
 // to 9876543210" — the LLM called task_complete right after login
-// succeeded, never attempting the remaining sub-goals. The real fix is
-// server/app/llm_client.py's new MULTI-STEP INSTRUCTIONS system-prompt
-// block (not directly unit-testable without a real LLM call — needs a
-// live re-run, see the report). This tests the client-side, defense-in-
-// depth WARNING signal added alongside it.
+// succeeded, never attempting the remaining sub-goals, forcing the user to
+// manually re-type a fresh instruction per page. The system prompt
+// (server/app/llm_client.py's MULTI-STEP INSTRUCTIONS block) is advisory
+// only and was not reliably followed live, so orchestrator.js's
+// verifyTaskCompletion() now HARD-BLOCKS task_complete on a non-null
+// coverage result (same bounded retry path as its existing visible-error
+// check), rather than merely warning. That enforcement isn't directly
+// unit-testable here without a real LLM call (needs a live re-run — see
+// the report); this file tests the underlying pure signal function,
+// checkInstructionCoverageAgainstDom(), which orchestrator.js now treats
+// as blocking rather than advisory.
 import assert from 'assert';
 import { checkInstructionCoverageAgainstDom } from '../src/content/taskCompletionCoverage.js';
 
@@ -82,6 +88,17 @@ runTestCase('Empty/missing inputs never throw', () => {
   assert.doesNotThrow(() => checkInstructionCoverageAgainstDom(undefined, DASHBOARD_DOM));
   assert.doesNotThrow(() => checkInstructionCoverageAgainstDom('log in, then go to profile', undefined));
   assert.doesNotThrow(() => checkInstructionCoverageAgainstDom('log in, then go to profile', {}));
+});
+
+runTestCase('page_status_text (e.g. a confirmation banner or page heading) counts as coverage evidence too, not just element label_text', () => {
+  const instruction = "Log in with username 'testuser' and password 'TestPass123!', then go to the profile page and update the phone number to 9876543210";
+  const domWithStatusText = {
+    url: 'http://localhost:8080/dashboard.html',
+    elements: [{ element_id: 'balance-canvas', label_text: null }],
+    page_status_text: 'Profile — Update Phone Number | Phone number updated.',
+  };
+  const warning = checkInstructionCoverageAgainstDom(instruction, domWithStatusText);
+  assert.strictEqual(warning, null, `expected page_status_text alone to satisfy coverage for the profile/phone sub-goal, got: ${warning}`);
 });
 
 console.log(`\n--- ALL ${passCount} / ${totalCount} TASK-COMPLETION COVERAGE TESTS PASSED SUCCESSFULLY ---`);

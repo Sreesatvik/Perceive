@@ -233,6 +233,14 @@ async function buildSanitizedPayload(snapshot, sessionId, taskInstruction, stepN
   mark('perceive:step:dom-and-redaction:end');
   measure('perceive:step:dom-and-redaction', 'perceive:step:dom-and-redaction:start', 'perceive:step:dom-and-redaction:end');
 
+  // Bug found live: give the LLM a real, DOM-grounded completion signal
+  // (see extractPageStatusText() above) instead of leaving it to infer
+  // page state purely from form-control labels + url.
+  const pageStatusText = extractPageStatusText();
+  if (pageStatusText) {
+    result.dom_summary.page_status_text = pageStatusText;
+  }
+
   // Phase F / Step 3: an OTP field appearing in THIS step's real DOM
   // snapshot that wasn't anticipated by the original task instruction
   // (e.g. clicking "Update" on a profile page reveals a verification-code
@@ -372,6 +380,16 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 /**
  * Wraps chrome.runtime.sendMessage in a Promise.
  * Falls back to null if chrome runtime is unavailable (test harness).
+ *
+ * Raced against RETRY_CONFIG.STEP_TIMEOUT_MS: chrome.runtime.sendMessage's
+ * callback is never guaranteed to fire (e.g. the MV3 background service
+ * worker terminates mid-flight), so without an explicit timeout an
+ * unresolved call here hangs the caller — and everything upstream of it
+ * (the step retry loop, the whole task) — forever. On timeout this rejects
+ * with a normal Error, so it flows through the exact same catch/backoff
+ * path (RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS, then a string `reason` on
+ * exhaustion) as every other step failure — see the catch block in
+ * runTaskLoop below.
  */
 function sendMessageAsync(message) {
   return new Promise((resolve, reject) => {
@@ -379,7 +397,21 @@ function sendMessageAsync(message) {
       resolve(null); // Signal: no extension runtime available
       return;
     }
+
+    let settled = false;
+    const timeoutId = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      reject(new Error(
+        `No response to "${message.type}" after ${RETRY_CONFIG.STEP_TIMEOUT_MS}ms ` +
+        `(background service worker may have terminated mid-flight)`
+      ));
+    }, RETRY_CONFIG.STEP_TIMEOUT_MS);
+
     chrome.runtime.sendMessage(message, (response) => {
+      if (settled) return; // already timed out — ignore a late-arriving response
+      settled = true;
+      clearTimeout(timeoutId);
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message));
       } else {
@@ -513,23 +545,107 @@ function verifyTaskCompletion(taskInstruction, domSummary) {
     '[role="alert"], .error, .alert-danger, [aria-invalid="true"]'
   );
 
-  // Non-blocking, defense-in-depth signal for the premature-multi-step-
-  // completion bug — see checkInstructionCoverageAgainstDom's own comment
-  // for why this warns rather than fails the postcondition check.
+  // Real bug found live: this was previously a non-blocking WARNING only
+  // ("logged but never enforced"), which meant a multi-step instruction
+  // ("log in, THEN go to the profile page, THEN update the phone number")
+  // could still have task_complete accepted right after the FIRST sub-goal
+  // succeeded — the LLM's own system-prompt guidance (server/app/
+  // llm_client.py's MULTI-STEP INSTRUCTIONS block) is advisory, not
+  // enforced, and in live testing the LLM did not reliably follow it,
+  // forcing the user to manually re-type a fresh instruction for every
+  // remaining page instead of one instruction running end-to-end. Promoted
+  // to a hard, fail-closed block — reusing the exact same bounded
+  // retry/backoff path already used for the visible-error check above, so
+  // a false positive from this coarse heuristic (documented risk in
+  // checkInstructionCoverageAgainstDom's own comment) costs at most
+  // RETRY_CONFIG.MAX_RETRIES_PER_STEP retries before failing closed with a
+  // readable reason, never an infinite loop and never a silent early stop.
   const coverageWarning = checkInstructionCoverageAgainstDom(taskInstruction, domSummary);
   if (coverageWarning) {
-    console.warn('[Orchestrator] task_complete coverage warning:', coverageWarning);
+    console.warn('[Orchestrator] task_complete rejected — instruction coverage check failed:', coverageWarning);
   }
 
   return {
-    verified: !hasVisibleError && !hasErrorRoleElement,
+    verified: !hasVisibleError && !hasErrorRoleElement && !coverageWarning,
     reason: hasVisibleError
       ? 'Visible error text detected on page'
       : hasErrorRoleElement
         ? 'Element with error role/class detected'
-        : null,
+        : coverageWarning
+          ? coverageWarning
+          : null,
     coverageWarning,
   };
+}
+
+// Bug found live: buildSanitizedPayload()'s dom_summary only ever contains
+// form-control elements (input/button/select/textarea — see captureOnce
+// above), so the LLM has literally no way to see plain confirmation/status
+// text like "Phone number updated." or a page heading like "Account
+// Dashboard" — both are ordinary text nodes, not form controls. This is
+// the real root cause of two live symptoms: (1) the LLM not recognizing a
+// just-completed sub-goal and redundantly re-clicking/re-scrolling instead
+// of calling task_complete, and (2) the coverage check above having weaker
+// signal than it could, since domText for the coverage heuristic was built
+// only from url + element label_text. Deliberately narrow and generic (no
+// site-specific selectors beyond common ARIA/status conventions), capped
+// short, and re-run through detectPII() defensively — a heading/status
+// banner should never legitimately contain PII, but if this ever matched
+// something that does, it is dropped entirely rather than sent, per this
+// project's fail-closed principle.
+function isElementVisible(el) {
+  if (!el) return false;
+  // Deliberately style-only (no getBoundingClientRect check): jsdom
+  // (used by this project's own unit tests) never computes real layout,
+  // so rect width/height is always 0 there regardless of actual CSS,
+  // which would make this always report "not visible" under test even
+  // though the exact same markup renders fine in real Chrome. Computed
+  // display/visibility is sufficient for this function's actual job
+  // (was a toggled status banner shown or not?) and works identically in
+  // both environments.
+  const style = window.getComputedStyle(el);
+  return style.display !== 'none' && style.visibility !== 'hidden';
+}
+
+function extractPageStatusText() {
+  if (typeof document === 'undefined') return null;
+
+  const parts = [];
+  if (document.title) parts.push(document.title.trim());
+
+  const heading = document.querySelector('h1, h2');
+  if (heading && isElementVisible(heading) && heading.textContent) parts.push(heading.textContent.trim());
+
+  // Real bug found live (2nd pass): the first version of this selector
+  // only matched ARIA roles / a fixed class list (.success/.confirmation/
+  // etc). The actual test fixture's confirmation banner is
+  // `<div id="status" style="display:none">Phone number updated.</div>`,
+  // toggled to display:block on click — matching NEITHER role NOR class,
+  // so page_status_text was silently always empty and this whole fix did
+  // nothing. Broadened to also match common id/class SUBSTRING
+  // conventions (status/message/confirm/success/error/alert/notice), and
+  // — critically — now requires the element to actually be VISIBLE
+  // (display != none, visibility != hidden, non-zero box) before its text
+  // counts, since querySelector finds a hidden element just fine and this
+  // must never report "updated" before the update actually happened.
+  const STATUS_SELECTOR =
+    '[role="status"], [role="alert"], [aria-live], ' +
+    '[id*="status" i], [id*="message" i], [id*="confirm" i], [id*="success" i], [id*="error" i], [id*="alert" i], [id*="notice" i], ' +
+    '[class*="status"], [class*="message"], [class*="confirm"], [class*="success"], [class*="error"], [class*="alert"], [class*="notice"]';
+  const statusEl = Array.from(document.querySelectorAll(STATUS_SELECTOR))
+    .find((el) => isElementVisible(el) && el.textContent && el.textContent.trim());
+  if (statusEl) parts.push(statusEl.textContent.trim());
+
+  const combined = parts.filter(Boolean).join(' | ').slice(0, 300);
+  if (!combined) return null;
+
+  // Defense in depth: never forward this if it happens to contain
+  // anything PII-shaped (e.g. a raw credential leaking into a heading on
+  // some unexpected page) — drop the whole field rather than partially
+  // redact free text we don't control the shape of.
+  if (detectPII(combined).length > 0) return null;
+
+  return combined;
 }
 
 export async function runTaskLoop(taskInstruction, captureOverride = null) {

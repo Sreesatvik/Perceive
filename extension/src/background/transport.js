@@ -6,6 +6,7 @@ import { assertChannelsConsistent } from '../../dev2/channel-consistency-check.j
 import { detectPII } from '../../dev2/pii-patterns.js';
 import { captureTabState } from './captureService.js';
 import { maybeSaveDemoScreenshot } from './demoCapture.js';
+import { VISION_TIMEOUT_MS } from '../shared/constants.js';
 
 const BACKEND_URL = 'http://localhost:8000';
 const ANALYZE_ENDPOINT = '/analyze';
@@ -267,31 +268,56 @@ async function ensureOffscreenDocument() {
     }
 }
 
-async function detectFacesInBackground(width, height, pixels, config) {
-    await ensureOffscreenDocument();
-
+// Raced against VISION_TIMEOUT_MS, covering BOTH ensureOffscreenDocument()
+// (document creation can itself stall) and the OFFSCREEN_DETECT_FACES round
+// trip (the offscreen doc's own worker/model load can stall) as one budget —
+// the offscreen-document lifecycle logic in ensureOffscreenDocument() itself
+// is unchanged. Same settled-flag pattern as orchestrator.js's
+// sendMessageAsync (9.5.4): a late-arriving response after timeout is a
+// no-op, and the timer is cleared on normal resolution.
+function detectFacesInBackground(width, height, pixels, config) {
     return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(
-            { type: 'OFFSCREEN_DETECT_FACES', width, height, pixels, config },
-            (response) => {
-                if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message));
-                    return;
+        let settled = false;
+        const timeoutId = setTimeout(() => {
+            if (settled) return;
+            settled = true;
+            reject(new Error(`OFFSCREEN_DETECT_FACES timed out after ${VISION_TIMEOUT_MS}ms`));
+        }, VISION_TIMEOUT_MS);
+
+        (async () => {
+            await ensureOffscreenDocument();
+            if (settled) return; // timed out while the offscreen document was being created
+
+            chrome.runtime.sendMessage(
+                { type: 'OFFSCREEN_DETECT_FACES', width, height, pixels, config },
+                (response) => {
+                    if (settled) return; // already timed out — ignore a late-arriving response
+                    settled = true;
+                    clearTimeout(timeoutId);
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(chrome.runtime.lastError.message));
+                        return;
+                    }
+                    if (!response || !response.success) {
+                        reject(new Error((response && response.error) || 'Offscreen face detection failed'));
+                        return;
+                    }
+                    // Phase B.5: latency_ms (real per-fixture timing, e.g. for
+                    // the Step 2 union-of-two-models case) passed through
+                    // alongside faces when the caller requested it via config.
+                    if (response.latency_ms !== undefined || response.config_actually_applied !== undefined) {
+                        resolve({ faces: response.faces || [], latency_ms: response.latency_ms, config_actually_applied: response.config_actually_applied });
+                    } else {
+                        resolve(response.faces || []);
+                    }
                 }
-                if (!response || !response.success) {
-                    reject(new Error((response && response.error) || 'Offscreen face detection failed'));
-                    return;
-                }
-                // Phase B.5: latency_ms (real per-fixture timing, e.g. for
-                // the Step 2 union-of-two-models case) passed through
-                // alongside faces when the caller requested it via config.
-                if (response.latency_ms !== undefined || response.config_actually_applied !== undefined) {
-                    resolve({ faces: response.faces || [], latency_ms: response.latency_ms, config_actually_applied: response.config_actually_applied });
-                } else {
-                    resolve(response.faces || []);
-                }
-            }
-        );
+            );
+        })().catch((err) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeoutId);
+            reject(err);
+        });
     });
 }
 

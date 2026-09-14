@@ -40,11 +40,39 @@ export function checkChannelConsistency(payload, redactedRegions) {
     }
   }
 
-  // 2. Set of element_ids that WERE ACTUALLY visually redacted
+  // Detection methods used ONLY by the vision channel (see
+  // redaction-engine.js's visionRegionsForMerge construction: faces are
+  // always 'vision_model', OCR-caught PII is always 'ocr_regex'). No new
+  // field was added to redactedRegions entries to mark this — every field
+  // that reaches redacted_regions is deliberately allowlisted elsewhere
+  // (see test-canvas-balance-pii.js's leak-surface check) as a guard
+  // against a raw-value ever hitching a ride on a new key, so this reuses
+  // the existing detection_source value instead of adding one.
+  const VISION_ONLY_DETECTION_SOURCES = new Set(['vision_model', 'ocr_regex']);
+
+  // 2. Set of element_ids that WERE ACTUALLY visually redacted.
+  //
+  // Tracked as two sets: `actuallyRedacted` (every region, regardless of
+  // source) and `domSourcedRedacted` (regions whose detection_source is
+  // NOT vision-only). A vision-only region (a face, or OCR-caught PII in
+  // a <canvas> with no DOM node) uses a synthetic element_id
+  // ("vision-face-1", "vision-ocr-1", ...) that by construction can never
+  // appear in dom_summary.elements — that's not a data-quality problem to
+  // flag, it's the whole point of the vision channel per
+  // mergeSensitivityChannels' union-not-intersection design (a real,
+  // live bug found here: every capture with ANY vision finding was
+  // failing this check and exhausting retries, even on step 1). The
+  // "structural claimed but visual missing" direction below still checks
+  // against the full set — a DOM element correctly never has a vision
+  // detection_source, so this doesn't relax that half of the check at all.
   const actuallyRedacted = new Set();
+  const domSourcedRedacted = new Set();
   for (const region of regions) {
     if (region && region.element_id) {
       actuallyRedacted.add(region.element_id);
+      if (!VISION_ONLY_DETECTION_SOURCES.has(region.detection_source)) {
+        domSourcedRedacted.add(region.element_id);
+      }
     }
   }
 
@@ -59,8 +87,10 @@ export function checkChannelConsistency(payload, redactedRegions) {
     }
   }
 
-  // Visual present but structural missing/not sensitive
-  for (const id of actuallyRedacted) {
+  // Visual present but structural missing/not sensitive — only for
+  // DOM-sourced regions (see the comment above for why vision-only
+  // regions are exempt from this direction of the check).
+  for (const id of domSourcedRedacted) {
     if (!shouldBeRedacted.has(id)) {
       mismatches.push({
         element_id: id,

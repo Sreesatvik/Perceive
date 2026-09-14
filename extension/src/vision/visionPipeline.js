@@ -36,6 +36,8 @@
  * (never throws / never blocks the rest of the pipeline).
  */
 
+import { VISION_TIMEOUT_MS } from '../shared/constants.js';
+
 function hasExtensionRuntime() {
   return typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage;
 }
@@ -99,11 +101,29 @@ function detectViaLocalWorker(width, height, buffer) {
 }
 
 // --- Background-relay path (real extension content-script context) ---
+//
+// Raced against VISION_TIMEOUT_MS: the background worker's response depends
+// on ensureOffscreenDocument() + the offscreen document's own worker/model
+// load (see transport.js's detectFacesInBackground), any of which can stall
+// indefinitely (e.g. a hung model fetch) with no callback ever firing. Same
+// settled-flag pattern as orchestrator.js's sendMessageAsync (9.5.4): a
+// late-arriving response after timeout is a no-op, and the timer is cleared
+// on normal resolution.
 function detectViaBackground(width, height, buffer) {
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const timeoutId = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      reject(new Error(`DETECT_FACES timed out after ${VISION_TIMEOUT_MS}ms`));
+    }, VISION_TIMEOUT_MS);
+
     chrome.runtime.sendMessage(
       { type: 'DETECT_FACES', width, height, pixels: encodePixelBuffer(buffer) },
       (response) => {
+        if (settled) return; // already timed out — ignore a late-arriving response
+        settled = true;
+        clearTimeout(timeoutId);
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;

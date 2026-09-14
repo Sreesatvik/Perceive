@@ -35,6 +35,19 @@ export const RETRY_CONFIG = {
     POST_FAILURE_RETRY_DELAY_MS: 1500
 };
 
+// Separate from RETRY_CONFIG.STEP_TIMEOUT_MS deliberately, not just reused:
+// STEP_TIMEOUT_MS bounds a simple background-worker IPC round trip
+// (CAPTURE_TAB_STATE / SEND_PAYLOAD), and its timeout is a hard step failure
+// that consumes a retry. The vision/OCR pipeline (detectFaces/runOcr) is
+// architecturally allowed to just fail open — see dev2/channel-consistency-
+// check.js's union-only mergeSensitivityChannels(), which already treats an
+// empty vision channel as "nothing to add", never as a mismatch — so a
+// timeout here should degrade that ONE channel, not fail the step. It also
+// covers a materially different, legitimately slower workload: cold-start
+// model/WASM loading and first-run asset fetches (MediaPipe's .tflite model,
+// Tesseract's eng.traineddata) rather than a same-origin extension message.
+export const VISION_TIMEOUT_MS = 30000;
+
 // Phase D.1b: demo-mode instrumentation, NOT a feature. When true, the
 // background service worker (see demoCapture.js) persists the PRE-redaction
 // ORIGINAL screenshot locally via chrome.downloads, purely for producing

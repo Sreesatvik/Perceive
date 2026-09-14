@@ -33,7 +33,7 @@ const INSTRUCTION_COVERAGE_STOPWORDS = new Set([
  * this coarse would risk turning false positives into stuck/failed tasks,
  * which is worse than a logged warning an operator can review.
  * @param {string} taskInstruction
- * @param {{url?: string, elements?: Array<{label_text?: string|null}>}} domSummary
+ * @param {{url?: string, elements?: Array<{label_text?: string|null}>, page_status_text?: string|null}} domSummary
  * @returns {string|null} a warning message, or null if nothing looks uncovered
  */
 export function checkInstructionCoverageAgainstDom(taskInstruction, domSummary) {
@@ -46,8 +46,14 @@ export function checkInstructionCoverageAgainstDom(taskInstruction, domSummary) 
   // in any way this heuristic can detect — nothing to check.
   if (segments.length < 2) return null;
 
+  // page_status_text (page title/heading/status-banner text — see
+  // orchestrator.js's extractPageStatusText()) is included here too, not
+  // just element label_text: a later sub-goal's evidence is often a page
+  // heading ("Account Dashboard") or a confirmation banner ("Phone number
+  // updated."), neither of which is a form-control label.
   const domText = [
     domSummary?.url || '',
+    domSummary?.page_status_text || '',
     ...((domSummary?.elements || []).map((el) => el.label_text || '')),
   ].join(' ').toLowerCase();
 

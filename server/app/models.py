@@ -50,6 +50,17 @@ class DOMElement(BaseModel):
 class DOMSummary(BaseModel):
     url: str
     elements: List[DOMElement] = Field(max_length=500)
+    # Bug found live: the LLM previously had zero visibility into plain
+    # page text (headings, confirmation/status banners) since `elements`
+    # only ever contains form controls (input/button/select/textarea).
+    # This meant a genuinely-succeeded action (e.g. "Phone number
+    # updated." appearing on the page) gave the model no evidence at all,
+    # so it kept re-clicking/re-scrolling instead of recognizing the
+    # sub-goal was done. Populated client-side by orchestrator.js's
+    # extractPageStatusText() — deliberately short, generic (title/h1/h2/
+    # common status-role text), and re-checked for PII client-side before
+    # ever being sent.
+    page_status_text: Optional[str] = Field(default=None, max_length=300)
 
 class DetectionConfidenceNote(BaseModel):
     element_id: str

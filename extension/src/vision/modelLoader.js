@@ -21,6 +21,7 @@
  */
 
 import { createWorker } from 'tesseract.js';
+import { VISION_TIMEOUT_MS } from '../shared/constants.js';
 
 function extensionUrl(relativePath) {
   if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
@@ -44,13 +45,40 @@ export async function loadOcrWorker() {
   if (ocrWorkerLoadPromise) return ocrWorkerLoadPromise;
 
   ocrWorkerLoadPromise = (async () => {
-    const worker = await createWorker('eng', 1, {
+    // Raced against VISION_TIMEOUT_MS: eng.traineddata (fetched live from
+    // Tesseract's CDN, per the comment below) can stall on a slow/blocked
+    // network with no timeout of its own, hanging createWorker()'s promise
+    // forever. Unlike a callback-based sendMessage, there's no "late
+    // response" to ignore here — createWorker() is a plain promise — so
+    // instead of a settled-flag guard, a late resolution (after we've
+    // already timed out and moved on) is handled by terminating the
+    // now-orphaned worker rather than leaving it running untracked.
+    let timedOut = false;
+    let timeoutId;
+
+    const timeoutPromise = new Promise((_resolve, reject) => {
+      timeoutId = setTimeout(() => {
+        timedOut = true;
+        reject(new Error(`OCR worker initialization timed out after ${VISION_TIMEOUT_MS}ms (eng.traineddata fetch may have stalled)`));
+      }, VISION_TIMEOUT_MS);
+    });
+
+    const createPromise = createWorker('eng', 1, {
       workerPath: extensionUrl('dist/vendor/tesseract/worker.min.js'),
       corePath: extensionUrl('dist/vendor/tesseract'),
       // Trained-data is not bundled (large, English-only default covers the
       // common demo case) — fetched once from Tesseract's own CDN and cached
       // by the browser afterwards.
+    }).then((worker) => {
+      clearTimeout(timeoutId);
+      if (timedOut) {
+        worker.terminate().catch(() => {});
+        return null; // never observed — timeoutPromise already won the race below
+      }
+      return worker;
     });
+
+    const worker = await Promise.race([createPromise, timeoutPromise]);
     cachedOcrWorker = worker;
     return worker;
   })();

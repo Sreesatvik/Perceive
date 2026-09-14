@@ -321,6 +321,15 @@ export function resolveCredentialTokens(taskInstruction, vault) {
           sanitizedInstruction.slice(0, start) + token + sanitizedInstruction.slice(end);
       }
     } else {
+      // Intentional fail-closed behavior — a misspelled/unmatched field
+      // label (e.g. "usename"/"paswrod") must never be silently guessed.
+      // This is the one remaining case in the 27-phrasing stress test
+      // (docs/task-parsing-after-fastpath-fix.md, case #16) that the fast
+      // path (a+b) doesn't resolve — 26/27, not a bug, by design. The
+      // server-mediated fallback (c) gets a chance to resolve it next, in
+      // orchestrator.js's catch handler for this exact error; only if that
+      // ALSO fails does this become a genuine UNRESOLVED_SENSITIVE_REFERENCE
+      // surfaced to the user.
       throw new UnresolvedSensitiveReferenceError(
         'Task implies a login is required, but no credential value could be found in the instruction. ' +
         "Please specify it explicitly, e.g. \"username 'yourname' and password 'yourpassword'\"."
