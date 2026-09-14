@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "node test-dev2.js && node test-task-entity-extractor.js && node test-task-parsing-phase-c.js && node test-vision-fusion.js && node test-privacy-intelligence.js && node test-redteam-dom.js && node test-viewport-filtering.js && node test-element-id-collision.js && node test-canvas-balance-pii.js && node test-otp-unexpected-gate.js"
+    "test": "node test-dev2.js && node test-task-entity-extractor.js && node test-task-parsing-phase-c.js && node test-vision-fusion.js && node test-privacy-intelligence.js && node test-redteam-dom.js && node test-viewport-filtering.js && node test-element-id-collision.js && node test-canvas-balance-pii.js && node test-otp-unexpected-gate.js && node test-redteam-css-spoofing.js"
   }
 }
 

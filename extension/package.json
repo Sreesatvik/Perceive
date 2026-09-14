@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node build.mjs",
     "watch": "node build.mjs --watch",
-    "test": "node scripts/check-no-mock-capture.js && node tests/test-schemas.js && node tests/test-dom-index.js && node tests/test-transport-resilience.js && node tests/test-confirmation-auto-approve.js && node tests/test-vision-worker-contract.js && node tests/test-vision-background-relay.js && node tests/test-transport-face-detection.js && node tests/test-offscreen-face-detection.js && node tests/test-popup-connection-errors.js && node tests/test-face-dedup.js && node tests/test-demo-capture.js && node tests/test-dashboard-utils.js && node tests/test-graceful-degradation.js && node tests/test-viewport-integration.js && node tests/test-password-tokenization-wire.js"
+    "test": "node scripts/check-no-mock-capture.js && node tests/test-schemas.js && node tests/test-dom-index.js && node tests/test-transport-resilience.js && node tests/test-confirmation-auto-approve.js && node tests/test-vision-worker-contract.js && node tests/test-vision-background-relay.js && node tests/test-transport-face-detection.js && node tests/test-offscreen-face-detection.js && node tests/test-popup-connection-errors.js && node tests/test-face-dedup.js && node tests/test-demo-capture.js && node tests/test-dashboard-utils.js && node tests/test-graceful-degradation.js && node tests/test-viewport-integration.js && node tests/test-password-tokenization-wire.js && node tests/test-redteam-hidden-injection.js"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "1.0.1",
