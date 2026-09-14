@@ -41,6 +41,24 @@
       ],
       "estimated_cost": "A few minutes of human time (build already done); no further code changes needed to collect this data point.",
       "expected_direction_unverified": "Not measured — stated here only as an unverified expert expectation, not a result: small_distant's 0/4 is more likely explained by BlazeFace short_range's fixed low-resolution input (faces occupying <10% of frame carry little signal regardless of the confidence cutoff applied afterward) than by the confidence threshold itself, so a meaningful recall improvement there specifically would be surprising. multiple_faces (20% recall on 10 GT faces) is more plausibly threshold-sensitive, since NMS/confidence filtering in a crowded frame can suppress genuine borderline-confidence detections. This expectation is explicitly NOT a substitute for running the real test above."
+    },
+    {
+      "label": "adjusted_threshold_0.5_precision_direction",
+      "status": "PREPARED, NOT YET EXECUTED",
+      "reason_for_this_experiment": "A real live failure: a false-positive face detection at the 0.3 threshold triggered a genuine channel-consistency mismatch, which cascaded (via a separate, now-fixed retry-backoff bug in orchestrator.js) into a task failure. This experiment goes the OPPOSITE direction from adjusted_threshold_0.15 above (which explored RECALL) — this explores PRECISION, since the live failure was a false positive (a phantom detection), not a missed face.",
+      "min_detection_confidence": 0.5,
+      "code_change": "extension/src/vision/faceDetectionWorker.js: DEFAULT_MIN_DETECTION_CONFIDENCE raised from 0.3 to 0.5 (MediaPipe's own SDK-recommended default, not an arbitrary guess — 0.3 was already a below-default lowering from an earlier experiment). extension/dist/faceDetectionWorker.bundle.js has been rebuilt (npm run build) with this change, confirmed in the built bundle, and is ready to test.",
+      "why_not_executed": "This session's sandbox cannot load an unpacked Chrome extension or drive a real browser (confirmed repeatedly this project) — extension/tests/vision/faceAccuracyTest.html requires a real chrome-extension:// origin, which does not exist here.",
+      "reproduction_steps_for_a_human": [
+        "cd extension && npm run build (already done for this threshold value as of this commit — skip if unchanged)",
+        "Load extension/ as an unpacked extension via chrome://extensions (Developer mode -> Load unpacked), or reload it if already loaded",
+        "Open chrome-extension://<extension-id>/tests/vision/faceAccuracyTest.html",
+        "Click 'Run fixtures', wait for all 15 to complete",
+        "Click 'Copy results JSON' and paste the result to replace this entry",
+        "Compare precision/recall directly against the default_threshold_0.30 entry above — same 15 fixtures, same 23 ground-truth faces, only min_detection_confidence differs"
+      ],
+      "estimated_cost": "A few minutes of human time (build already done); no further code changes needed to collect this data point.",
+      "expected_direction_unverified": "Not measured — stated here only as an unverified expectation, not a result. At 0.3, precision was 60% (6 false positives out of 15 detections) while frontal/angled/occluded/id_card recall was already strong (67-100%) — this pattern is consistent with (but does not prove) the true positives in those categories typically scoring confidence well above 0.3, and the false positives clustering in the 0.3-0.5 band, in which case raising to 0.5 would cut false positives with little cost to the categories that matter most for a live demo. multiple_faces (already only 20% recall at 0.3) and small_distant (already 0% at 0.3) have little room to get meaningfully worse in absolute terms, so the main open question this run needs to answer is simply how many of the 6 false positives at 0.3 actually scored below 0.5 — this expectation is explicitly NOT a substitute for running the real test above."
     }
   ]
 }

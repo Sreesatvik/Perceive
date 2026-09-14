@@ -121,7 +121,21 @@ chrome.runtime.onMessage.addListener((message) => {
     if (message.result.reason === 'UNRESOLVED_SENSITIVE_REFERENCE') {
       status.textContent = '⚠ ' + message.result.message;
     } else {
-      status.textContent = '⚠ Task failed: ' + (message.result.reason || 'unknown error');
+      // Defensive stringification: `reason` is expected to always be a
+      // string, but if it's ever not (an object slipping through some
+      // other path), string concatenation (`+`) would otherwise silently
+      // coerce it to the literal text "[object Object]" — a real bug found
+      // live, where the actual failure reason became unreadable. Never let
+      // that happen again here, regardless of what upstream sends.
+      let reasonText = message.result.reason;
+      if (reasonText && typeof reasonText !== 'string') {
+        try {
+          reasonText = JSON.stringify(reasonText);
+        } catch (_e) {
+          reasonText = String(reasonText);
+        }
+      }
+      status.textContent = '⚠ Task failed: ' + (reasonText || 'unknown error');
     }
   }
 });

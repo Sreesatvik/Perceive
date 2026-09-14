@@ -1,0 +1,87 @@
+// Bug found live: "Log in with username 'testuser' and password
+// 'TestPass123!', then go to the profile page and update the phone number
+// to 9876543210" — the LLM called task_complete right after login
+// succeeded, never attempting the remaining sub-goals. The real fix is
+// server/app/llm_client.py's new MULTI-STEP INSTRUCTIONS system-prompt
+// block (not directly unit-testable without a real LLM call — needs a
+// live re-run, see the report). This tests the client-side, defense-in-
+// depth WARNING signal added alongside it.
+import assert from 'assert';
+import { checkInstructionCoverageAgainstDom } from '../src/content/taskCompletionCoverage.js';
+
+console.log('=== RUNNING TASK-COMPLETION COVERAGE WARNING TEST SUITE ===\n');
+
+let passCount = 0;
+let totalCount = 0;
+
+function runTestCase(name, fn) {
+  totalCount++;
+  try {
+    fn();
+    passCount++;
+    console.log(`[PASS] Test ${totalCount}: ${name}`);
+  } catch (err) {
+    console.error(`[FAIL] Test ${totalCount}: ${name}\n  Error: ${err.message}`);
+    throw err;
+  }
+}
+
+const DASHBOARD_DOM = {
+  // Deliberately contains nothing echoing "profile"/"phone" — this is the
+  // exact DOM state at the moment the live bug occurred: the login step
+  // just succeeded, the page shows the dashboard, and neither later
+  // sub-goal is reflected here yet.
+  url: 'http://localhost:8080/dashboard.html',
+  elements: [
+    { element_id: 'balance-canvas', label_text: null },
+  ],
+};
+
+const PROFILE_DOM = {
+  url: 'http://localhost:8080/profile.html',
+  elements: [
+    { element_id: 'phone', label_text: 'Phone number' },
+    { element_id: 'update-btn', label_text: 'Update' },
+  ],
+};
+
+runTestCase('Reproduces the exact live bug: multi-step instruction, but the current DOM is still just the dashboard (task_complete right after login) -> warns about the uncovered later steps', () => {
+  const instruction = "Log in with username 'testuser' and password 'TestPass123!', then go to the profile page and update the phone number to 9876543210";
+  const warning = checkInstructionCoverageAgainstDom(instruction, DASHBOARD_DOM);
+
+  assert.ok(warning, 'expected a coverage warning when the DOM is still the dashboard but the instruction names a profile-page/phone-number step');
+  assert.ok(/profile|phone/i.test(warning), `warning should reference the uncovered profile/phone sub-goal, got: ${warning}`);
+});
+
+runTestCase('Same multi-step instruction, but the current DOM IS the profile page with a phone field -> no warning (later sub-goal IS reflected in the DOM)', () => {
+  const instruction = "Log in with username 'testuser' and password 'TestPass123!', then go to the profile page and update the phone number to 9876543210";
+  const warning = checkInstructionCoverageAgainstDom(instruction, PROFILE_DOM);
+
+  assert.strictEqual(warning, null, `expected no warning once the DOM reflects the later sub-goal, got: ${warning}`);
+});
+
+runTestCase('A single-goal instruction (no sequencing language) never warns, regardless of DOM content', () => {
+  const warning = checkInstructionCoverageAgainstDom('log in with username tomsmith and password Password123', DASHBOARD_DOM);
+  assert.strictEqual(warning, null);
+});
+
+runTestCase('An instruction using "and then" as the connector is also recognized (not just "then"/commas)', () => {
+  const instruction = 'log in and then go to the profile page';
+  const warning = checkInstructionCoverageAgainstDom(instruction, DASHBOARD_DOM);
+  assert.ok(warning, 'expected "and then" to be recognized as a sequencing connector');
+});
+
+runTestCase('A comma-separated multi-step instruction is recognized even without "then"', () => {
+  const instruction = 'log in, go to the profile page';
+  const warning = checkInstructionCoverageAgainstDom(instruction, DASHBOARD_DOM);
+  assert.ok(warning, 'expected a bare comma to be treated as a sub-goal separator');
+});
+
+runTestCase('Empty/missing inputs never throw', () => {
+  assert.doesNotThrow(() => checkInstructionCoverageAgainstDom('', DASHBOARD_DOM));
+  assert.doesNotThrow(() => checkInstructionCoverageAgainstDom(undefined, DASHBOARD_DOM));
+  assert.doesNotThrow(() => checkInstructionCoverageAgainstDom('log in, then go to profile', undefined));
+  assert.doesNotThrow(() => checkInstructionCoverageAgainstDom('log in, then go to profile', {}));
+});
+
+console.log(`\n--- ALL ${passCount} / ${totalCount} TASK-COMPLETION COVERAGE TESTS PASSED SUCCESSFULLY ---`);

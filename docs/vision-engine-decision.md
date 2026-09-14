@@ -162,22 +162,43 @@ undocumented gap with an undocumented false sense of coverage, which is
 worse. This is a scoping decision made explicitly, for a stated reason, not
 an oversight discovered later.
 
+## B.5 — Threshold experiment (precision direction) — 2026-09-15
+
+**Third real measurement point on this document's history** (`default_threshold_0.30` → `adjusted_threshold_0.15` (prepared, unexecuted) → this one). Triggered by a real, live failure: a false-positive face detection at the 0.3 threshold produced a genuine `dev2/channel-consistency-check.js` mismatch, which cascaded into a full task failure (root-caused and partly fixed separately — see `RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS` in `extension/src/shared/constants.js`; that fix addresses the cascade's retry-timing half, this section addresses the false-positive-at-the-source half).
+
+**This goes the OPPOSITE direction from the `adjusted_threshold_0.15` experiment above.** That one explored *recall* (can a lower threshold catch more of the missed small/distant and crowded-frame faces). This live failure was a *precision* problem — a phantom detection, not a missed one — so the lever needed to move the other way, even at some recall cost, since DOM-based redaction remains the primary safety net regardless of the vision channel's own accuracy.
+
+**Old value: 0.3. New value: 0.5.** Chosen as MediaPipe's own SDK-recommended default, not an arbitrary guess — 0.3 was already a below-default lowering from the earlier `adjusted_threshold_0.15` experiment's setup, and going back to the vendor's own tuned default is a principled choice rather than a fresh guess. Justified by the existing B.2 data: at 0.3, precision was only **60%** (9 true positives out of 15 total detections — 6 false positives), while recall on the categories that matter most for a live demo was already strong at that SAME threshold (frontal 75%, angled 67%, occluded/id_card 100%). The categories with the worst recall (`multiple_faces` 20%, `small_distant` 0%) were already near-total failures at 0.3, so they have little room to get meaningfully worse in absolute terms — while the false positives dragging precision down to 60% are the more plausible lever to actually move.
+
+**Code change**: `extension/src/vision/faceDetectionWorker.js`'s `DEFAULT_MIN_DETECTION_CONFIDENCE` raised from `0.3` to `0.5`. Rebuilt (`npm run build`); confirmed the new value in the built `dist/faceDetectionWorker.bundle.js`.
+
+**This session's sandbox still cannot load a real Chrome extension or drive a browser** (same confirmed, repeated limitation as the 0.15 experiment) — the real before/after precision/recall re-measurement could not be executed here. Recorded as `adjusted_threshold_0.5_precision_direction` in `docs/vision-accuracy/face-detection-results.json`, status `PREPARED, NOT YET EXECUTED`, with exact reproduction steps (same harness, same 15 fixtures, same 23 ground-truth faces — only the threshold differs, so it's a clean before/after comparison against the `default_threshold_0.30` entry once run). **Do not treat this as a confirmed improvement until that real run happens** — it is a reasoned, documented hypothesis, not a result.
+
 ## Revisit before further demoing
 
 Concrete, bounded follow-ups, not a vague "improve accuracy later":
 
-1. Run `extension/tests/vision/faceAccuracyTest.html` at the new 0.15
-   threshold (already built, committed, ready — see B.2's threshold
-   experiment above) to get the second real data point and confirm or
-   reject the unverified expectation recorded there.
-2. If the 0.15 threshold doesn't move `small_distant`/`multiple_faces`
-   meaningfully (the more likely outcome per that same expectation), the
-   real next step is either a higher-resolution input crop (detect on a
-   cropped/upscaled region around expected face locations, e.g. from DOM
-   layout hints) or a second detector model scoped and validated with the
-   same B.2 discipline — not attempted this session, per the B.4 decision
-   above.
-3. Add a rotated-text fixture that contains genuine PII-shaped content (not
+1. **Currently shipped/built default is 0.5** (raised from 0.3 this
+   session, B.5 above, for the live precision failure). Run
+   `extension/tests/vision/faceAccuracyTest.html` at this 0.5 threshold
+   first — it's what's actually in the built bundle right now — to get a
+   real before/after precision/recall data point and confirm or reject the
+   unverified expectation recorded in B.5.
+2. The earlier `adjusted_threshold_0.15` experiment (recall direction) was
+   never actually applied to shipped code (it was prepared/documented only;
+   this session found the source still at 0.3 before raising it to 0.5) —
+   if precision at 0.5 turns out to cost more recall than acceptable on the
+   categories that matter, 0.15 remains a documented-but-unexecuted
+   alternative lever to test in the other direction, not superseded, just
+   not currently shipped.
+3. If neither threshold direction moves `small_distant`/`multiple_faces`
+   meaningfully (the more likely outcome per both experiments' unverified
+   expectations), the real next step is either a higher-resolution input
+   crop (detect on a cropped/upscaled region around expected face
+   locations, e.g. from DOM layout hints) or a second detector model
+   scoped and validated with the same B.2 discipline — not attempted this
+   session, per the B.4 decision above.
+4. Add a rotated-text fixture that contains genuine PII-shaped content (not
    just prose) to `extension/tests/fixtures/ocr/`, to directly test whether
    OCR's rotation-induced character errors (observed in B.3 above) actually
    break PII-pattern matching, rather than inferring it from a proxy case.

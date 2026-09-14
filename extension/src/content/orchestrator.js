@@ -1,6 +1,7 @@
 import { executeAction } from './actionExecutor.js';
 import { requiresConfirmation, requestConfirmation } from './confirmationUI.js';
 import { startMutationTracking, stopMutationTracking } from './domIndex.js';
+import { checkInstructionCoverageAgainstDom } from './taskCompletionCoverage.js';
 import { RETRY_CONFIG } from '../shared/constants.js';
 
 import { getVaultForSession, endSession } from '../../dev2/session-vault-manager.js';
@@ -497,7 +498,7 @@ async function finalizeTask(sessionId, reason) {
     }));
 }
 
-function verifyTaskCompletion() {
+function verifyTaskCompletion(taskInstruction, domSummary) {
   // Heuristic postcondition check — looks for common failure signals
   // still visible in the DOM. This is a best-effort check, not a
   // site-specific guarantee.
@@ -512,6 +513,14 @@ function verifyTaskCompletion() {
     '[role="alert"], .error, .alert-danger, [aria-invalid="true"]'
   );
 
+  // Non-blocking, defense-in-depth signal for the premature-multi-step-
+  // completion bug — see checkInstructionCoverageAgainstDom's own comment
+  // for why this warns rather than fails the postcondition check.
+  const coverageWarning = checkInstructionCoverageAgainstDom(taskInstruction, domSummary);
+  if (coverageWarning) {
+    console.warn('[Orchestrator] task_complete coverage warning:', coverageWarning);
+  }
+
   return {
     verified: !hasVisibleError && !hasErrorRoleElement,
     reason: hasVisibleError
@@ -519,6 +528,7 @@ function verifyTaskCompletion() {
       : hasErrorRoleElement
         ? 'Element with error role/class detected'
         : null,
+    coverageWarning,
   };
 }
 
@@ -668,7 +678,7 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
 
                     // 4. Check for terminal actions
                     if (actionResponse.action.type === 'task_complete') {
-                        const verification = verifyTaskCompletion();
+                        const verification = verifyTaskCompletion(taskInstruction, payload.dom_summary);
                         if (!verification.verified) {
                             console.warn('[Orchestrator] task_complete rejected — postcondition check failed:', verification.reason);
                             lastActionError = `Previous task_complete was rejected: ${verification.reason}`;
@@ -677,18 +687,35 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                                 await finalizeTask(sessionId, 'max_retries_exceeded');
                                 return { success: false, reason: `Step ${stepNumber} failed after max retries: ${verification.reason}` };
                             }
+                            // Bug found live: retry-after-failure paths had no
+                            // delay before re-capturing, unlike the success
+                            // path — see RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS.
+                            await delay(RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS);
                             continue;
                         }
                         await finalizeTask(sessionId, 'completed');
                         return { success: true, steps: stepNumber };
                     }
                     if (actionResponse.action.type === 'task_failed') {
-                        // Full action object, not just the reason string, so
-                        // DevTools alone (no dashboard needed) shows exactly
-                        // what the LLM decided and why after the fact.
-                        console.error(`[Orchestrator] task_failed at step ${stepNumber} (session ${sessionId}):`, actionResponse.action);
+                        // Bug found live: this previously logged the raw
+                        // `actionResponse.action` object as a separate
+                        // console.error argument only — readable in a real
+                        // DevTools console, but if this line's output is ever
+                        // captured/relayed as flat text (log aggregation,
+                        // copy-paste, a non-DevTools viewer), an object
+                        // argument silently collapses to the literal string
+                        // "[object Object]", losing the actual reason
+                        // entirely. Now the reasoning_short STRING is always
+                        // interpolated directly into the log message itself
+                        // — the full object is still passed as a trailing
+                        // arg too, for DevTools' expandable-object view when
+                        // that IS available.
+                        const reasoningText = (actionResponse.action && typeof actionResponse.action.reasoning_short === 'string')
+                            ? actionResponse.action.reasoning_short
+                            : '(no reasoning_short provided)';
+                        console.error(`[Orchestrator] task_failed at step ${stepNumber} (session ${sessionId}): ${reasoningText}`, actionResponse.action);
                         await finalizeTask(sessionId, 'failed_by_server');
-                        return { success: false, reason: actionResponse.action.reasoning_short, steps: stepNumber };
+                        return { success: false, reason: reasoningText, steps: stepNumber };
                     }
 
                     // 5. Risk-tier confirmation
@@ -753,6 +780,11 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                         console.warn(`[Orchestrator] Step ${stepNumber} execution failed:`, result.error);
                         lastActionError = `Previous action (${actionResponse.action.type}${actionResponse.action.target_element_id ? ` on ${actionResponse.action.target_element_id}` : ''}) failed to execute: ${result.error}`;
                         retriesLeft--;
+                        // Bug found live: see RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS
+                        // — only worth waiting if this loop will actually retry.
+                        if (retriesLeft > 0) {
+                            await delay(RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS);
+                        }
                     }
                 } catch (err) {
                     if (err instanceof UnresolvedSensitiveReferenceError) {
@@ -773,6 +805,8 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                             taskInstruction = resolvedViaFallback;
                             lastActionError = null;
                             retriesLeft--;
+                            // Bug found live: see RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS.
+                            await delay(RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS);
                             continue;
                         }
 
@@ -795,6 +829,13 @@ export async function runTaskLoop(taskInstruction, captureOverride = null) {
                         await finalizeTask(sessionId, 'max_retries_exceeded');
                         return { success: false, reason: `Step ${stepNumber} failed after max retries: ${err.message}` };
                     }
+                    // Bug found live: this is the exact cascade path — a
+                    // channel-consistency mismatch (dev2/channel-consistency-
+                    // check.js) throws here, and without this delay the loop
+                    // re-captured instantly, blowing through Chrome's capture
+                    // quota and masking the real error behind a generic
+                    // capture_failed. See RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS.
+                    await delay(RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS);
                 }
             }
             

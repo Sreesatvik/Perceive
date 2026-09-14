@@ -39,7 +39,7 @@
  *   -> { type: 'detect', requestId, width, height, pixels: ArrayBuffer (RGBA, transferred),
  *        config?: {
  *          model?: 'short_range' | 'full_range',       // default: 'short_range' (shipped default)
- *          minDetectionConfidence?: number,             // default: 0.3
+ *          minDetectionConfidence?: number,             // default: 0.5 (see DEFAULT_MIN_DETECTION_CONFIDENCE below for why)
  *          minSuppressionThreshold?: number,             // default: MediaPipe's own default (0.3)
  *          dedupIouThreshold?: number,                   // default: none (no post-hoc dedup) — Phase B.5 Step 5
  *          unionWithModel?: 'short_range' | 'full_range' // default: none (single model) — Phase B.5 Step 2
@@ -49,7 +49,7 @@
  *
  * `config` is entirely optional and additive — omitting it reproduces
  * today's shipped behavior exactly (single short_range model,
- * minDetectionConfidence 0.3, MediaPipe's own default suppression
+ * minDetectionConfidence 0.5, MediaPipe's own default suppression
  * threshold, no dedup, no union). This is what makes it safe for
  * visionPipeline.js's real production call (detectFaces(canvas), no
  * config) to stay completely unaffected by this Phase B.5 experimentation
@@ -85,7 +85,28 @@ const MODEL_URLS = {
   full_range: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_full_range/float16/1/blaze_face_full_range.tflite',
 };
 
-const DEFAULT_MIN_DETECTION_CONFIDENCE = 0.3;
+// Bug found live: a real false-positive face detection (at the 0.3
+// threshold) triggered a genuine channel-consistency mismatch that
+// ultimately cascaded into a task failure (see the retry-backoff fix in
+// orchestrator.js/RETRY_CONFIG.POST_FAILURE_RETRY_DELAY_MS for the other
+// half of that incident). Phase B's real-Chrome measurement
+// (docs/vision-accuracy/face-detection-results.json's default_threshold_0.30
+// entry) found precision only 60% at 0.3 (9 true positives out of 15 total
+// detections — 6 false positives), while recall on the categories that
+// matter most for a live demo (single, large faces: frontal 75%, angled
+// 67%, occluded/id_card 100%) was already strong at that SAME threshold.
+// Raised to MediaPipe's own SDK-recommended default (0.5) rather than an
+// arbitrary guess — 0.3 was already a below-default lowering from an
+// earlier experiment, and DOM-based redaction remains the primary safety
+// net regardless of vision-channel accuracy, so trading some recall on the
+// categories that were already near-total failures at 0.3 (multiple_faces
+// 20%, small_distant 0%) for fewer phantom detections on the categories
+// that matter is the right tradeoff for this specific live failure mode
+// (a precision problem, not a recall problem). See
+// docs/vision-engine-decision.md's "Threshold experiment (precision
+// direction)" section for the full reasoning and the re-measurement
+// status.
+const DEFAULT_MIN_DETECTION_CONFIDENCE = 0.5;
 
 // Cached per model variant (not a single global) so a union run (Step 2)
 // can hold both loaded detectors at once without reloading either between
